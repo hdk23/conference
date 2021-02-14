@@ -1,18 +1,54 @@
 {% extends "./layout.html" %}
 
-{%  block title %}
+{% block title %}
     My Committee
-{%  endblock %}
+{% endblock %}
 
-{%  block css %}
+{% block css %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'dartmun/css/my_committee.css' %}">
+{% endblock %}
 
-{%  endblock %}
+{% block body %}
+    <h2> My Committee Page</h2>
 
-{%  block body %}
-    <h1> My Committee Page</h1>
-    
-{%  endblock %}
+{% endblock %}
 
-{%  block scripts %}
+{% block staff_only %}
+    <form>
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-4">
+            <label for="delegation">Delegation</label><br>
+            <select name="delegation" id="delegations" class="form-control">
+                {%  for delegation in delegations %}
+                    <option value="{{ delegation.country }}">{{ delegation.country.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-2">
+            <label>Score</label><br>
+            <div class="slidecontainer">
+                <input type="range" min="0" max="4" value="3" class="slider" id="myRange">
+            </div>
+        </div>
+        <div class="col-1">
+            <label></label>
+            <h4 id="score"></h4>
+        </div>
+        <div class="col-3">
+            <label>Comments</label>
+            <input type="text" class="form-control" placeholder="Comments" aria-label="Last name">
+        </div>
+        <div class="col-2">
+            <label>Submit</label><br>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </div>
 
-{%  endblock %}
+</form>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{%  static 'dartmun/js/my_committee.js' %}"></script>
+{% endblock %}

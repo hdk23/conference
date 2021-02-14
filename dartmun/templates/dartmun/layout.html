@@ -40,22 +40,20 @@
         </div>
       </div>
     </nav>
-    <div class="container">
+    <div class="container d-flex flex-column">
         {%  block body %}
 
         {%  endblock %}
-    </div>
-    <div class="container" id="staff-only">
-        {%  if request.user.is_staff %}
-            {%  block staff_only %}
-            {%  endblock %}
-        {%  endif %}
+        <div class="container" id="staff-only">
+            {%  if request.user.is_staff %}
+                {%  block staff_only %}
+                {%  endblock %}
+            {%  endif %}
+        </div>
     </div>
 
-    <div class="navbar navbar-default navbar-static-bottom navbar-fixed-bottom">
+    <footer class="container fixed-bottom">
         <p>Copyright © 2021 Henry Kim </p>
-    </div>
-    <footer>
     </footer>
     {%  block scripts %}
 

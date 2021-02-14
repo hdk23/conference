@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from .functions_create_objects import create_committee, reset_committee
+from .models import *
 
 # Create your views here.
 def index(request):
@@ -12,5 +13,7 @@ def index(request):
 
 def my_committee(request):
     """loads the my committee page"""
-    context = {}
+    committee = Committee.objects.first()
+    delegations = committee.delegations.order_by('country')
+    context = {"committee": committee, "delegations":delegations}
     return render(request, 'dartmun/mycommittee.html', context)
