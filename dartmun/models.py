@@ -10,8 +10,8 @@ class Committee(models.Model):
     name = models.CharField(max_length=128)
     acronym = models.CharField(max_length=8)
 
-    directors = models.ManyToManyField(Chair, related_name="directors")
-    managers = models.ManyToManyField(Chair, related_name="managers")
+    directors = models.ManyToManyField(CommitteeDirector)
+    managers = models.ManyToManyField(CommitteeManager)
     delegations = models.ManyToManyField(Delegation)
 
     @staticmethod

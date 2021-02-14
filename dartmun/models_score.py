@@ -19,7 +19,7 @@ class Chair(models.Model):
 class TallyScore(models.Model):
     """Individual scores for a delegate's position paper, speech, participation, etc."""
     timestamp = models.DateTimeField(auto_now_add=True)
-    scorer = models.ForeignKey(Chair)
+    scorer = models.ForeignKey(Chair, on_delete=models.CASCADE)
     score = models.PositiveSmallIntegerField()
 
     def __str__(self):

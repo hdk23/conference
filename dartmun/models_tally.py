@@ -8,8 +8,9 @@ class TallyCategory(models.Model):
     name = models.CharField(max_length=64)
     acronym = models.CharField(max_length=8)
     weight = models.PositiveSmallIntegerField()
-    average = models.DecimalField(max_digits=5, decimal_places=3)
-    stdev = models.DecimalField(max_digits=5, decimal_places=3)
+    average = models.DecimalField(max_digits=5, decimal_places=3, blank=True, null=True)
+    stdev = models.DecimalField(max_digits=5, decimal_places=3, blank=True, null=True)
+    scaled = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.name} ({self.weight})%"

@@ -43,7 +43,7 @@ class Delegation(models.Model):
     country = CountryField()
     delegates = models.ManyToManyField(Delegate)
     tally_category_scores = models.ManyToManyField(TallyCategoryScore)
-    score = models.DecimalField(max_digits=5, decimal_places=2)
+    score = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
 
     def calc_score(self):
         """totals the delegation's scores from each category using a dot product"""

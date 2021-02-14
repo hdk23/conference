@@ -29,6 +29,15 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
+# remove non-UN members from list
+to_remove ={
+    'AQ',	'NF',	'HM',	'CC',	'CX',	'JE',	'IM',	'GG',	'MO',	'HK',	'GL',	'FO',	'EH',	'TW',	'AX',	'WF',	'PM',	'MF',	'BL',	'RE',	'NC',	'YT',	'MQ',	'GP',	'TF',	'PF',	'GF',	'SX',	'CW',	'BQ',	'AW',	'TK',	'NU',	'CK',	'SJ',	'BV',	'VG',	'TC',	'GS',	'SH',	'PN',	'MS',	'GI',	'FK',	'KY',	'IO',	'BM',	'AI',	'VI',	'UM',	'PR',	'MP',	'GU',	'AS'
+}
+COUNTRIES_OVERRIDE = {}
+
+for remove in to_remove:
+    COUNTRIES_OVERRIDE[remove] = None
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
