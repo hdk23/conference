@@ -1,23 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django_countries.fields import CountryField
-from .models_score import TallyCategoryScore
+from .models_score import TallyCategoryScore, Chair
 
 import numpy as np
 
 
 # Create your models here.
-class Chair(models.Model):
-    """
-    Chair class that represents committee directors (CDs) and committee managers (CMs)
-    Separate classes for CDs and CMs
-    """
-    user = models.OneToOneField(User, on_delete=models.CASCADE, is_staff=True)
-
-    def __str__(self):
-        return f"Chair {self.user.get_full_name()}"
-
-
 class CommitteeDirector(models.Model):
     """CD class"""
     chair = models.OneToOneField(Chair, on_delete=models.CASCADE)
@@ -39,7 +28,7 @@ class Delegate(models.Model):
     Delegate class that represents a delegate of a delegation
     Delegate class implemented separated from Delegation class to leave option for double delegation
     """
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"Delegate {self.user.get_full_name()}"

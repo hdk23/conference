@@ -6,7 +6,7 @@ import numpy as np
 
 # Create your models here.
 class TallyCategoryScore(models.Model):
-    category = models.ForeignKey(TallyCategory)
+    category = models.ForeignKey(TallyCategory, on_delete=models.CASCADE)
     tallies = models.ManyToManyField(Tally)
     raw_score = models.DecimalField(max_digits=4, decimal_places=2)
     zscore = models.DecimalField(max_digits=4, decimal_places=3)
