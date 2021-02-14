@@ -5,20 +5,41 @@ import numpy as np
 
 
 # Create your models here.
+class Chair(models.Model):
+    """
+    Chair class that represents committee directors (CDs) and committee managers (CMs)
+    Separate classes for CDs and CMs
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Chair {self.user.get_full_name()}"
+
+
+class TallyScore(models.Model):
+    """Individual scores for a delegate's position paper, speech, participation, etc."""
+    timestamp = models.DateTimeField(auto_now_add=True)
+    scorer = models.ForeignKey(Chair)
+    score = models.PositiveSmallIntegerField()
+
+    def __str__(self):
+        return f"Tally ({self.score}) by {self.scorer}"
+
+
 class TallyCategoryScore(models.Model):
     category = models.ForeignKey(TallyCategory, on_delete=models.CASCADE)
-    tallies = models.ManyToManyField(Tally)
+    tallies = models.ManyToManyField(TallyScore)
     raw_score = models.DecimalField(max_digits=4, decimal_places=2)
     zscore = models.DecimalField(max_digits=4, decimal_places=3)
     scaled_score = models.DecimalField(max_digits=5, decimal_places=2)
 
-    def add_tally(self, tally: Tally):
+    def add_tally(self, tally: TallyScore):
         """adds tally to the delegate's tally category score"""
         self.tallies.add(tally)
         self.raw_score += tally.score
         self.save()
 
-    def remove_tally(self, tally: Tally) -> Tally:
+    def remove_tally(self, tally: TallyScore) -> TallyScore:
         """removes tally from the delegate's tally category score"""
         self.tallies.remove(tally)
         self.raw_score -= tally.score

@@ -16,7 +16,10 @@ class Committee(models.Model):
 
     @staticmethod
     def set_normal():
-        """sets the values for stats with tally category scores"""
+        """
+        sets the values for stats with tally category scores
+        runs whenever a chair loads the committee scores page
+        """
         for category in TallyCategory.objects.all():
             category_scores = TallyCategoryScore.objects.filter(category=category)
             category_scores = [score.raw_score for score in category_scores]
