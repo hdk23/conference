@@ -6,8 +6,3 @@ from django.http import HttpResponse
 def index(request):
     context={}
     return render(request, 'dartmun/index.html', context)
-
-
-def my_committee(request):
-    context = {}
-    return render(request, 'dartmun/mycommittee.html', context)
