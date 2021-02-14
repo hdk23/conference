@@ -1,4 +1,4 @@
-from .models import Delegate, Delegation, Committee, Chair, CommitteeDirector
+from .models import *
 from django_countries import countries
 from django.contrib.auth.models import User
 import random
@@ -18,6 +18,11 @@ def create_delegation() -> Delegation:
     delegation.save()
     delegation.delegates.add(delegate)
     delegation.save()
+    for category in TallyCategory.objects.all():
+        category_score = TallyCategoryScore(category=category)
+        category_score.save()
+        delegation.tally_category_scores.add(category_score)
+        delegation.save()
     return delegation
 
 
@@ -40,4 +45,7 @@ def reset_committee():
     Chair.objects.all().delete()
     Delegation.objects.all().delete()
     Delegate.objects.all().delete()
+    TallyGroup.objects.all().delete()
+    TallyCategory.objects.all().delete()
+    TallyScore.objects.all().delete()
     User.objects.filter(is_superuser=False).delete()

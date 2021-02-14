@@ -13,7 +13,7 @@ class TallyCategory(models.Model):
     scaled = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.name} ({self.weight})%"
+        return f"{self.name} ({self.weight}%)"
 
 
 class TallyGroup(models.Model):

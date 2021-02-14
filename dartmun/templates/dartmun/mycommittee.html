@@ -15,34 +15,39 @@
 {% endblock %}
 
 {% block staff_only %}
-    <form>
+    <form action="{% url 'add_tally' %}" method="POST">
     {% csrf_token %}
     <div class="row">
         <div class="col-4">
-            <label for="delegation">Delegation</label><br>
-            <select name="delegation" id="delegations" class="form-control">
+            <p>Delegation</p>
+            <select name="delegation" name="delegations" class="form-control">
                 {%  for delegation in delegations %}
-                    <option value="{{ delegation.country }}">{{ delegation.country.name }}</option>
+                    <option value="{{ delegation.id }}">{{ delegation.country.name }}</option>
                 {% endfor %}
             </select>
         </div>
         <div class="col-2">
-            <label>Score</label><br>
-            <div class="slidecontainer">
-                <input type="range" min="0" max="4" value="3" class="slider" id="myRange">
+            <p>Score</p>
+            <div class="row">
+                <div class="col-9 slidecontainer">
+                    <input type="range" min="0" max="4" value="3" class="slider" id="myRange" name="score">
+                </div>
+                <div class="col-3">
+                    <h4 id="score"></h4>
+                </div>
             </div>
         </div>
         <div class="col-1">
-            <label></label>
-            <h4 id="score"></h4>
+            <p>Time</p>
+            <input type="number" aria-label="Time" name="time" min="0" max="120">
         </div>
         <div class="col-3">
-            <label>Comments</label>
-            <input type="text" class="form-control" placeholder="Comments" aria-label="Last name">
+            <p>Comments</p>
+            <input type="text" class="form-control" placeholder="Comments" aria-label="Comments" name="comments">
         </div>
         <div class="col-2">
-            <label>Submit</label><br>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <p>Submit</p>
+            <p><button type="submit" class="btn btn-primary">Submit</button></p>
         </div>
     </div>
 

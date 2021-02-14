@@ -21,6 +21,8 @@ class TallyScore(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     scorer = models.ForeignKey(Chair, on_delete=models.CASCADE)
     score = models.PositiveSmallIntegerField()
+    time = models.PositiveSmallIntegerField(blank=True, null=True)
+    comments = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f"Tally ({self.score}) by {self.scorer}"
@@ -29,9 +31,9 @@ class TallyScore(models.Model):
 class TallyCategoryScore(models.Model):
     category = models.ForeignKey(TallyCategory, on_delete=models.CASCADE)
     tallies = models.ManyToManyField(TallyScore)
-    raw_score = models.DecimalField(max_digits=4, decimal_places=2)
-    zscore = models.DecimalField(max_digits=4, decimal_places=3)
-    scaled_score = models.DecimalField(max_digits=5, decimal_places=2)
+    raw_score = models.DecimalField(max_digits=4, decimal_places=1, default=0)
+    zscore = models.DecimalField(max_digits=4, decimal_places=3, blank=True, null=True)
+    scaled_score = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
 
     def add_tally(self, tally: TallyScore):
         """adds tally to the delegate's tally category score"""

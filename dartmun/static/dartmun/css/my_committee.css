@@ -1,6 +1,6 @@
 .slider {
   -webkit-appearance: none;
-  width: 100%;
+  width: 75%;
   height: 15px;
   border-radius: 5px;
   background: #d3d3d3;
@@ -26,4 +26,19 @@
   border-radius: 50%;
   background: #4CAF50;
   cursor: pointer;
+}
+
+form {
+  padding: 10px;
+  border: 2px solid lightgrey;
+  border-radius: 10px;
+}
+
+p {
+  text-align: center;
+}
+
+form .row .col {
+  margin-left: auto;
+  margin-right: auto;
 }

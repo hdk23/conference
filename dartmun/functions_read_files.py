@@ -3,14 +3,15 @@ import csv
 
 
 def read_file(file_name):
-    with open(f'./inputs/{file_name}.txt') as csv_file:
+    with open(f'dartmun/inputs/dartmun/{file_name}.csv') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         line_count = 0
         for row in csv_reader:
-            if line_count == 0:
-                pass
-            else:
-                print(f'\t{row[0]} works in the {row[1]} department, and was born in {row[2]}.')
+            if line_count != 0:
+                if file_name == "groups":
+                    read_groups(row)
+                elif file_name == "categories":
+                    read_categories(row)
             line_count += 1
 
 
