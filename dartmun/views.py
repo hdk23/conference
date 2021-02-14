@@ -18,17 +18,43 @@ def index(request):
     return render(request, 'dartmun/index.html', context)
 
 
-@login_required()
+def get_context():
+    context = {}
+    context['committee'] = Committee.objects.first()
+    context['delegations'] = context['committee'].delegations.order_by('country')
+    return context
+
+
 def my_committee(request):
     """loads the my committee page"""
-    committee = Committee.objects.first()
-
-    delegations = committee.delegations.order_by('country')
-    context = {"committee": committee, "delegations":delegations}
+    context = get_context()
     return render(request, 'dartmun/mycommittee.html', context)
 
 
-@staff_member_required()
+@staff_member_required
+def grades(request):
+    """
+    loads the page that displays all delegations' grades
+    recalculates delegates' scores each time
+    """
+    pass
+
+
+@staff_member_required
+def tallies(request):
+    """loads a transcript of the tallies"""
+    context = get_context()
+    tallies = []
+    for delegation in context['committee'].delegations.all():
+        for tally_category in delegation.tally_category_scores.all():
+            for tally in tally_category.tallies.all():
+                tallies.append(tally)
+    tallies.sort(key=lambda tally: tally.timestamp)
+    context['tallies'] = tallies
+    return render(request, 'dartmun/tallies.html', context)
+
+
+@staff_member_required
 def add_tally(request):
     """adds tally for the delegation"""
     delegation_id = int(request.POST.get("delegation"))

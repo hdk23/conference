@@ -1,0 +1,34 @@
+{% extends "./layout.html" %}
+
+{%  block title %}
+    Tallies
+{%  endblock %}
+
+{%  block css %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'dartmun/css/tallies.css' %}">
+{%  endblock %}
+
+{%  block body %}
+    <h2>{{ committee.name}}</h2>
+    <table>
+        <tr>
+            <th>Timestamp</th>
+            <th>Scorer</th>
+            <th>Score</th>
+            <th>Comments</th>
+        </tr>
+        {% for tally in tallies %}
+            <tr>
+                <td>{{ tally.timestamp }}</td>
+                <td>{{ tally.scorer }}</td>
+                <td>{{ tally.score }}</td>
+                <td>{{ tally.comments }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{%  endblock %}
+
+{%  block scripts %}
+
+{%  endblock %}
