@@ -83,4 +83,3 @@ class ScoreManager(models.Model):
 
     def __str__(self):
         return f"{self.delegation} Score Manager"
-

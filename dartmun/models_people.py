@@ -54,3 +54,12 @@ class Delegation(models.Model):
 
     def __str__(self):
         return f"Delegation of {self.country.name}"
+
+
+class PeopleManager(models.Model):
+    directors = models.ManyToManyField(CommitteeDirector)
+    managers = models.ManyToManyField(CommitteeManager)
+    delegations = models.ManyToManyField(Delegation)
+
+    def __str__(self):
+        return f"People Manager"

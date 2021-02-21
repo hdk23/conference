@@ -15,14 +15,13 @@ def index(request):
     read_file("groups")
     read_file("categories")
     create_committee()
-
     return render(request, 'dartmun/index.html', context)
 
 
 def get_context():
     context = {}
     context['committee'] = Committee.objects.first()
-    context['delegations'] = context['committee'].delegations.order_by('country')
+    context['delegations'] = context['committee'].people.delegations.order_by('country')
     return context
 
 
@@ -40,8 +39,10 @@ def grades(request):
     """
     context = get_context()
     context['tally_categories'] = TallyCategory.objects.all()
-    context['committee'].calc_grades()
-    context['score_managers'] = context['committee'].score_managers.order_by('-score')
+    committee = context['committee']
+    if committee.grades.need_update:
+        context['committee'].grades.calc_grades()
+    context['score_managers'] = context['committee'].grades.score_managers.order_by('-score')
     return render(request, 'dartmun/grades.html', context)
 
 
@@ -66,7 +67,7 @@ def add_tally(request):
         tally.time = time
     tally.save()
     committee = Committee.objects.get(acronym="UNEP")
-    committee.add_tally(tally, delegation)
+    committee.grades.add_tally(tally, delegation)
     return HttpResponseRedirect(reverse('my_committee'))
 
 
@@ -75,7 +76,7 @@ def remove_tally(request, id):
     tally = TallyScore.objects.get(pk=id)
     score_manager = ScoreManager.objects.get(delegation=tally.delegation)
     committee = Committee.objects.first()
-    committee.remove_tally(tally)
+    committee.grades.remove_tally(tally)
     for tally_category in score_manager.tally_category_scores.all():
         print(tally_category.tallies.all())
         if tally in tally_category.tallies.all():

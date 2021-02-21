@@ -22,12 +22,12 @@ def create_delegation(committee: Committee) -> Delegation:
     score_manager.save()
 
     committee = Committee.objects.get(acronym="UNEP")
-    for category in committee.tally_categories.all():
+    for category in committee.grades.tally_categories.all():
         category_score = TallyCategoryScore(category=category)
         category_score.save()
         score_manager.tally_category_scores.add(category_score)
         score_manager.save()
-    committee.score_managers.add(score_manager)
+    committee.grades.score_managers.add(score_manager)
     committee.save()
 
     return delegation
@@ -37,17 +37,32 @@ def create_committee():
     """creates a test committee"""
     committee = Committee(name="United Nations Environmental Programme", acronym="UNEP")
     committee.save()
+
+    # initialize people and grade managers
+    people_manager = PeopleManager()
+    people_manager.save()
+    grades_manager = GradesManager()
+    grades_manager.save()
+    committee.people = people_manager
+    committee.grades = grades_manager
+    committee.save()
+
+    # test committee with one chair
     chair = Chair(user=User.objects.get(username="henrykim"))
     chair.save()
     director = CommitteeDirector(chair=chair)
     director.save()
-    committee.directors.add(director)
+    committee.people.directors.add(director)
+
+    # initialize tally categories for committee
     for category in TallyCategory.objects.all():
         committee_tally_category = CommitteeTallyCategory(category=category)
         committee_tally_category.save()
-        committee.tally_categories.add(committee_tally_category)
+        committee.grades.tally_categories.add(committee_tally_category)
+
+    # add delegates
     for num in range(40):
-        committee.delegations.add(create_delegation(committee))
+        committee.people.delegations.add(create_delegation(committee))
     committee.save()
 
 
@@ -61,4 +76,6 @@ def reset_committee():
     CommitteeTallyCategory.objects.all().delete()
     TallyScore.objects.all().delete()
     ScoreManager.objects.all().delete()
+    GradesManager.objects.all().delete()
+    PeopleManager.objects.all().delete()
     User.objects.filter(is_superuser=False).delete()

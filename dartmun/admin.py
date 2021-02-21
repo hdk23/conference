@@ -16,6 +16,10 @@ admin.site.register(TallyScore)
 admin.site.register(TallyCategoryScore)
 admin.site.register(ScoreManager)
 
+# manager models
+admin.site.register(PeopleManager)
+admin.site.register(GradesManager)
+
 # models in models_tally
 admin.site.register(TallyCategory)
 admin.site.register(CommitteeTallyCategory)
