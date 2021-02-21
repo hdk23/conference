@@ -14,6 +14,8 @@ def index(request):
     reset_committee()
     read_file("groups")
     read_file("categories")
+    read_file("modes")
+    read_file("motions")
     create_committee()
     return render(request, 'dartmun/index.html', context)
 

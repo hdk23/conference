@@ -5,7 +5,8 @@ from .models_people import Delegation
 class Motion(models.Model):
     """Motion class for motions raised by delegates in Model UN"""
     motion = models.CharField(max_length=64)
-    vote_simple = models.BooleanField(default=True)
+    choices = [('simple', 'simple majority'), ('2/3', '2/3 majority')]
+    vote_type = models.CharField(choices=choices, max_length=16, default='simple')
     speeches = models.BooleanField(default=False)
     duration = models.BooleanField(default=False)
     speaking_time = models.BooleanField(default=False)
@@ -45,7 +46,10 @@ class SpeechEntry(models.Model):
 
 
 class ParliProManager(models.Model):
-    current_mode = models.ForeignKey(DebateMode, on_delete=models.CASCADE)
+    default_st = models.PositiveSmallIntegerField(default=120)
+    current_st = models.PositiveSmallIntegerField(default=60)
+    caucus_duration = models.PositiveSmallIntegerField(blank=True, null=True)
+    current_mode = models.ForeignKey(DebateMode, blank=True, null=True, on_delete=models.CASCADE)
     speaker_list = models.ManyToManyField(SpeechEntry)
     motion_list = models.ManyToManyField(MotionEntry)
 

@@ -20,6 +20,13 @@ admin.site.register(ScoreManager)
 admin.site.register(PeopleManager)
 admin.site.register(GradesManager)
 
+# parlipro models
+admin.site.register(Motion)
+admin.site.register(DebateMode)
+admin.site.register(MotionEntry)
+admin.site.register(SpeechEntry)
+admin.site.register(ParliProManager)
+
 # models in models_tally
 admin.site.register(TallyCategory)
 admin.site.register(CommitteeTallyCategory)

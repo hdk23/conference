@@ -60,6 +60,14 @@ class PeopleManager(models.Model):
     directors = models.ManyToManyField(CommitteeDirector)
     managers = models.ManyToManyField(CommitteeManager)
     delegations = models.ManyToManyField(Delegation)
+    simple_majority = models.PositiveSmallIntegerField(blank=True, null=True)
+    super_majority = models.PositiveSmallIntegerField(blank=True, null=True)
+
+    def calc_simple(self):
+        return self.delegations.all().count() // 2 + 1
+
+    def calc_super(self):
+        return round(self.delegations.all().count() * 2 / 3)
 
     def __str__(self):
         return f"People Manager"

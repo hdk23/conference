@@ -1,0 +1,6 @@
+Name,Acronym,Speeches,Yielding,Duration,Speaking Time
+Primary Speaker's List,PSL,True,False,False,True
+Secondary Speaker's List,SSL,True,True,False,True
+Moderated Caucus,Mod,True,False,True,True
+Unmoderated Caucus,Unmod,False,False,True,False
+Open Floor,Open,False,False,True,False

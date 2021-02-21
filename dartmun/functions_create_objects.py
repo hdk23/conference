@@ -43,8 +43,11 @@ def create_committee():
     people_manager.save()
     grades_manager = GradesManager()
     grades_manager.save()
+    parli_pro_manager = ParliProManager()
+    parli_pro_manager.save()
     committee.people = people_manager
     committee.grades = grades_manager
+    committee.parli_pro = parli_pro_manager
     committee.save()
 
     # test committee with one chair
@@ -78,4 +81,9 @@ def reset_committee():
     ScoreManager.objects.all().delete()
     GradesManager.objects.all().delete()
     PeopleManager.objects.all().delete()
+    ParliProManager.objects.all().delete()
+    Motion.objects.all().delete()
+    MotionEntry.objects.all().delete()
+    SpeechEntry.objects.all().delete()
+    DebateMode.objects.all().delete()
     User.objects.filter(is_superuser=False).delete()
