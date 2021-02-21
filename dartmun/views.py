@@ -15,6 +15,7 @@ def index(request):
     read_file("groups")
     read_file("categories")
     create_committee()
+
     return render(request, 'dartmun/index.html', context)
 
 
@@ -37,20 +38,17 @@ def grades(request):
     loads the page that displays all delegations' grades
     recalculates delegates' scores each time
     """
-    pass
+    context = get_context()
+    context['tally_categories'] = TallyCategory.objects.all()
+    context['committee'].calc_grades()
+    context['score_managers'] = context['committee'].score_managers.order_by('-score')
+    return render(request, 'dartmun/grades.html', context)
 
 
 @staff_member_required
 def tallies(request):
     """loads a transcript of the tallies"""
     context = get_context()
-    tallies = []
-    for delegation in context['committee'].delegations.all():
-        for tally_category in delegation.tally_category_scores.all():
-            for tally in tally_category.tallies.all():
-                tallies.append(tally)
-    tallies.sort(key=lambda tally: tally.timestamp)
-    context['tallies'] = tallies
     return render(request, 'dartmun/tallies.html', context)
 
 
@@ -63,11 +61,24 @@ def add_tally(request):
     comments = request.POST.get("comments")
     time = request.POST.get("time")
     category = TallyCategory.objects.get(acronym="S")
-    tally = TallyScore(scorer=Chair.objects.get(user=request.user), score=score, comments=comments)
+    tally = TallyScore(scorer=Chair.objects.get(user=request.user), delegation=delegation, category=category, score=score, comments=comments)
     if time:
         tally.time = time
     tally.save()
-    category_score = delegation.tally_category_scores.get(category=category)
-    category_score.add_tally(tally)
-    category_score.save()
+    committee = Committee.objects.get(acronym="UNEP")
+    committee.add_tally(tally, delegation)
     return HttpResponseRedirect(reverse('my_committee'))
+
+
+@staff_member_required
+def remove_tally(request, id):
+    tally = TallyScore.objects.get(pk=id)
+    score_manager = ScoreManager.objects.get(delegation=tally.delegation)
+    committee = Committee.objects.first()
+    committee.remove_tally(tally)
+    for tally_category in score_manager.tally_category_scores.all():
+        print(tally_category.tallies.all())
+        if tally in tally_category.tallies.all():
+            tally_category.remove_tally(tally)
+            break
+    return HttpResponseRedirect(reverse('tallies'))

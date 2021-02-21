@@ -14,7 +14,9 @@ admin.site.register(Delegation)
 admin.site.register(Chair)
 admin.site.register(TallyScore)
 admin.site.register(TallyCategoryScore)
+admin.site.register(ScoreManager)
 
 # models in models_tally
 admin.site.register(TallyCategory)
+admin.site.register(CommitteeTallyCategory)
 admin.site.register(TallyGroup)

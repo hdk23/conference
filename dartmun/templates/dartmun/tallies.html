@@ -10,20 +10,28 @@
 {%  endblock %}
 
 {%  block body %}
-    <h2>{{ committee.name}}</h2>
+    <h2>{{committee.name}}</h2>
     <table>
         <tr>
-            <th>Timestamp</th>
-            <th>Scorer</th>
+{#            <th>Timestamp</th>#}
+{#            <th>Scorer</th>#}
+            <th>Delegation</th>
             <th>Score</th>
             <th>Comments</th>
+            <th>Delete</th>
         </tr>
-        {% for tally in tallies %}
+        {% for tally in committee.tallies.all %}
             <tr>
-                <td>{{ tally.timestamp }}</td>
-                <td>{{ tally.scorer }}</td>
+{#                <td>{{ tally.timestamp }}</td>#}
+{#                <td>{{ tally.scorer }}</td>#}
+                <td>{{ tally.delegation }}</td>
                 <td>{{ tally.score }}</td>
                 <td>{{ tally.comments }}</td>
+                <td>
+                    <a href="{% url 'remove_tally' tally.id %}"><button class="btn btn-danger">
+                        X
+                    </button></a>
+                </td>
             </tr>
         {% endfor %}
     </table>

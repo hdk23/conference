@@ -4,12 +4,31 @@
     Grades
 {%  endblock %}
 
+{% load static %}
 {%  block css %}
-    {% load static %}
+
 {%  endblock %}
 
 {%  block body %}
-
+    <h2>{{committee.name}}</h2>
+    <table>
+        <tr>
+            <th>Delegation</th>
+            {% for category in tally_categories.all %}
+                <th>{{ category }}</th>
+            {% endfor %}
+            <th>Total</th>
+        </tr>
+        {% for score_manager in score_managers %}
+            <tr>
+                <td>{{ score_manager.delegation.country.name }}</td>
+                {% for category in score_manager.tally_category_scores.all %}
+                    <td>{{ category.scaled_score }}</td>
+                {% endfor %}
+                <td>{{ score_manager.score }}</td>
+            </tr>
+        {% endfor %}
+    </table>
 {%  endblock %}
 
 {%  block scripts %}

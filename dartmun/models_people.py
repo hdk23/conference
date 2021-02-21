@@ -1,12 +1,21 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django_countries.fields import CountryField
-from .models_score import TallyCategoryScore, Chair
-
 import numpy as np
 
 
 # Create your models here.
+class Chair(models.Model):
+    """
+    Chair class that represents committee directors (CDs) and committee managers (CMs)
+    Separate classes for CDs and CMs
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Chair {self.user.get_full_name()}"
+
+
 class CommitteeDirector(models.Model):
     """CD class"""
     chair = models.OneToOneField(Chair, on_delete=models.CASCADE)
@@ -42,18 +51,6 @@ class Delegation(models.Model):
     """
     country = CountryField()
     delegates = models.ManyToManyField(Delegate)
-    tally_category_scores = models.ManyToManyField(TallyCategoryScore)
-    score = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
-
-    def calc_score(self):
-        """totals the delegation's scores from each category using a dot product"""
-        weights = []
-        scores = []
-        for tally_category in self.tally_category_scores.all:
-            weights.append(tally_category.category.weight / 100)
-            scores.append(tally_category.scaled_score)
-        self.score = np.dot(weights, scores)
 
     def __str__(self):
-        return f"Delegate of {self.country.name}"
-
+        return f"Delegation of {self.country.name}"
