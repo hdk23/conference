@@ -2,3 +2,15 @@ h1 {
     color: #00693e;
     text-align: center;
 }
+
+#show-delegates{
+    height: 400px;
+    border: 2px solid lightgrey;
+    border-radius: 10px;
+}
+
+#staff-only{
+    height: 440px;
+    border: 2px solid lightgrey;
+    border-radius: 10px;
+}

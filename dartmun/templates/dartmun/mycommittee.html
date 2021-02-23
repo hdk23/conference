@@ -10,50 +10,218 @@
 {% endblock %}
 
 {% block body %}
-    <h2> My Committee Page</h2>
-
+    <h2> {{ committee.name | upper }}</h2>
+    <div class="row">
+        <div class="col"><h4>Simple Majority: {{ committee.people.simple_majority }}</h4></div>
+        <div class="col">
+            {% if committee.parli_pro.speaker_list.first %}
+                <h4>At Podium: {{ committee.parli_pro.speaker_list.first.delegation.country.name | upper}}</h4>
+            {% endif %}
+        </div>
+        <div class="col"><h4>2/3 Majority: {{ committee.people.super_majority }}</h4></div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <h4>
+                {{ committee.parli_pro.current_mode }}:
+                {% if committee.parli_pro.duration %}
+                    {{ committee.parli_pro.duration }} min
+                {% endif %}
+                {% if committee.parli_pro.current_st %}
+                    {{ committee.parli_pro.current_st }} s
+                {% endif %}
+            </h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <h4>Motion List</h4>
+            <ul>
+                {% for motion in committee.parli_pro.motion_list.all %}
+                    <li><a href="{% url 'remove_motion_entry' motion.id %}">{{ motion }}</a></li>
+                {% empty %}
+                    <h5>Are there any points or motions on the floor?</h5>
+                {% endfor %}
+            </ul>
+        </div>
+            <div class="col">
+            <h4>Speaker's List</h4>
+            <ul>
+                {% for speaker in committee.parli_pro.speaker_list.all %}
+                    <li><a href="{% url 'remove_speech_entry' speaker.id %}">{{ speaker.delegation.country.name }}</a></li>
+                {% empty %}
+                    <h5>Delegates wishing to speak, please raise your virtual placards!</h5>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 {% endblock %}
 
 {% block staff_only %}
-    <form action="{% url 'add_tally' %}" method="POST">
-    {% csrf_token %}
-    <div class="row">
-        <div class="col-4">
-            <p>Delegation</p>
-            <select name="delegation" name="delegations" class="form-control">
-                {%  for delegation in delegations %}
-                    <option value="{{ delegation.id }}">{{ delegation.country.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-2">
-            <p>Score</p>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" id="tally-tab" data-toggle="tab" href="#add-tally" role="tab" aria-controls="add-tally" aria-selected="true">Add Tally</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="motion-tab" data-toggle="tab" href="#add-motion" role="tab" aria-controls="add-motion" aria-selected="false">Add Motion</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="speaker-tab" data-toggle="tab" href="#add-speaker" role="tab" aria-controls="add-speaker" aria-selected="false">Add Speaker</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="vote-tab" data-toggle="tab" href="#vote-motion" role="tab" aria-controls="vote-motion" aria-selected="false">Vote Motion</a>
+      </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade show active" id="add-tally" role="tabpanel" aria-labelledby="add-tally-tab">
+        <form action="{% url 'add_tally' %}" method="POST">
+            {% csrf_token %}
             <div class="row">
-                <div class="col-9 slidecontainer">
-                    <input type="range" min="0" max="4" value="3" class="slider" id="myRange" name="score">
+                <div class="col-4">
+                    <p>Delegation</p>
+                    <select name="delegation" class="form-control" value="">
+                        <option value="{{ committee.parli_pro.speaker_list.first.id }}">
+                            {{ committee.parli_pro.speaker_list.first.delegation.country.name }}</option>
+                    </select>
+                </div>
+                <div class="col-2">
+                    <p>Score</p>
+                    <div class="row">
+                        <div class="col-9 slidecontainer">
+                            <input type="range" min="0" max="4" value="3" class="slider" id="myRange" name="score">
+                        </div>
+                        <div class="col-3">
+                            <h4 id="score"></h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-1">
+                    <p>Time</p>
+                    <input type="number" aria-label="Time" name="time" min="0" max="120">
                 </div>
                 <div class="col-3">
-                    <h4 id="score"></h4>
+                    <p>Comments</p>
+                    <input type="text" class="form-control" placeholder="Comments" aria-label="Comments" name="comments">
+                </div>
+                <div class="col-2">
+                    <p>Submit</p>
+                    <p><button type="submit" class="btn btn-primary">Submit</button></p>
                 </div>
             </div>
+        </form>
+      </div>
+      <div class="tab-pane fade" id="add-motion" role="tabpanel" aria-labelledby="add-motion-tab">
+          <div class="alert alert-danger" id="motion-alert" role="alert" hidden>
+            </div>
+          <form action="{% url 'add_motion_entry' %}" method="POST">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-4">
+                    <p>Delegation</p>
+                    <select name="delegation" class="form-control">
+                        {% for delegation in delegations %}
+                            <option value="{{ delegation.id }}">{{ delegation.country.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-4">
+                    <p>Motion</p>
+                    <select name="motion" class="form-control" id="selected-motion">
+                        {% for motion in motions %}
+                            <option value="{{ motion.id }}">{{ motion.motion }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-2" id="duration" hidden>
+                    <p>Duration</p>
+                    <input type="number" min="0" max="30" name="duration" id="duration-value" class="form-control">
+                </div>
+                <div class="col-2" id="speak-time" hidden>
+                    <p>Speaking Time</p>
+                    <input type="number" min="0" max="120" step="15" id="time-value" name="speaking_time" class="form-control">
+                </div>
+                <div class="col-4" id="topic" hidden>
+                    <p>Topic</p>
+                    <select name="topic" class="form-control" id="selected-topic">
+                        {% for topic in committee.topics %}
+                            <option value="{{ topic.id }}">{{ topic }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="row" id="purpose" hidden>
+                <div class="col">
+                    <p>Purpose</p>
+                    <input type="text" name="purpose" class="form-control">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <input type="hidden" name="vote" value="discretion">
+                    <p><button type="submit" class="btn btn-success form-btn">Passes Under Chair's Discretion</button></p>
+                </div>
+                <div class="col">
+                    <input type="hidden" name="vote" value="vote">
+                    <p><button type="submit" class="btn btn-primary form-btn">Submit</button></p>
+                </div>
+            </div>
+            </form>
         </div>
-        <div class="col-1">
-            <p>Time</p>
-            <input type="number" aria-label="Time" name="time" min="0" max="120">
-        </div>
-        <div class="col-3">
-            <p>Comments</p>
-            <input type="text" class="form-control" placeholder="Comments" aria-label="Comments" name="comments">
-        </div>
-        <div class="col-2">
-            <p>Submit</p>
-            <p><button type="submit" class="btn btn-primary">Submit</button></p>
+      <div class="tab-pane fade" id="add-speaker" role="tabpanel" aria-labelledby="speaker-tab">
+          <form action="{% url 'add_speech_entry' %}" method="POST">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-10">
+                    <p>Delegation</p>
+                    <select name="delegation" class="form-control">
+                        {% for delegation in delegations %}
+                            <option value="{{ delegation.id }}">{{ delegation.country.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-2">
+                    <p>Submit</p>
+                    <p><button type="submit" class="btn btn-primary form-btn">Submit</button></p>
+                </div>
+            </div>
+        </form>
+      </div>
+        <div class="tab-pane fade show" id="vote-motion" role="tabpanel" aria-labelledby="vote-motion-tab">
+            {% if committee.parli_pro.motion_list.first.motion.vote_type %}
+                This motion requires a {{ committee.parli_pro.motion_list.first.motion.vote_type }} majority to pass.<br>
+                All delegates wishing to vote for, please raise your virtual placard.<br>
+                All delegates wishing to vote against, please raise your virtual placard.<br>
+            {% endif %}
+            <div class="alert alert-danger" id="vote-alert" role="alert" hidden>
+            </div>
+            <form action="{% url 'vote_motion' %}" method="POST">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-6">
+                        <p>Motion</p>
+                        <select name="motion-entry" class="form-control">
+                            <option value="{{ committee.parli_pro.motion_list.first.id }}">{{ committee.parli_pro.motion_list.first }}</option>
+                        </select>
+                        <input type="hidden" id="del-count" value="{{ committee.people.delegations.count }}">
+                    </div>
+                    <div class="col-2">
+                        <p>Votes For</p>
+                        <input type="number" class="form-control" id="votes-for" name="votes-for" min="0" max="{{ committee.people.delegations.count }}">
+                    </div>
+                    <div class="col-2">
+                        <p>Votes Against</p>
+                        <input type="number" class="form-control" id="votes-against" name="votes-against" min="0" max="{{ committee.people.delegations.count }}">
+                    </div>
+                    <div class="col-2">
+                        <p>Submit</p>
+                        <p><button type="submit" class="btn btn-primary">Submit</button></p>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
-
-</form>
 {% endblock %}
 
 {% block scripts %}
-    <script src="{%  static 'dartmun/js/my_committee.js' %}"></script>
+    <script src="{% static 'dartmun/js/my_committee.js' %}"></script>
 {% endblock %}

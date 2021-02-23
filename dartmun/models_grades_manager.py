@@ -49,10 +49,10 @@ class GradesManager(models.Model):
         category_score = score_manager.tally_category_scores.get(category=committee_category)
         return category_score
 
-    def add_tally(self, tally: TallyScore, delegation: Delegation):
+    def add_tally(self, tally: TallyScore):
         """adds tally to the committee records and increments the delegation's raw score"""
         self.tallies.add(tally)
-        category_score = self.get_category_score(delegation, tally.category)
+        category_score = self.get_category_score(tally.delegation, tally.category)
         category_score.add_tally(tally)
         category_score.save()
         self.need_update = True

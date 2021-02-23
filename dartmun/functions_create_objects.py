@@ -66,6 +66,7 @@ def create_committee():
     # add delegates
     for num in range(40):
         committee.people.delegations.add(create_delegation(committee))
+        committee.people.save()
     committee.save()
 
 

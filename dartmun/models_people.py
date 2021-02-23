@@ -48,12 +48,20 @@ class Delegation(models.Model):
     Delegation class that represents a country in a committee
     Assumes that delegates of a delegation are scored together
     Tallies track a delegation's position paper, speech, participation, etc. scores
+    Uses the variables present and voting to indicate whether a delegate is present, present & voting, or absent
     """
     country = CountryField()
     delegates = models.ManyToManyField(Delegate)
+    present = models.BooleanField(default=True)
+    voting = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"Delegation of {self.country.name}"
+        if self.voting:
+            return f"Delegation of {self.country.name}: Present and Voting"
+        elif self.present:
+            return f"Delegation of {self.country.name}: Present"
+        else:
+            return f"Delegation of {self.country.name}: Absent"
 
 
 class PeopleManager(models.Model):
@@ -63,11 +71,10 @@ class PeopleManager(models.Model):
     simple_majority = models.PositiveSmallIntegerField(blank=True, null=True)
     super_majority = models.PositiveSmallIntegerField(blank=True, null=True)
 
-    def calc_simple(self):
-        return self.delegations.all().count() // 2 + 1
-
-    def calc_super(self):
-        return round(self.delegations.all().count() * 2 / 3)
+    def calc_votes(self):
+        self.simple_majority = self.delegations.all().count() // 2 + 1
+        self.super_majority = round(self.delegations.all().count() * 2 / 3)
+        self.save()
 
     def __str__(self):
         return f"People Manager"

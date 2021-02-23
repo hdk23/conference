@@ -1,3 +1,8 @@
+h2 {
+  color: #00693e;
+  text-align: center;
+}
+
 .slider {
   -webkit-appearance: none;
   width: 100%;
@@ -30,8 +35,7 @@
 
 form {
   padding: 10px;
-  border: 2px solid lightgrey;
-  border-radius: 10px;
+  margin: 10px;
 }
 
 p {
@@ -41,4 +45,47 @@ p {
 form .row .col {
   margin-left: auto;
   margin-right: auto;
+}
+
+.form-btn {
+  width: 100%;
+  padding: 10px;
+}
+
+p {
+  text-align: center;
+}
+
+div.committee-form {
+  padding: 10px;
+  margin: 10px;
+  border: 2px solid lightgrey;
+  border-radius: 10px;
+}
+
+div.row > div.mode {
+  text-align: center;
+  padding:10px;
+  border-radius: 5px;
+}
+
+div.row > div.mode > a {
+  color: black;
+  text-decoration: none;
+}
+
+div.row > div.mode:hover{
+  background-color: lightgreen;
+}
+
+div.row > div.col > ul > li > a:hover{
+  text-decoration: line-through;
+}
+
+alert {
+  margin: 10px;
+}
+
+input {
+  margin-bottom: 10px;
 }
