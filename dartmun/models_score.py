@@ -78,7 +78,7 @@ class ScoreManager(models.Model):
             if tally_category.category.average > 0:
                 weights.append(tally_category.category.category.weight / 100)
                 scores.append(tally_category.scaled_score)
-        self.score = np.dot(weights, scores) * 100 / max_possible
+        self.score = round(np.dot(weights, scores) * 100 / max_possible, 2)
         self.save()
 
     def __str__(self):

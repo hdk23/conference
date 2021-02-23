@@ -23,12 +23,26 @@
     <div class="row">
         <div class="col">
             <h4>
-                {{ committee.parli_pro.current_mode }}:
-                {% if committee.parli_pro.duration %}
-                    {{ committee.parli_pro.duration }} min
+                {% if committee.parli_pro.current_mode %}
+                    {{ committee.parli_pro.current_mode }}
+                    {% if committee.parli_pro.duration %}
+                        {{ committee.parli_pro.duration }} min
+                    {% endif %}
+                    {% if committee.parli_pro.current_st %}
+                        {{ committee.parli_pro.current_st }} s
+                    {% endif %}
+                {% else %}
+                    Motion to Open Debate!
                 {% endif %}
-                {% if committee.parli_pro.current_st %}
-                    {{ committee.parli_pro.current_st }} s
+
+            </h4>
+        </div>
+        <div class="col">
+            <h4>
+                {% if committee.parli_pro.current_topic %}
+                    {{ committee.parli_pro.current_topic }}
+                {% else %}
+                    Set a Working Agenda!
                 {% endif %}
             </h4>
         </div>
@@ -44,37 +58,43 @@
                 {% endfor %}
             </ul>
         </div>
+        {% if committee.parli_pro.current_mode.acronym == "SSL" or committee.parli_pro.current_mode.acronym == "PSL" %}
             <div class="col">
-            <h4>Speaker's List</h4>
-            <ul>
-                {% for speaker in committee.parli_pro.speaker_list.all %}
-                    <li><a href="{% url 'remove_speech_entry' speaker.id %}">{{ speaker.delegation.country.name }}</a></li>
-                {% empty %}
-                    <h5>Delegates wishing to speak, please raise your virtual placards!</h5>
-                {% endfor %}
-            </ul>
-        </div>
+                <h4>Speaker's List</h4>
+                <ul>
+                    {% for speaker in committee.parli_pro.speaker_list.all %}
+                        <li><a href="{% url 'remove_speech_entry' speaker.id %}">{{ speaker.delegation.country.name }}</a></li>
+                    {% empty %}
+                        <h5>Delegates wishing to speak, please raise your virtual placards!</h5>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
     </div>
 {% endblock %}
 
 {% block staff_only %}
     <ul class="nav nav-tabs" id="myTab" role="tablist">
-      <li class="nav-item">
-        <a class="nav-link active" id="tally-tab" data-toggle="tab" href="#add-tally" role="tab" aria-controls="add-tally" aria-selected="true">Add Tally</a>
-      </li>
+      {% if committee.parli_pro.current_mode %}
+          <li class="nav-item active">
+            <a class="nav-link" id="tally-tab" data-toggle="tab" href="#add-tally" role="tab" aria-controls="add-tally" aria-selected="true">Add Tally</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="speaker-tab" data-toggle="tab" href="#add-speaker" role="tab" aria-controls="add-speaker" aria-selected="false">Add Speaker</a>
+          </li>
+      {% endif %}
       <li class="nav-item">
         <a class="nav-link" id="motion-tab" data-toggle="tab" href="#add-motion" role="tab" aria-controls="add-motion" aria-selected="false">Add Motion</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" id="speaker-tab" data-toggle="tab" href="#add-speaker" role="tab" aria-controls="add-speaker" aria-selected="false">Add Speaker</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" id="vote-tab" data-toggle="tab" href="#vote-motion" role="tab" aria-controls="vote-motion" aria-selected="false">Vote Motion</a>
-      </li>
+      {% if committee.parli_pro.motion_list.count %}
+          <li class="nav-item">
+            <a class="nav-link" id="vote-tab" data-toggle="tab" href="#vote-motion" role="tab" aria-controls="vote-motion" aria-selected="false">Vote Motion</a>
+          </li>
+      {% endif %}
     </ul>
     <div class="tab-content" id="myTabContent">
       <div class="tab-pane fade show active" id="add-tally" role="tabpanel" aria-labelledby="add-tally-tab">
-        <form action="{% url 'add_tally' %}" method="POST">
+          <form action="{% url 'add_tally' %}" method="POST">
             {% csrf_token %}
             <div class="row">
                 <div class="col-4">
@@ -111,7 +131,7 @@
         </form>
       </div>
       <div class="tab-pane fade" id="add-motion" role="tabpanel" aria-labelledby="add-motion-tab">
-          <div class="alert alert-danger" id="motion-alert" role="alert" hidden>
+        <div class="alert alert-danger" id="motion-alert" role="alert" hidden>
             </div>
           <form action="{% url 'add_motion_entry' %}" method="POST">
             {% csrf_token %}
@@ -127,9 +147,17 @@
                 <div class="col-4">
                     <p>Motion</p>
                     <select name="motion" class="form-control" id="selected-motion">
-                        {% for motion in motions %}
-                            <option value="{{ motion.id }}">{{ motion.motion }}</option>
-                        {% endfor %}
+                        {% if committee.parli_pro.current_mode %}
+                            {% if committee.parli_pro.current_mode.acronym == "PSL" %}
+                                <option value="{{ set.id }}">{{ set.motion }}</option>
+                            {% else %}
+                                {% for motion in motions %}
+                                    <option value="{{ motion.id }}">{{ motion.motion }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        {% else %}
+                            <option value="{{ open.id }}">{{ open.motion }}</option>
+                        {% endif %}
                     </select>
                 </div>
                 <div class="col-2" id="duration" hidden>
@@ -143,7 +171,7 @@
                 <div class="col-4" id="topic" hidden>
                     <p>Topic</p>
                     <select name="topic" class="form-control" id="selected-topic">
-                        {% for topic in committee.topics %}
+                        {% for topic in committee.topics.all %}
                             <option value="{{ topic.id }}">{{ topic }}</option>
                         {% endfor %}
                     </select>
@@ -157,16 +185,14 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <input type="hidden" name="vote" value="discretion">
-                    <p><button type="submit" class="btn btn-success form-btn">Passes Under Chair's Discretion</button></p>
+                    <p><button type="submit" name="discretion" value="discretion" class="btn btn-success form-btn">Passes Under Chair's Discretion</button></p>
                 </div>
                 <div class="col">
-                    <input type="hidden" name="vote" value="vote">
-                    <p><button type="submit" class="btn btn-primary form-btn">Submit</button></p>
+                    <p><button type="submit" name="vote" value="vote" class="btn btn-primary form-btn">Submit</button></p>
                 </div>
             </div>
-            </form>
-        </div>
+        </form>
+      </div>
       <div class="tab-pane fade" id="add-speaker" role="tabpanel" aria-labelledby="speaker-tab">
           <form action="{% url 'add_speech_entry' %}" method="POST">
             {% csrf_token %}

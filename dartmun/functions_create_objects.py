@@ -48,6 +48,12 @@ def create_committee():
     committee.people = people_manager
     committee.grades = grades_manager
     committee.parli_pro = parli_pro_manager
+    topic1 = Topic(topic="Air Pollution in Southeast Asia", number=1)
+    topic2 = Topic(topic="Managing Outdated Nuclear Facilities", number=2)
+    topic1.save()
+    topic2.save()
+    committee.topics.add(topic1)
+    committee.topics.add(topic2)
     committee.save()
 
     # test committee with one chair
@@ -87,4 +93,5 @@ def reset_committee():
     MotionEntry.objects.all().delete()
     SpeechEntry.objects.all().delete()
     DebateMode.objects.all().delete()
+    Topic.objects.all().delete()
     User.objects.filter(is_superuser=False).delete()

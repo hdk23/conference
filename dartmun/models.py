@@ -10,6 +10,7 @@ from .models_parli_pro import *
 class Committee(models.Model):
     name = models.CharField(max_length=128)
     acronym = models.CharField(max_length=8)
+    topics = models.ManyToManyField(Topic)
     people = models.OneToOneField(PeopleManager, null=True, on_delete=models.CASCADE)
     grades = models.OneToOneField(GradesManager, null=True, on_delete=models.CASCADE)
     parli_pro = models.OneToOneField(ParliProManager, null=True, on_delete=models.CASCADE)

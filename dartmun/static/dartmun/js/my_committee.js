@@ -25,6 +25,8 @@ var speakTime = document.getElementById("speak-time");
 var duration_value = document.getElementById("duration-value");
 var time_value = document.getElementById("time-value");
 var purpose = document.getElementById("purpose");
+var topic = document.getElementById("topic");
+var selectedTopic = document.getElementById("selected-topic");
 
 function show_inputs(event){
   const has_duration =["Move into a Moderated Caucus", "Move into an Unmoderated Caucus"]
@@ -33,6 +35,7 @@ function show_inputs(event){
   duration.hidden = !has_duration.includes(motion_name);
   speakTime.hidden = !has_speaktime.includes(motion_name);
   purpose.hidden = motion_name != "Move into a Moderated Caucus";
+  topic.hidden = motion_name != "Set a Working Agenda";
 }
 
 function divisibility_check(event){
@@ -46,6 +49,7 @@ function divisibility_check(event){
 }
 
 selectedMotion.addEventListener('input', show_inputs)
+selectedTopic.addEventListener('input', show_inputs)
 duration.addEventListener('input', divisibility_check)
 speakTime.addEventListener('input', divisibility_check)
 

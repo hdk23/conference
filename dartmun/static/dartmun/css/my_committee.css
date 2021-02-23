@@ -48,8 +48,9 @@ form .row .col {
 }
 
 .form-btn {
-  width: 100%;
-  padding: 10px;
+  text-align: center;
+  width:90%;
+  margin: 10px;
 }
 
 p {

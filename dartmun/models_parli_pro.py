@@ -43,7 +43,7 @@ class MotionEntry(models.Model):
     priority = models.FloatField(default=0)
     duration = models.PositiveSmallIntegerField(blank=True, null=True)
     speaking_time = models.PositiveSmallIntegerField(blank=True, null=True)
-    topic = models.BooleanField(default=False)
+    topic = models.ForeignKey(Topic, blank=True, null=True, on_delete=models.CASCADE)
     purpose = models.CharField(max_length=128, blank=True, null=True)
 
     def passes(self, votes_for, votes_against):
@@ -69,11 +69,13 @@ class SpeechEntry(models.Model):
 
 
 class ParliProManager(models.Model):
+    open = models.BooleanField(default=False)
     default_st = models.PositiveSmallIntegerField(default=120)
     current_st = models.PositiveSmallIntegerField(blank=True, null=True)
     caucus_duration = models.PositiveSmallIntegerField(blank=True, null=True)
     remaining_speeches = models.PositiveSmallIntegerField(blank=True, null=True)
     current_mode = models.ForeignKey(DebateMode, blank=True, null=True, on_delete=models.CASCADE)
+    current_topic = models.ForeignKey(Topic, blank=True, null=True, on_delete=models.CASCADE)
     speaker_list = models.ManyToManyField(SpeechEntry)
     motion_list = models.ManyToManyField(MotionEntry)
 
