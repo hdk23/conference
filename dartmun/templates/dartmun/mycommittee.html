@@ -11,15 +11,17 @@
 
 {% block body %}
     <h2> {{ committee.name | upper }}</h2>
-    <div class="row">
-        <div class="col"><h4>Simple Majority: {{ committee.people.simple_majority }}</h4></div>
-        <div class="col">
-            {% if committee.parli_pro.speaker_list.first %}
-                <h4>At Podium: {{ committee.parli_pro.speaker_list.first.delegation.country.name | upper}}</h4>
-            {% endif %}
+    {% if committee.people.number_present %}
+        <div class="row">
+            <div class="col"><h4>Simple Majority: {{ committee.people.simple_majority }}</h4></div>
+            <div class="col">
+                {% if committee.parli_pro.speaker_list.first %}
+                    <h4>At Podium: {{ committee.parli_pro.speaker_list.first.delegation.country.name | upper}}</h4>
+                {% endif %}
+            </div>
+            <div class="col"><h4>2/3 Majority: {{ committee.people.super_majority }}</h4></div>
         </div>
-        <div class="col"><h4>2/3 Majority: {{ committee.people.super_majority }}</h4></div>
-    </div>
+    {% endif %}
     <div class="row">
         <div class="col">
             <h4>
@@ -79,9 +81,11 @@
           <li class="nav-item active">
             <a class="nav-link" id="tally-tab" data-toggle="tab" href="#add-tally" role="tab" aria-controls="add-tally" aria-selected="true">Add Tally</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" id="speaker-tab" data-toggle="tab" href="#add-speaker" role="tab" aria-controls="add-speaker" aria-selected="false">Add Speaker</a>
-          </li>
+          {% if committee.parli_pro.current_mode.acronym == "SSL" or committee.parli_pro.current_mode.acronym == "PSL" %}
+              <li class="nav-item">
+                <a class="nav-link" id="speaker-tab" data-toggle="tab" href="#add-speaker" role="tab" aria-controls="add-speaker" aria-selected="false">Add Speaker</a>
+              </li>
+          {% endif %}
       {% endif %}
       <li class="nav-item">
         <a class="nav-link" id="motion-tab" data-toggle="tab" href="#add-motion" role="tab" aria-controls="add-motion" aria-selected="false">Add Motion</a>
@@ -91,6 +95,9 @@
             <a class="nav-link" id="vote-tab" data-toggle="tab" href="#vote-motion" role="tab" aria-controls="vote-motion" aria-selected="false">Vote Motion</a>
           </li>
       {% endif %}
+      <li class="nav-item">
+          <a class="nav-link" id="attendance-tab" data-toggle="tab" href="#attendance" role="tab" aria-controls="attendance" aria-selected="false">Attendance</a>
+      </li>
     </ul>
     <div class="tab-content" id="myTabContent">
       <div class="tab-pane fade show active" id="add-tally" role="tabpanel" aria-labelledby="add-tally-tab">
@@ -100,8 +107,14 @@
                 <div class="col-4">
                     <p>Delegation</p>
                     <select name="delegation" class="form-control" value="">
+                        {% if committee.parli_pro.current_mode.acronym == "Mod" %}
+                            {% for delegation in delegations %}
+                                <option value="{{ delegation.id }}"> {{ delegation.country.name }}</option>
+                            {% endfor %}
+                        {% else %}
                         <option value="{{ committee.parli_pro.speaker_list.first.id }}">
                             {{ committee.parli_pro.speaker_list.first.delegation.country.name }}</option>
+                        {% endif %}
                     </select>
                 </div>
                 <div class="col-2">
@@ -243,6 +256,38 @@
                         <p><button type="submit" class="btn btn-primary">Submit</button></p>
                     </div>
                 </div>
+            </form>
+        </div>
+        <div class="tab-pane fade" id="attendance" role="tabpanel" aria-labelledby="attendance-tab">
+            <form action="{% url 'update_attendance' %}" method="POST">
+                {% csrf_token %}
+                <table>
+                    <tr>
+                        <th>Delegation</th>
+                        <th>Present</th>
+                        <th>Present & Voting</th>
+                        <th>Absent</th>
+                    </tr>
+                    {% for delegation in delegations %}
+                        <tr>
+                            <th>{{ delegation.country.name }}</th>
+                            {% if delegation.present is False %}
+                                <td><input type="radio" name="attendance{{delegation.id}}" id="p{{delegation.id}}" value="P"></td>
+                                <td><input type="radio" name="attendance{{delegation.id}}" id="pv{{delegation.id}}" value="PV"></td>
+                                <td><input type="radio" name="attendance{{delegation.id}}" id="a{{delegation.id}}" value="A" checked="checked"></td>
+                            {% elif delegation.present and delegation.voting %}
+                                <td><input type="radio" name="attendance{{delegation.id}}" id="p{{delegation.id}}" value="P"></td>
+                                <td><input type="radio" name="attendance{{delegation.id}}" id="pv{{delegation.id}}" value="PV" checked="checked"></td>
+                                <td><input type="radio" name="attendance{{delegation.id}}" id="a{{delegation.id}}" value="A"></td>
+                            {% else %}
+                                <td><input type="radio" name="attendance{{delegation.id}}" id="p{{delegation.id}}" value="P" checked="checked"></td>
+                                <td><input type="radio" name="attendance{{delegation.id}}" id="pv{{delegation.id}}" value="PV"></td>
+                                <td><input type="radio" name="attendance{{delegation.id}}" id="a{{delegation.id}}" value="A"></td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </table>
+                <p><button type="submit" class="btn btn-primary">Submit Attendance</button></p>
             </form>
         </div>
     </div>

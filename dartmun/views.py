@@ -31,7 +31,7 @@ def get_context():
     context['set'] = Motion.objects.get(motion="Set a Working Agenda")
     return context
 
-
+@login_required
 def my_committee(request):
     """loads the my committee page"""
     context = get_context()
@@ -60,8 +60,4 @@ def tallies(request):
     """loads a transcript of the tallies"""
     context = get_context()
     return render(request, 'dartmun/tallies.html', context)
-
-
-
-
 

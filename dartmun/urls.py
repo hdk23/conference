@@ -15,4 +15,5 @@ urlpatterns = [
     path('add_motion_entry/', views.add_motion_entry, name='add_motion_entry'),
     path('remove_motion_entry/<int:id>', views.remove_motion_entry, name='remove_motion_entry'),
     path('vote_motion/', views.vote_motion, name='vote_motion'),
+    path('update_attendance/', views.update_attendance, name='update_attendance'),
 ]

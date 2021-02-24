@@ -52,8 +52,8 @@ class Delegation(models.Model):
     """
     country = CountryField()
     delegates = models.ManyToManyField(Delegate)
-    present = models.BooleanField(default=True)
-    voting = models.BooleanField(default=False)
+    present = models.BooleanField(null=True)
+    voting = models.BooleanField(null=True)
 
     def __str__(self):
         if self.voting:
@@ -70,10 +70,18 @@ class PeopleManager(models.Model):
     delegations = models.ManyToManyField(Delegation)
     simple_majority = models.PositiveSmallIntegerField(blank=True, null=True)
     super_majority = models.PositiveSmallIntegerField(blank=True, null=True)
+    number_present = models.PositiveSmallIntegerField(default=0)
+
+    def count_present(self):
+        """counts the number of delegates present in the committee"""
+        self.number_present = self.delegations.filter(present=True).count()
+        self.save()
+        return self.delegations.filter(present=True).count()
 
     def calc_votes(self):
-        self.simple_majority = self.delegations.all().count() // 2 + 1
-        self.super_majority = round(self.delegations.all().count() * 2 / 3)
+        """calculates the number of votes needed for a simple majority or a 2/3 majority"""
+        self.simple_majority = self.number_present // 2 + 1
+        self.super_majority = round(self.number_present * 2 / 3)
         self.save()
 
     def __str__(self):

@@ -90,3 +90,9 @@ alert {
 input {
   margin-bottom: 10px;
 }
+
+#attendance > form > table > tbody > tr > td, th {
+  margin: 0px 20px;
+  padding: 0px 20px;
+  text-align: center;
+}

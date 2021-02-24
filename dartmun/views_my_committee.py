@@ -3,12 +3,13 @@ from django.http import Http404, HttpResponseRedirect
 from django.contrib.admin.views.decorators import staff_member_required
 from .models import *
 
+committee = Committee.objects.first()
+
 
 @staff_member_required
 def add_speech_entry(request):
     delegation_id = int(request.POST.get("delegation"))
     delegation = Delegation.objects.get(pk=delegation_id)
-    committee = Committee.objects.first()
     committee.parli_pro.current_mode = DebateMode.objects.get(acronym="SSL")
     committee.parli_pro.save()
     try:
@@ -24,7 +25,6 @@ def add_speech_entry(request):
 @staff_member_required
 def remove_speech_entry(request, id):
     SpeechEntry.objects.get(pk=int(id)).delete()
-    committee = Committee.objects.first()
     if committee.parli_pro.speaker_list.count() == 0:
         committee.parli_pro.current_mode = DebateMode.objects.get(acronym="Open")
         committee.parli_pro.save()
@@ -46,7 +46,6 @@ def add_tally(request):
     if time:
         tally.time = time
     tally.save()
-    committee = Committee.objects.get(acronym="UNEP")
     committee.grades.add_tally(tally)
     if committee.parli_pro.speaker_list.count() == 0:
         committee.parli_pro.current_mode = DebateMode.objects.get(acronym="Open")
@@ -57,7 +56,6 @@ def add_tally(request):
 def remove_tally(request, id):
     tally = TallyScore.objects.get(pk=id)
     score_manager = ScoreManager.objects.get(delegation=tally.delegation)
-    committee = Committee.objects.first()
     committee.grades.remove_tally(tally)
     for tally_category in score_manager.tally_category_scores.all():
         print(tally_category.tallies.all())
@@ -92,22 +90,18 @@ def handle_vote(request, committee, motion_entry, score):
         committee.parli_pro.current_st = motion_entry.speaking_time
         committee.parli_pro.caucus_duration = motion_entry.duration
         committee.parli_pro.remaining_speeches = motion_entry.duration * 60 / motion_entry.speaking_time
-        committee.save()
     elif motion_entry.motion.motion == "Move into an Unmoderated Caucus":
         committee.parli_pro.current_mode = DebateMode.objects.get(acronym="Unmod")
         committee.parli_pro.caucus_duration = motion_entry.duration
-        committee.save()
     elif motion_entry.motion.motion == "Set a Working Agenda":
         committee.parli_pro.current_topic = motion_entry.topic
         committee.parli_pro.current_mode = DebateMode.objects.get(acronym="Open")
-        committee.save()
     elif motion_entry.motion.motion == "Set the Speaking Time":
         committee.parli_pro.current_st = motion_entry.speaking_time
-        committee.save()
     elif motion_entry.motion.motion == "Open Debate":
         committee.parli_pro.current_mode = DebateMode.objects.get(acronym="PSL")
         committee.open = True
-        committee.save()
+    committee.parli_pro.save()
     motion_entry.delete()
     motion_tally = create_motion_tally(request, motion_entry, score)
     committee.grades.add_tally(motion_tally)
@@ -132,8 +126,6 @@ def add_motion_entry(request):
         topic_id = int(request.POST.get("topic"))
         motion_entry.topic = Topic.objects.get(pk=topic_id)
     motion_entry.save()
-    committee = Committee.objects.first()
-    print(request.POST)
     if request.POST.get("discretion"):
         present = committee.people.delegations.filter(present=True).count()
         score = calc_motion_score(True, motion_entry.motion.vote_type, present)
@@ -158,8 +150,26 @@ def vote_motion(request):
     votes_for = int(request.POST.get("votes-for"))
     votes_against = int(request.POST.get("votes-against"))
     passes = motion_entry.passes(votes_for, votes_against)
-    committee = Committee.objects.first()
     if passes:
         score = calc_motion_score(True, motion_entry.motion.vote_type, votes_for)
         handle_vote(request, committee, motion_entry, score)
+    return HttpResponseRedirect(reverse('my_committee'))
+
+
+@staff_member_required
+def update_attendance(request):
+    for delegation in committee.people.delegations.all():
+        attendance = request.POST.get(f"attendance{delegation.id}")
+        if attendance[0] == "P":
+            delegation.present = True
+            if attendance == "PV":
+                delegation.voting = True
+            else:
+                delegation.voting = False
+        else:
+            delegation.present = False
+            delegation.voting = False
+        delegation.save()
+    committee.people.count_present()
+    committee.people.calc_votes()
     return HttpResponseRedirect(reverse('my_committee'))
