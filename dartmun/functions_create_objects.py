@@ -37,6 +37,7 @@ def create_committee():
     """creates a test committee"""
     committee = Committee(name="United Nations Environmental Programme", acronym="UNEP")
     committee.save()
+    indices = random.sample(list(range(len(countries))), len(countries))
 
     # initialize people and grade managers
     people_manager = PeopleManager()
@@ -48,6 +49,7 @@ def create_committee():
     committee.people = people_manager
     committee.grades = grades_manager
     committee.parli_pro = parli_pro_manager
+    committee.save()
     topic1 = Topic(topic="Air Pollution in Southeast Asia", number=1)
     topic2 = Topic(topic="Managing Outdated Nuclear Facilities", number=2)
     topic1.save()

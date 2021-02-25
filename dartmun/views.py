@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required
 from .functions_read_files import read_file
 from .models import *
 from .views_my_committee import *
+import time
+committee = Committee.objects.get(acronym="UNEP")
 
 
 # Create your views here.
@@ -23,20 +25,21 @@ def index(request):
 
 def get_context():
     context = {}
-    context['committee'] = Committee.objects.first()
-    context['delegations'] = context['committee'].people.delegations.order_by('country')
+    committee = Committee.objects.get(acronym="UNEP")
+    context['committee'] = committee
+    context['delegations'] = committee.people.sorted_present_delegations()
+    context['all_delegations'] = committee.people.sorted_all_delegations()
     context['modes'] = DebateMode.objects.all()
     context['motions'] = Motion.objects.all()
     context['open'] = Motion.objects.get(motion="Open Debate")
     context['set'] = Motion.objects.get(motion="Set a Working Agenda")
     return context
 
+
 @login_required
 def my_committee(request):
     """loads the my committee page"""
     context = get_context()
-    committee = Committee.objects.first()
-    committee.people.calc_votes()
     return render(request, 'dartmun/mycommittee.html', context)
 
 
@@ -48,7 +51,6 @@ def grades(request):
     """
     context = get_context()
     context['tally_categories'] = TallyCategory.objects.all()
-    committee = context['committee']
     if committee.grades.need_update:
         context['committee'].grades.calc_grades()
     context['score_managers'] = context['committee'].grades.score_managers.order_by('-score')

@@ -5,7 +5,7 @@ var vote_alert = document.getElementById("vote-alert");
 var del_count = document.getElementById("del-count");
 
 function validate_votes(event){
-  if ((votes_for.value + votes_against.value) > del_count.value){
+  if ((parseInt(votes_for.value, 10) + parseInt(votes_against.value, 10)) > del_count.value){
     vote_alert.innerHTML = "The number of votes exceeds the number of delegates present."
     vote_alert.hidden = false;
   }

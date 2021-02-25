@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django_countries.fields import CountryField
-import numpy as np
 
 
 # Create your models here.
@@ -55,6 +54,20 @@ class Delegation(models.Model):
     present = models.BooleanField(null=True)
     voting = models.BooleanField(null=True)
 
+    def update_attendance(self, attendance: str):
+        """
+        updates the delegate's attendance status
+        P: Present, PV: Present and Voting, A: Absent
+        """
+        if attendance[0] == "P":
+            self.present = True
+            self.voting = (attendance == "PV")
+            self.save()
+        else:
+            self.present = False
+            self.voting = False
+            self.save()
+
     def __str__(self):
         if self.voting:
             return f"Delegation of {self.country.name}: Present and Voting"
@@ -71,6 +84,15 @@ class PeopleManager(models.Model):
     simple_majority = models.PositiveSmallIntegerField(blank=True, null=True)
     super_majority = models.PositiveSmallIntegerField(blank=True, null=True)
     number_present = models.PositiveSmallIntegerField(default=0)
+
+    def sorted_all_delegations(self):
+        return self.delegations.all().order_by('country')
+
+    def sorted_present_delegations(self):
+        if self.number_present:
+            return self.delegations.filter(present=True).order_by('country')
+        else:
+            return self.delegations.filter(present=True)
 
     def count_present(self):
         """counts the number of delegates present in the committee"""
