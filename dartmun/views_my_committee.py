@@ -25,22 +25,20 @@ def remove_speech_entry(request, id):
 @staff_member_required
 def add_tally(request):
     """adds tally for the delegation"""
-    speech_entry_id = int(request.POST.get("delegation"))
-    speech_entry = SpeechEntry.objects.get(pk=speech_entry_id)
-    delegation_id = speech_entry.delegation.id
+    delegation_id = int(request.POST.get("delegation"))
     delegation = Delegation.objects.get(pk=delegation_id)
     score = int(request.POST.get("score"))
     comments = request.POST.get("comments")
     time = request.POST.get("time")
     category = TallyCategory.objects.get(acronym="S")
-    tally = TallyScore(scorer=Chair.objects.get(user=request.user), delegation=delegation, category=category, score=score, comments=comments)
+    tally = TallyScore(scorer=Chair.objects.get(user=request.user), delegation=delegation, category=category,
+                       score=score, comments=comments)
     if time:
         tally.time = time
     tally.save()
     committee.grades.add_tally(tally)
-    if committee.parli_pro.speaker_list.count() == 0:
-        committee.parli_pro.current_mode = DebateMode.objects.get(acronym="Open")
-    return remove_speech_entry(request, speech_entry_id)
+    committee.parli_pro.after_tally(delegation)
+    return HttpResponseRedirect(reverse('my_committee'))
 
 
 @staff_member_required
@@ -84,7 +82,6 @@ def add_motion_entry(request):
         score = motion_entry.calc_motion_score(present)
         motion_tally = create_motion_tally(request, motion_entry, score)
         committee.grades.add_tally(motion_tally)
-        committee.grades.save()
         committee.parli_pro.handle_vote(motion_entry)
     else:
         committee.parli_pro.motion_list.add(motion_entry)

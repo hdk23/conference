@@ -50,6 +50,10 @@ def create_committee():
     committee.grades = grades_manager
     committee.parli_pro = parli_pro_manager
     committee.save()
+    caucus_manager = CaucusManager()
+    caucus_manager.save()
+    committee.parli_pro.caucus = caucus_manager
+    committee.parli_pro.save()
     topic1 = Topic(topic="Air Pollution in Southeast Asia", number=1)
     topic2 = Topic(topic="Managing Outdated Nuclear Facilities", number=2)
     topic1.save()
@@ -91,6 +95,7 @@ def reset_committee():
     GradesManager.objects.all().delete()
     PeopleManager.objects.all().delete()
     ParliProManager.objects.all().delete()
+    CaucusManager.objects.all().delete()
     Motion.objects.all().delete()
     MotionEntry.objects.all().delete()
     SpeechEntry.objects.all().delete()

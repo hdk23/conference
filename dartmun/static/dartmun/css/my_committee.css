@@ -96,3 +96,15 @@ input {
   padding: 0px 20px;
   text-align: center;
 }
+
+#show-delegates{
+    height: 400px;
+    border: 2px solid lightgrey;
+    border-radius: 10px;
+}
+
+#staff-only{
+    height: 440px;
+    border: 2px solid lightgrey;
+    border-radius: 10px;
+}

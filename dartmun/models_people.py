@@ -10,6 +10,9 @@ class Chair(models.Model):
     Separate classes for CDs and CMs
     """
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    year = models.PositiveSmallIntegerField(default=2024, null=True)
+    major = models.CharField(max_length=64, blank=True, null=True)
+    experience = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f"Chair {self.user.get_full_name()}"
@@ -107,4 +110,6 @@ class PeopleManager(models.Model):
         self.save()
 
     def __str__(self):
+        if self.number_present:
+            return f"Simple: {self.simple_majority}, 2/3: {self.super_majority}, Present: {self.number_present}"
         return f"People Manager"

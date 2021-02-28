@@ -3,14 +3,11 @@ h1 {
     text-align: center;
 }
 
-#show-delegates{
-    height: 400px;
-    border: 2px solid lightgrey;
-    border-radius: 10px;
+#body {
+    height: 840px;
 }
 
-#staff-only{
-    height: 440px;
-    border: 2px solid lightgrey;
-    border-radius: 10px;
+#navbar {
+    background-color: #00693e;
+    color: whitesmoke;
 }

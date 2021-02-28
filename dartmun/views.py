@@ -4,7 +4,6 @@ from django.http import Http404, HttpResponseRedirect
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from .functions_read_files import read_file
-from .models import *
 from .views_my_committee import *
 import time
 committee = Committee.objects.get(acronym="UNEP")
@@ -24,15 +23,13 @@ def index(request):
 
 
 def get_context():
-    context = {}
     committee = Committee.objects.get(acronym="UNEP")
-    context['committee'] = committee
-    context['delegations'] = committee.people.sorted_present_delegations()
-    context['all_delegations'] = committee.people.sorted_all_delegations()
-    context['modes'] = DebateMode.objects.all()
-    context['motions'] = Motion.objects.all()
-    context['open'] = Motion.objects.get(motion="Open Debate")
-    context['set'] = Motion.objects.get(motion="Set a Working Agenda")
+    committee.parli_pro.caucus_over()
+    context = {'committee': committee, 'delegations': committee.people.sorted_present_delegations(),
+               'all_delegations': committee.people.sorted_all_delegations(), 'modes': DebateMode.objects.all(),
+               'motions': Motion.objects.all(), 'open': Motion.objects.get(motion="Open Debate"),
+               'set': Motion.objects.get(motion="Set a Working Agenda")
+               }
     return context
 
 
@@ -51,9 +48,9 @@ def grades(request):
     """
     context = get_context()
     context['tally_categories'] = TallyCategory.objects.all()
-    if committee.grades.need_update:
+    if context['committee'].grades.need_update:
         context['committee'].grades.calc_grades()
-    context['score_managers'] = context['committee'].grades.score_managers.order_by('-score')
+    context['score_managers'] = context['committee'].grades.score_managers.order_by('delegation__country').order_by('-score')
     return render(request, 'dartmun/grades.html', context)
 
 

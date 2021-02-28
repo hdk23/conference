@@ -20,6 +20,7 @@ admin.site.register(ScoreManager)
 admin.site.register(PeopleManager)
 admin.site.register(GradesManager)
 admin.site.register(ParliProManager)
+admin.site.register(CaucusManager)
 
 # parlipro models
 admin.site.register(Motion)
