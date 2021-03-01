@@ -2,6 +2,7 @@ from .models_people import *
 from .models_score import *
 from .models_tally import *
 from .models_parli_pro import *
+from .models_rubric import *
 from .models_grades_manager import GradesManager
 from .models_parlipro_manager import ParliProManager
 from .models_caucus_manager import CaucusManager

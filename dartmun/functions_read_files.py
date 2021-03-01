@@ -5,6 +5,7 @@ import csv
 def read_file(file_name):
     with open(f'dartmun/inputs/dartmun/{file_name}.csv') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
+        header_row = []
         line_count = 0
         for row in csv_reader:
             if line_count != 0:
@@ -16,6 +17,10 @@ def read_file(file_name):
                     read_modes(row)
                 elif file_name == "motions":
                     read_motions(row)
+                elif file_name == "pp_rubric":
+                    read_papers(row, header_row)
+            else:
+                header_row = row
             line_count += 1
 
 
@@ -37,3 +42,19 @@ def read_modes(row):
 
 def read_motions(row):
     Motion(motion=row[0], vote_type=row[1], speeches=row[2], duration=row[3], speaking_time=row[4], topic=row[5], purpose=row[6]).save()
+
+
+def read_papers(row, header_row):
+    criterion = Criterion(criterion=row[0], weight=int(header_row[1]))
+    criterion.save()
+    rubric = Rubric.objects.get(title="Position Paper Rubric")
+    rubric.max_possible += criterion.weight
+    rubric.save()
+    for num in range(1, len(row)):
+        descriptor = Descriptor(descriptor=row[num], points=header_row[num])
+        descriptor.save()
+        criterion.possible_scores.add(descriptor)
+        criterion.save()
+        rubric.criteria.add(criterion)
+        rubric.save()
+

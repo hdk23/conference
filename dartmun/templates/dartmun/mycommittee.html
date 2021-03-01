@@ -273,14 +273,20 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col">
+                    <div class="col-6">
                         <p><button type="submit" name="discretion" value="discretion" class="btn btn-success form-btn" id="discretion">Passes Under Chair's Discretion</button></p>
                     </div>
-                    <div class="col">
+                    <div class="col-6">
                         <p><button type="submit" name="vote" value="vote" class="btn btn-primary form-btn" id="vote">Submit</button></p>
                     </div>
                 </div>
             </form>
+            <div class="row" id="ssl">
+                <div class="col">
+                    <p><a href="{% url 'ssl' %}"><button class="btn btn-info form-btn">Speaker's List</button></a></p>
+                </div>
+            </div>
+
         </div>
         {% if committee.parli_pro.current_mode.acronym == "PSL" %}
             <div class="tab-pane fade active show" id="add-speaker" role="tabpanel" aria-labelledby="speaker-tab">

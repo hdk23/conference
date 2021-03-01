@@ -1,0 +1,73 @@
+{% extends "./layout.html" %}
+
+{%  block title %}
+    Position Papers
+{%  endblock %}
+
+{% load static %}
+{%  block css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'dartmun/css/pospaper.css' %}">
+{%  endblock %}
+
+{%  block body %}
+    {% if request.user.is_staff %}
+        <h2>{{committee.name}}</h2>
+    {% else %}
+        <h2>{{request.user.get_full_name}}</h2>
+    {% endif %}
+    <h3>Position Papers</h3>
+    <div class="row">
+        <div class="col-4" id="country-col">
+            {% for delegation in all_delegations %}
+                <a href="{% url 'delegation_papers' delegation.id %}">
+                    <div class="row country">
+                    {{ delegation.country.name }}
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+        <div class="col-8" id="paper-col">
+            {% if delegation %}
+                <h2 id="delegation-name">{{ delegation.country.name }}</h2>
+
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    {% for paper in papers %}
+                        <li class="nav-item active">
+                        {% if forloop.first %}
+                            <a class="nav-link active" id="paper{{paper.id}}-tab" data-toggle="tab" href="#paper{{ topic.number }}" role="tab" aria-controls="paper{{ topic.number }}" aria-selected="false">
+
+                        {% else %}
+                            <a class="nav-link" id="paper{{paper.id}}-tab" data-toggle="tab" href="#paper{{ topic.number }}" role="tab" aria-controls="paper{{ topic.number }}" aria-selected="false">
+                        {% endif %}
+                            {{ paper.rubric.topic }}
+                            </a>
+                        </li>
+
+                    {% endfor %}
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                     {% for paper in papers %}
+                         {% if forloop.first %}
+                            <div class="tab-pane fade active show" id="paper{{ paper.id }}"
+                                 role="tabpanel" aria-labelledby="paper{{ paper.id }}-tab">
+                         {% else %}
+                             <div class="tab-pane fade" id="paper{{ paper.id }}"
+                                 role="tabpanel" aria-labelledby="paper{{ paper.id }}-tab">
+                         {% endif %}
+                         <form action="" method="POST">
+                            {% csrf_token %}
+                             {% for criterion in paper.rubric.criterion_scores.all %}
+                                 <div class="row">{{ criterion }}</div>
+                             {% endfor %}
+                         </form>
+                         </div>
+                     {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{%  endblock %}
+
+{%  block scripts %}
+
+{%  endblock %}

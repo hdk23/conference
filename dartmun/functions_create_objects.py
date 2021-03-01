@@ -29,7 +29,16 @@ def create_delegation(committee: Committee) -> Delegation:
         score_manager.save()
     committee.grades.score_managers.add(score_manager)
     committee.save()
-
+    rubric = Rubric.objects.get(title="Position Paper Rubric")
+    for topic in committee.topics.all():
+        rubric_entry = RubricEntry(rubric=rubric, topic=topic)
+        rubric_entry.save()
+        for criterion in rubric.criteria.all():
+            criterion_score = CriterionScore(criterion=criterion)
+            criterion_score.save()
+            rubric_entry.criterion_scores.add(criterion_score)
+            rubric_entry.save()
+        TallyScore(delegation=delegation, category=TallyCategory.objects.get(acronym="PP"),rubric=rubric_entry).save()
     return delegation
 
 
@@ -75,6 +84,7 @@ def create_committee():
         committee_tally_category.save()
         committee.grades.tally_categories.add(committee_tally_category)
 
+
     # add delegates
     for num in range(40):
         committee.people.delegations.add(create_delegation(committee))
@@ -101,4 +111,9 @@ def reset_committee():
     SpeechEntry.objects.all().delete()
     DebateMode.objects.all().delete()
     Topic.objects.all().delete()
+    Descriptor.objects.all().delete()
+    Criterion.objects.all().delete()
+    CriterionScore.objects.all().delete()
+    Rubric.objects.all().delete()
+    RubricEntry.objects.all().delete()
     User.objects.filter(is_superuser=False).delete()

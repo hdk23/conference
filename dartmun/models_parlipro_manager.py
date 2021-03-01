@@ -13,6 +13,11 @@ class ParliProManager(models.Model):
     speaker_list = models.ManyToManyField(SpeechEntry, blank=True)
     motion_list = models.ManyToManyField(MotionEntry, blank=True)
 
+    def start_ssl(self):
+        """starts a secondary speaker's list in the committee"""
+        self.current_mode = DebateMode.objects.get(acronym="SSL")
+        self.save()
+
     def add_speaker(self, delegation: Delegation):
         """adds speaker to the speaker list"""
         if self.current_mode.acronym != "PSL":
@@ -67,7 +72,7 @@ class ParliProManager(models.Model):
 
     def caucus_over(self):
         """determines whether the caucus is over based on the time until"""
-        if self.current_mode.acronym == "Unmod" and self.caucus.caucus_over():
+        if self.current_mode and self.current_mode.acronym == "Unmod" and self.caucus.caucus_over():
             self.current_mode = DebateMode.objects.get(acronym="Open")
         self.save()
 

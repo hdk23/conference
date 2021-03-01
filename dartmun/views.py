@@ -18,6 +18,9 @@ def index(request):
     read_file("categories")
     read_file("modes")
     read_file("motions")
+    pp_rubric = Rubric(title="Position Paper Rubric", tally_category=TallyCategory.objects.get(acronym="PP"))
+    pp_rubric.save()
+    read_file("pp_rubric")
     create_committee()
     return render(request, 'dartmun/index.html', context)
 
@@ -60,3 +63,19 @@ def tallies(request):
     context = get_context()
     return render(request, 'dartmun/tallies.html', context)
 
+
+@login_required
+def pospapers(request):
+    """loads the position papers page"""
+    context = get_context()
+    return render(request, 'dartmun/pospapers.html', context)
+
+@staff_member_required
+def delegation_papers(request, id):
+    """gets a delegation's position papers"""
+    context = get_context()
+    delegation = Delegation.objects.get(pk=id)
+    context['delegation'] = delegation
+    category = TallyCategory.objects.get(acronym="PP")
+    context['papers'] = TallyScore.objects.filter(delegation=delegation, category=category)
+    return render(request, 'dartmun/pospapers.html', context)

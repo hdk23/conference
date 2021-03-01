@@ -131,3 +131,10 @@ def set_mod_speaker(request, order):
     """sets the delegate that raised the motion as either the first or last speaker"""
     committee.parli_pro.caucus.set_mod_speaker(order)
     return HttpResponseRedirect(reverse('my_committee'))
+
+
+@staff_member_required
+def ssl(request):
+    """starts a secondary speaker's list (SSL) for the committee"""
+    committee.parli_pro.start_ssl()
+    return HttpResponseRedirect(reverse('my_committee'))

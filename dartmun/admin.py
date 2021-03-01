@@ -33,3 +33,10 @@ admin.site.register(Topic)
 admin.site.register(TallyCategory)
 admin.site.register(CommitteeTallyCategory)
 admin.site.register(TallyGroup)
+
+# rubric models
+admin.site.register(Rubric)
+admin.site.register(Criterion)
+admin.site.register(Descriptor)
+admin.site.register(CriterionScore)
+admin.site.register(RubricEntry)
