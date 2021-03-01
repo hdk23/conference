@@ -25,33 +25,77 @@ var speakTime = document.getElementById("speak-time");
 var duration_value = document.getElementById("duration-value");
 var time_value = document.getElementById("time-value");
 var purpose = document.getElementById("purpose");
+var purpose_value = document.getElementById("purpose-value");
 var topic = document.getElementById("topic");
 var selectedTopic = document.getElementById("selected-topic");
+var discretion = document.getElementById("discretion");
+var vote = document.getElementById("vote");
+
+function hide_submit_btns(element, value){
+  console.log(element);
+  console.log(value.value);
+  if (!element.hidden && value.value == 0) {
+    discretion.disabled = true;
+    vote.disabled = true;
+  }
+  else {
+    discretion.disabled = false;
+    vote.disabled = false;
+  }
+}
+
+function submit_btns_after_edit(event){
+  if (!event.target.hidden && event.target.value != 0){
+    discretion.disabled = false;
+    vote.disabled = false;
+  }
+  else{
+    discretion.disabled = true;
+    vote.disabled = true;
+  }
+}
 
 function show_inputs(event){
   const has_duration =["Move into a Moderated Caucus", "Move into an Unmoderated Caucus"]
   const has_speaktime =["Move into a Moderated Caucus", "Set the Speaking Time"]
-  var motion_name = selectedMotion.options[selectedMotion.selectedIndex].text
+  var motion_name = selectedMotion.options[selectedMotion.selectedIndex].text;
   duration.hidden = !has_duration.includes(motion_name);
+  hide_submit_btns(duration, duration_value);
   speakTime.hidden = !has_speaktime.includes(motion_name);
-  purpose.hidden = motion_name != "Move into a Moderated Caucus";
-  topic.hidden = motion_name != "Set a Working Agenda";
+  hide_submit_btns(speakTime, time_value);
+  purpose.hidden = motion_name !== "Move into a Moderated Caucus";
+  hide_submit_btns(purpose, purpose_value);
+  topic.hidden = motion_name !== "Set a Working Agenda";
 }
 
-function divisibility_check(event){
-  if (duration_value.value * 60 % time_value.value){
-    motion_alert.innerHTML = "The duration and speaking time must be divisible.";
-    motion_alert.hidden = false;
-  }
-  else{
-    motion_alert.hidden = true;
+function divisibility_check(event) {
+  var motion_name = selectedMotion.options[selectedMotion.selectedIndex].text;
+  if (motion_name === "Move into a Moderated Caucus") {
+    if (!duration_value.value || !time_value.value || (duration_value.value == 0 || time_value.value == 0) || ! purpose_value.value) {
+      discretion.disabled = true;
+      vote.disabled = true;
+    } else if (duration_value.value * 60 % time_value.value) {
+      motion_alert.innerHTML = "The duration and speaking time must be divisible.";
+      motion_alert.hidden = false;
+      discretion.disabled = true;
+      vote.disabled = true;
+    } else {
+      motion_alert.hidden = true;
+      discretion.disabled = false;
+      vote.disabled = false;
+    }
   }
 }
 
-selectedMotion.addEventListener('input', show_inputs)
-selectedTopic.addEventListener('input', show_inputs)
-duration.addEventListener('input', divisibility_check)
-speakTime.addEventListener('input', divisibility_check)
+
+selectedMotion.addEventListener('input', show_inputs);
+selectedTopic.addEventListener('input', show_inputs);
+duration.addEventListener('input', submit_btns_after_edit);
+speakTime.addEventListener('input', submit_btns_after_edit);
+duration.addEventListener('input', divisibility_check);
+speakTime.addEventListener('input', divisibility_check);
+purpose_value.addEventListener('input', submit_btns_after_edit);
+
 
 // slider code
 var slider = document.getElementById("myRange");
