@@ -4,13 +4,14 @@ from .models_caucus_manager import CaucusManager
 
 
 class ParliProManager(models.Model):
+    """Parli Pro Manager to manage caucuses, speakers, and motions"""
     open = models.BooleanField(default=False)
     default_st = models.PositiveSmallIntegerField(default=120)
     caucus = models.ForeignKey(CaucusManager, blank=True, null=True, on_delete=models.CASCADE)
     current_topic = models.ForeignKey(Topic, blank=True, null=True, on_delete=models.CASCADE)
+    current_mode = models.ForeignKey(DebateMode, blank=True, null=True, on_delete=models.CASCADE)
     speaker_list = models.ManyToManyField(SpeechEntry, blank=True)
     motion_list = models.ManyToManyField(MotionEntry, blank=True)
-    current_mode = models.ForeignKey(DebateMode, blank=True, null=True, on_delete=models.CASCADE)
 
     def add_speaker(self, delegation: Delegation):
         """adds speaker to the speaker list"""
@@ -44,7 +45,7 @@ class ParliProManager(models.Model):
             self.current_mode = DebateMode.objects.get(acronym="Open")
             self.current_topic = motion_entry.topic
         elif motion_entry.motion.motion == "Set the Speaking Time":
-            self.caucus.current_st = motion_entry.speaking_time
+            self.caucus.default_st = motion_entry.speaking_time
         elif motion_entry.motion.motion == "Open Debate":
             self.current_mode = DebateMode.objects.get(acronym="PSL")
             self.open = True
@@ -60,11 +61,13 @@ class ParliProManager(models.Model):
                 self.current_mode = DebateMode.objects.get(acronym="Open")
         elif self.current_mode.acronym == "Mod":
             self.caucus.decrement_speech_count()
+            if self.caucus.end_mod():
+                self.current_mode = DebateMode.objects.get(acronym="Open")
         self.save()
 
     def caucus_over(self):
         """determines whether the caucus is over based on the time until"""
-        if self.caucus.caucus_over():
+        if self.current_mode.acronym == "Unmod" and self.caucus.caucus_over():
             self.current_mode = DebateMode.objects.get(acronym="Open")
         self.save()
 

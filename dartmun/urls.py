@@ -14,6 +14,7 @@ urlpatterns = [
     path('remove_speech_entry/<int:id>', views.remove_speech_entry, name='remove_speech_entry'),
     path('add_motion_entry/', views.add_motion_entry, name='add_motion_entry'),
     path('remove_motion_entry/<int:id>', views.remove_motion_entry, name='remove_motion_entry'),
+    path('set_mod_speaker/<str:order>', views.set_mod_speaker, name='set_mod_speaker'),
     path('vote_motion/', views.vote_motion, name='vote_motion'),
     path('update_attendance/', views.update_attendance, name='update_attendance'),
 ]

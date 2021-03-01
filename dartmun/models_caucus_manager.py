@@ -5,6 +5,7 @@ from .models_parli_pro import MotionEntry, DebateMode
 
 
 class CaucusManager(models.Model):
+    """Caucus Manager to manage caucus functionalities (unmod/mod)"""
     caucus_duration = models.PositiveSmallIntegerField(blank=True, null=True)
     caucus_until = models.TimeField(blank=True, null=True)
     current_st = models.PositiveSmallIntegerField(blank=True, null=True)
@@ -21,6 +22,15 @@ class CaucusManager(models.Model):
         self.raised_by = motion_entry.delegation
         self.save()
 
+    def set_mod_speaker(self, order):
+        """sets the delegation that raised the motion as either the first or last speaker"""
+        if order == "first":
+            self.last = False
+            self.spoke = False
+        else:
+            self.last = True
+        self.save()
+
     def set_unmod(self, motion_entry: MotionEntry):
         """sets the values for an unmoderated caucus"""
         self.caucus_duration = motion_entry.duration
@@ -31,15 +41,16 @@ class CaucusManager(models.Model):
         """decrements the speech count during a moderated caucus"""
         self.remaining_speeches -= 1
         if self.remaining_speeches == 0:
-            self.current_mode = DebateMode.objects.get(acronym="Open")
             self.caucus_duration = None
             self.current_st = None
+        if self.spoke is False:
+            self.spoke = True
         self.save()
 
     def caucus_over(self) -> bool:
         """returns whether the unmoderated caucus is over"""
-        print(self.caucus_until)
         print(datetime.now().time())
+        print(self.caucus_until)
         if self.caucus_until and datetime.now().time() >= self.caucus_until:
             self.caucus_duration = None
             self.caucus_until = None
@@ -47,10 +58,19 @@ class CaucusManager(models.Model):
             return True
         return False
 
+    def end_mod(self) -> bool:
+        """ends the moderated caucus if there are no speakers left"""
+        if self.remaining_speeches == 0:
+            self.last = None
+            self.spoke = None
+            self.save()
+            return True
+        return False
+
     def __str__(self):
         if self.current_st and self.caucus_duration:
-            return f"Mod: {self.caucus_duration}/{self.current_st}"
+            return f"Moderated Caucus: {self.caucus_duration}/{self.current_st}"
         elif self.caucus_until:
-            return f"Unmod Until {self.caucus_until}"
+            return f"Unmoderated Caucus Until {self.caucus_until}"
         else:
             return f"Caucus Manager"

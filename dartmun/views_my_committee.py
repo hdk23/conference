@@ -123,6 +123,11 @@ def update_attendance(request):
         delegation.update_attendance(attendance)
     committee.people.count_present()
     committee.people.calc_votes()
-    print(committee.people.simple_majority)
-    print(committee.people.super_majority)
+    return HttpResponseRedirect(reverse('my_committee'))
+
+
+@staff_member_required
+def set_mod_speaker(request, order):
+    """sets the delegate that raised the motion as either the first or last speaker"""
+    committee.parli_pro.caucus.set_mod_speaker(order)
     return HttpResponseRedirect(reverse('my_committee'))

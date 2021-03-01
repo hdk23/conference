@@ -57,9 +57,18 @@
                 </h4>
                 {% if committee.parli_pro.current_mode.acronym == "Mod" %}
                     {% if committee.parli_pro.caucus.remaining_speeches == 1 %}
-                        <h5>THE CHAIR WILL TAKE ONE FINAL SPEAKER</h5>
+                        {% if committee.parli_pro.caucus.last %}
+                            <h5>{{ committee.parli_pro.caucus.raised_by.country.name | upper}} WILL BE THE FINAL SPEAKER</h5>
+                        {% else %}
+                            <h5>THE CHAIR WILL TAKE ONE FINAL SPEAKER</h5>
+                        {% endif %}
                     {% else %}
-                        <h5>{{ committee.parli_pro.caucus.remaining_speeches }} Speeches Remaining</h5>
+                        {% if committee.parli_pro.caucus.last == False and committee.parli_pro.caucus.spoke == False %}
+                            <h5>{{ committee.parli_pro.caucus.raised_by.country.name | upper}} WILL BE THE FIRST SPEAKER</h5>
+                        {% else %}
+                            <h5>{{ committee.parli_pro.caucus.remaining_speeches }} Speeches Remaining</h5>
+                        {% endif %}
+
                     {% endif %}
                 {% endif %}
             </div>
@@ -139,19 +148,35 @@
             <div class="tab-content" id="myTabContent">
                 {% if committee.parli_pro.current_mode.acronym and committee.parli_pro.current_mode.acronym == "Mod" or committee.parli_pro.current_mode.acronym == "SSL" %}
                     <div class="tab-pane fade show active" id="add-tally" role="tabpanel" aria-labelledby="add-tally-tab">
-                {% else %}
+                {% elif committee.parli_pro.current_mode.acronym != "Unmod" %}
                     <div class="tab-pane" id="add-tally" role="tabpanel" aria-labelledby="add-tally-tab">
+                {% else %}
+                    <div class="tab-pane" id="add-tally" role="tabpanel" aria-labelledby="add-tally-tab" hidden>
                 {% endif %}
-                <form action="{% url 'index' %}" method="POST">
-
-                </form>
+                {% if committee.parli_pro.current_mode.acronym == "Mod" and committee.parli_pro.caucus.last == None %}
+                    <div class="alert alert-info" role="alert">
+                        Delegation of {{ committee.parli_pro.caucus.raised_by.country.name }}, would you like to speak first or last?
+                        <a href="{% url 'set_mod_speaker' 'first' %}"><button class="btn btn-success">First</button></a>
+                        <a href="{% url 'set_mod_speaker' 'last' %}"><button class="btn btn-primary">Last</button></a>
+                    </div>
+                {% endif %}
                 <form action="{% url 'add_tally' %}" method="POST">
                     {% csrf_token %}
                     <div class="row">
                         <div class="col-4">
                             <p>Delegation</p>
                             <select name="delegation" class="form-control">
-                                {% if committee.parli_pro.current_mode.acronym == "Mod" or not committee.parli_pro.speaker_list.count %}
+                                {% if committee.parli_pro.current_mode.acronym == "Mod" %}
+                                    {% if committee.parli_pro.caucus.last == False and committee.parli_pro.caucus.spoke == False %}
+                                        <option value="{{ committee.parli_pro.caucus.raised_by.id }}"> {{ committee.parli_pro.caucus.raised_by.country.name }}</option>
+                                    {% elif committee.parli_pro.caucus.last == True and committee.parli_pro.caucus.remaining_speeches == 1 %}
+                                        <option value="{{ committee.parli_pro.caucus.raised_by.id }}"> {{ committee.parli_pro.caucus.raised_by.country.name }}</option>
+                                    {% else %}
+                                        {% for delegation in delegations %}
+                                            <option value="{{ delegation.id }}"> {{ delegation.country.name }}</option>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% elif not committee.parli_pro.speaker_list.count %}
                                     {% for delegation in delegations %}
                                         <option value="{{ delegation.id }}"> {{ delegation.country.name }}</option>
                                     {% endfor %}
@@ -299,11 +324,11 @@
                     </div>
                     <div class="col-2">
                         <p>Votes For</p>
-                        <input type="number" class="form-control" id="votes-for" name="votes-for" min="0" max="{{ committee.people.number_present }}">
+                        <input type="number" class="form-control" id="votes-for" name="votes-for" min="0" max="{{ committee.people.number_present }}" required>
                     </div>
                     <div class="col-2">
                         <p>Votes Against</p>
-                        <input type="number" class="form-control" id="votes-against" name="votes-against" min="0" max="{{ committee.people.number_present }}">
+                        <input type="number" class="form-control" id="votes-against" name="votes-against" min="0" max="{{ committee.people.number_present }}" required>
                     </div>
                     <div class="col-2">
                         <p>Submit</p>
