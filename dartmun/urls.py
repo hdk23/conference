@@ -20,4 +20,5 @@ urlpatterns = [
     path('tallies/', views.tallies, name='tallies'),
     path('pospapers/', views.pospapers, name='pospapers'),
     path('pospapers/<int:id>', views.delegation_papers, name='delegation_papers'),
+    path('update_paper/<int:id>', views.update_paper, name='update_paper'),
 ]

@@ -2,7 +2,7 @@ from django.shortcuts import render, reverse
 from django.http import Http404, HttpResponseRedirect
 from django.contrib.admin.views.decorators import staff_member_required
 from .models import *
-
+import time
 committee = Committee.objects.get(acronym="UNEP")
 
 
@@ -11,6 +11,7 @@ def add_speech_entry(request):
     """adds an entry to the speaker's list"""
     delegation_id = int(request.POST.get("delegation"))
     delegation = Delegation.objects.get(pk=delegation_id)
+    committee = Committee.objects.get(acronym="UNEP")
     committee.parli_pro.add_speaker(delegation)
     return HttpResponseRedirect(reverse('my_committee'))
 
@@ -18,6 +19,7 @@ def add_speech_entry(request):
 @staff_member_required
 def remove_speech_entry(request, id):
     """removes an entry from the speaker's list"""
+    committee = Committee.objects.get(acronym="UNEP")
     committee.parli_pro.remove_speaker(id)
     return HttpResponseRedirect(reverse('my_committee'))
 
@@ -25,6 +27,7 @@ def remove_speech_entry(request, id):
 @staff_member_required
 def add_tally(request):
     """adds tally for the delegation"""
+    committee = Committee.objects.get(acronym="UNEP")
     delegation_id = int(request.POST.get("delegation"))
     delegation = Delegation.objects.get(pk=delegation_id)
     score = int(request.POST.get("score"))
@@ -44,6 +47,7 @@ def add_tally(request):
 @staff_member_required
 def remove_tally(request, id):
     """removes a tally from a delegation's record"""
+    committee = Committee.objects.get(acronym="UNEP")
     tally = TallyScore.objects.get(pk=id)
     committee.grades.remove_tally(tally)
     return HttpResponseRedirect(reverse('tallies'))
@@ -129,6 +133,7 @@ def update_attendance(request):
 @staff_member_required
 def set_mod_speaker(request, order):
     """sets the delegate that raised the motion as either the first or last speaker"""
+    committee = Committee.objects.get(acronym="UNEP")
     committee.parli_pro.caucus.set_mod_speaker(order)
     return HttpResponseRedirect(reverse('my_committee'))
 
@@ -136,5 +141,6 @@ def set_mod_speaker(request, order):
 @staff_member_required
 def ssl(request):
     """starts a secondary speaker's list (SSL) for the committee"""
+    committee = Committee.objects.get(acronym="UNEP")
     committee.parli_pro.start_ssl()
     return HttpResponseRedirect(reverse('my_committee'))

@@ -38,7 +38,12 @@ def create_delegation(committee: Committee) -> Delegation:
             criterion_score.save()
             rubric_entry.criterion_scores.add(criterion_score)
             rubric_entry.save()
-        TallyScore(delegation=delegation, category=TallyCategory.objects.get(acronym="PP"),rubric=rubric_entry).save()
+        paper_category = TallyCategory.objects.get(acronym="PP")
+        paper = TallyScore(delegation=delegation, category=paper_category, rubric=rubric_entry)
+        paper.save()
+        committee_category = CommitteeTallyCategory.objects.get(category=paper_category)
+        score_manager.tally_category_scores.get(category=committee_category).add_tally(paper)
+        score_manager.save()
     return delegation
 
 

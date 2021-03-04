@@ -22,3 +22,12 @@
 #delegation-name {
     text-align: center;
 }
+
+#scoring-sheet > tr > td, th {
+    padding: 10px;
+    text-align: center;
+}
+
+#paper-score{
+    color: red;
+}

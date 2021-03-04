@@ -106,7 +106,7 @@
                 {% if committee.parli_pro.current_mode %}
                     {% if committee.parli_pro.current_mode.acronym == "Mod" or committee.parli_pro.current_mode.acronym == "SSL" %}
                         <li class="nav-item active">
-                    {% elif committee.parli_pro.current_topic %}
+                    {% elif committee.parli_pro.current_topic or committee.parli_pro.current_mode.acronym == "PSL" %}
                         <li class="nav-item">
                     {% else %}
                         <li class="nav-item" hidden>
@@ -146,12 +146,12 @@
                 </li>
             </ul>
             <div class="tab-content" id="myTabContent">
-                {% if committee.parli_pro.current_mode.acronym and committee.parli_pro.current_mode.acronym == "Mod" or committee.parli_pro.current_mode.acronym == "SSL" %}
-                    <div class="tab-pane fade show active" id="add-tally" role="tabpanel" aria-labelledby="add-tally-tab">
-                {% elif committee.parli_pro.current_mode.acronym != "Unmod" %}
-                    <div class="tab-pane" id="add-tally" role="tabpanel" aria-labelledby="add-tally-tab">
-                {% else %}
+                {% if not committee.parli_pro.current_mode.acronym or committee.parli_pro.current_mode.acronym == "Unmod" %}
                     <div class="tab-pane" id="add-tally" role="tabpanel" aria-labelledby="add-tally-tab" hidden>
+                {% elif committee.parli_pro.current_mode.acronym == "Mod" %}
+                    <div class="tab-pane fade show active" id="add-tally" role="tabpanel" aria-labelledby="add-tally-tab">
+                {% else %}
+                    <div class="tab-pane" id="add-tally" role="tabpanel" aria-labelledby="add-tally-tab">
                 {% endif %}
                 {% if committee.parli_pro.current_mode.acronym == "Mod" and committee.parli_pro.caucus.last == None %}
                     <div class="alert alert-info" role="alert">
@@ -212,8 +212,12 @@
                     </div>
                 </form>
             </div>
-            {% if committee.parli_pro.current_mode.acronym == "Unmod" or committee.parli_pro.current_mode.acronym == "Open" %}
-                <div class="tab-pane fade active show" id="add-motion" role="tabpanel" aria-labelledby="add-motion-tab">
+            {% if committee.people.number_present %}
+                {% if committee.parli_pro.current_mode.acronym == "Unmod" or committee.parli_pro.current_mode.acronym == "Open" or not committee.parli_pro.open %}
+                    <div class="tab-pane fade active show" id="add-motion" role="tabpanel" aria-labelledby="add-motion-tab">
+                {% else %}
+                    <div class="tab-pane fade" id="add-motion" role="tabpanel" aria-labelledby="add-motion-tab">
+                {% endif %}
             {% else %}
                 <div class="tab-pane fade" id="add-motion" role="tabpanel" aria-labelledby="add-motion-tab">
             {% endif %}
@@ -253,7 +257,7 @@
                             <p>Speaking Time</p>
                             <input type="number" min="0" max="120" step="15" id="time-value" name="speaking_time" class="form-control">
                         </div>
-                        {% if committee.parli_pro.current_mode.acronym == "PSL" or not committee.parli_pro.current_topic %}
+                        {% if committee.parli_pro.open and not committee.parli_pro.current_topic or committee.parli_pro.current_mode.acronym == "PSL" %}
                             <div class="col-4" id="topic">
                         {% else %}
                             <div class="col-4" id="topic" hidden>
@@ -281,14 +285,16 @@
                     </div>
                 </div>
             </form>
-            <div class="row" id="ssl">
-                <div class="col">
-                    <p><a href="{% url 'ssl' %}"><button class="btn btn-info form-btn">Speaker's List</button></a></p>
+            {% if committee.parli_pro.current_topic %}
+                <div class="row" id="ssl">
+                    <div class="col">
+                        <p><a href="{% url 'ssl' %}"><button class="btn btn-info form-btn">Speaker's List</button></a></p>
+                    </div>
                 </div>
-            </div>
+            {% endif %}
 
         </div>
-        {% if committee.parli_pro.current_mode.acronym == "PSL" %}
+        {% if committee.parli_pro.current_mode.acronym == "PSL" or committee.parli_pro.current_mode.acronym == "SSL" %}
             <div class="tab-pane fade active show" id="add-speaker" role="tabpanel" aria-labelledby="speaker-tab">
         {% else %}
             <div class="tab-pane fade" id="add-speaker" role="tabpanel" aria-labelledby="speaker-tab">

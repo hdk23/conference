@@ -43,6 +43,15 @@ class CriterionScore(models.Model):
     descriptor = models.ForeignKey(Descriptor, blank=True, null=True, on_delete=models.CASCADE)
     score = models.FloatField(blank=True, null=True)
 
+    def update_score(self, new_score):
+        """updates the criterion score"""
+        self.score = new_score
+        try:
+            self.descriptor = self.criterion.possible_scores.get(points=new_score)
+        except:
+            print("No such descriptor exists.")
+        self.save()
+
     def __str__(self):
         return f"{self.criterion}: {self.score} pts"
 
@@ -57,8 +66,10 @@ class RubricEntry(models.Model):
         """calculates the points that an entry earns based on a rubric"""
         self.total_score = 0
         for criterion_score in self.criterion_scores.all():
-            self.total_score += criterion_score.score
+            if criterion_score.score:
+                self.total_score += criterion_score.score
         self.save()
+        print(self.total_score)
 
     def __str__(self):
         return f"{self.rubric}: {self.total_score}"

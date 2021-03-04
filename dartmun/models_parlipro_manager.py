@@ -43,17 +43,22 @@ class ParliProManager(models.Model):
         if motion_entry.motion.motion == "Move into a Moderated Caucus":
             self.current_mode = DebateMode.objects.get(acronym="Mod")
             self.caucus.set_mod(motion_entry)
+            self.save()
         elif motion_entry.motion.motion == "Move into an Unmoderated Caucus":
             self.current_mode = DebateMode.objects.get(acronym="Unmod")
             self.caucus.set_unmod(motion_entry)
+            self.save()
         elif motion_entry.motion.motion == "Set a Working Agenda":
             self.current_mode = DebateMode.objects.get(acronym="Open")
             self.current_topic = motion_entry.topic
+            self.save()
         elif motion_entry.motion.motion == "Set the Speaking Time":
             self.caucus.default_st = motion_entry.speaking_time
+            self.save()
         elif motion_entry.motion.motion == "Open Debate":
             self.current_mode = DebateMode.objects.get(acronym="PSL")
             self.open = True
+            self.save()
         self.save()
         motion_entry.delete()
 

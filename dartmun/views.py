@@ -18,9 +18,9 @@ def index(request):
     read_file("categories")
     read_file("modes")
     read_file("motions")
-    pp_rubric = Rubric(title="Position Paper Rubric", tally_category=TallyCategory.objects.get(acronym="PP"))
-    pp_rubric.save()
     read_file("pp_rubric")
+    read_file("wp_part_rubric")
+    read_file("wp_rubric")
     create_committee()
     return render(request, 'dartmun/index.html', context)
 
@@ -70,6 +70,7 @@ def pospapers(request):
     context = get_context()
     return render(request, 'dartmun/pospapers.html', context)
 
+
 @staff_member_required
 def delegation_papers(request, id):
     """gets a delegation's position papers"""
@@ -79,3 +80,22 @@ def delegation_papers(request, id):
     category = TallyCategory.objects.get(acronym="PP")
     context['papers'] = TallyScore.objects.filter(delegation=delegation, category=category)
     return render(request, 'dartmun/pospapers.html', context)
+
+
+@staff_member_required
+def update_paper(request, id):
+    """updates a paper's score"""
+    paper = TallyScore.objects.get(pk=int(id))
+    old_score = paper.score
+    for criterion in paper.rubric.criterion_scores.all():
+        score = request.POST.get(f"criterion{criterion.id}")
+        if score:
+            criterion.update_score(float(score))
+        comments = request.POST.get("comments")
+        if comments:
+            paper.comments = comments
+            paper.save()
+    paper.set_rubric_score()
+    committee = Committee.objects.get(acronym="UNEP")
+    committee.grades.update_tally(paper, old_score)
+    return HttpResponseRedirect(reverse('delegation_papers', kwargs={"id": paper.delegation.id}))

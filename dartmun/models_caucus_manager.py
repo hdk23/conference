@@ -37,12 +37,23 @@ class CaucusManager(models.Model):
         self.caucus_until = (datetime.now() + timedelta(minutes=self.caucus_duration)).time()
         self.save()
 
+    def end_mod(self) -> bool:
+        """ends the moderated caucus if there are no speakers left"""
+        print(self.remaining_speeches)
+        if self.remaining_speeches == 0:
+            self.last = None
+            self.spoke = None
+            self.save()
+            return True
+        return False
+
     def decrement_speech_count(self):
         """decrements the speech count during a moderated caucus"""
         self.remaining_speeches -= 1
         if self.remaining_speeches == 0:
             self.caucus_duration = None
             self.current_st = None
+
         if self.spoke is False:
             self.spoke = True
         self.save()
@@ -58,14 +69,6 @@ class CaucusManager(models.Model):
             return True
         return False
 
-    def end_mod(self) -> bool:
-        """ends the moderated caucus if there are no speakers left"""
-        if self.remaining_speeches == 0:
-            self.last = None
-            self.spoke = None
-            self.save()
-            return True
-        return False
 
     def __str__(self):
         if self.current_st and self.caucus_duration:

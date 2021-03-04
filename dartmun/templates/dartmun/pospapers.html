@@ -6,7 +6,7 @@
 
 {% load static %}
 {%  block css %}
-    <link rel="stylesheet" type="text/css" href="{% static 'dartmun/css/pospaper.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'dartmun/css/pospapers.css' %}">
 {%  endblock %}
 
 {%  block body %}
@@ -34,10 +34,9 @@
                     {% for paper in papers %}
                         <li class="nav-item active">
                         {% if forloop.first %}
-                            <a class="nav-link active" id="paper{{paper.id}}-tab" data-toggle="tab" href="#paper{{ topic.number }}" role="tab" aria-controls="paper{{ topic.number }}" aria-selected="false">
-
+                            <a class="nav-link active" id="paper{{paper.id}}-tab" data-toggle="tab" href="#paper{{ paper.id }}" role="tab" aria-controls="paper{{ paper.id }}" aria-selected="false">
                         {% else %}
-                            <a class="nav-link" id="paper{{paper.id}}-tab" data-toggle="tab" href="#paper{{ topic.number }}" role="tab" aria-controls="paper{{ topic.number }}" aria-selected="false">
+                            <a class="nav-link" id="paper{{paper.id}}-tab" data-toggle="tab" href="#paper{{paper.id}}" role="tab" aria-controls="paper{{ paper.id }}" aria-selected="false">
                         {% endif %}
                             {{ paper.rubric.topic }}
                             </a>
@@ -54,11 +53,42 @@
                              <div class="tab-pane fade" id="paper{{ paper.id }}"
                                  role="tabpanel" aria-labelledby="paper{{ paper.id }}-tab">
                          {% endif %}
-                         <form action="" method="POST">
+                         <form action="{% url 'update_paper' paper.id %}" method="POST">
                             {% csrf_token %}
-                             {% for criterion in paper.rubric.criterion_scores.all %}
-                                 <div class="row">{{ criterion }}</div>
-                             {% endfor %}
+                            <table id="scoring-sheet">
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Descriptor</th>
+                                </tr>
+                                {% for criterion in paper.rubric.criterion_scores.all %}
+                                    {{ criterion.id }}
+                                    <tr>
+                                        <th>{{ criterion.criterion }}</th>
+                                        <td>
+                                            <input type="hidden" value="{{ criterion.descriptor.points }}" class="points">
+                                            <select class="form-control" name="criterion{{ criterion.id }}">
+                                                <option></option>
+                                                {% for descriptor in criterion.criterion.possible_scores.all %}
+                                                    {% if criterion.descriptor == descriptor %}
+                                                        <option selected value="{{ descriptor.points }}"> {{ descriptor }}</option>
+                                                    {% else %}
+                                                        <option value="{{ descriptor.points }}"> {{ descriptor }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                <tr>
+                                    <th><h4>Total</h4></th>
+                                    <th><h4><span id="paper-score">{{ paper.score }}</span>/{{ paper.rubric.rubric.max_possible }}</h4></th>
+                                </tr>
+                                <tr>
+                                    <th>Comments</th>
+                                    <td><input type="text" name="comments" class="form-control" value="{{ paper.comments }}"></td>
+                                </tr>
+                            </table>
+                            <button type="submit" class="btn btn-primary form-control">Update</button>
                          </form>
                          </div>
                      {% endfor %}
@@ -69,5 +99,5 @@
 {%  endblock %}
 
 {%  block scripts %}
-
+    <script src="{% static 'dartmun/js/pospapers.js' %}"></script>
 {%  endblock %}

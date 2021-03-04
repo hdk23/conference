@@ -43,7 +43,6 @@ class GradesManager(models.Model):
         self.need_update = False
 
     def get_category_score(self, delegation: Delegation, category: TallyCategory) -> TallyCategoryScore:
-        print(delegation)
         score_manager = self.score_managers.get(delegation=delegation)
         committee_category = self.tally_categories.get(category=category)
         category_score = score_manager.tally_category_scores.get(category=committee_category)
@@ -69,6 +68,14 @@ class GradesManager(models.Model):
         self.need_update = True
         self.save()
         return tally
+
+    def update_tally(self, tally: TallyScore, new_score: float):
+        """updates a tally's score based on a new value"""
+        category_score = self.get_category_score(tally.delegation, tally.category)
+        category_score.update_tally(tally, new_score)
+        category_score.save()
+        self.need_update = True
+        self.save()
 
     def __str__(self):
         return f"Grades Manager"

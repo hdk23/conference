@@ -7,6 +7,15 @@ def read_file(file_name):
         csv_reader = csv.reader(csv_file, delimiter=',')
         header_row = []
         line_count = 0
+        if file_name == "pp_rubric":
+            pp_rubric = Rubric(title="Position Paper Rubric", tally_category=TallyCategory.objects.get(acronym="PP"))
+            pp_rubric.save()
+        elif file_name == "wp_part_rubric":
+            part_rubric = Rubric(title="Working Paper Participation Rubric", tally_category=TallyCategory.objects.get(acronym="WP"))
+            part_rubric.save()
+        elif file_name == "wp_rubric":
+            wp_rubric = Rubric(title="Working Paper Rubric", tally_category=TallyCategory.objects.get(acronym="R"))
+            wp_rubric.save()
         for row in csv_reader:
             if line_count != 0:
                 if file_name == "groups":
@@ -18,7 +27,11 @@ def read_file(file_name):
                 elif file_name == "motions":
                     read_motions(row)
                 elif file_name == "pp_rubric":
-                    read_papers(row, header_row)
+                    read_rubric(row, header_row, "Position Paper Rubric")
+                elif file_name == "wp_part_rubric":
+                    read_rubric(row, header_row, "Working Paper Participation Rubric")
+                elif file_name == "wp_rubric":
+                    read_rubric(row, header_row, "Working Paper Rubric")
             else:
                 header_row = row
             line_count += 1
@@ -44,10 +57,10 @@ def read_motions(row):
     Motion(motion=row[0], vote_type=row[1], speeches=row[2], duration=row[3], speaking_time=row[4], topic=row[5], purpose=row[6]).save()
 
 
-def read_papers(row, header_row):
+def read_rubric(row, header_row, title):
     criterion = Criterion(criterion=row[0], weight=int(header_row[1]))
     criterion.save()
-    rubric = Rubric.objects.get(title="Position Paper Rubric")
+    rubric = Rubric.objects.get(title=title)
     rubric.max_possible += criterion.weight
     rubric.save()
     for num in range(1, len(row)):
