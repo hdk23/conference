@@ -3,7 +3,7 @@ from django.http import Http404, HttpResponseRedirect
 from django.contrib.admin.views.decorators import staff_member_required
 from .models import *
 import time
-committee = Committee.objects.get(acronym="UNEP")
+# committee = Committee.objects.get(acronym="UNEP")
 
 
 @staff_member_required
@@ -103,6 +103,7 @@ def remove_motion_entry(request, id):
 @staff_member_required
 def vote_motion(request):
     """votes on the motion"""
+    committee = Committee.objects.get(acronym="UNEP")
     motion_entry_id = int(request.POST.get("motion-entry"))
     motion_entry = MotionEntry.objects.get(pk=motion_entry_id)
     votes_for = int(request.POST.get("votes-for"))

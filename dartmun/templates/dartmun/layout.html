@@ -25,16 +25,17 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'my_committee' %}">My Committee</a>
             </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Scores
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <li><a class="dropdown-item" href="#">Position Papers</a></li>
-                  <li><a class="dropdown-item" href="{% url 'tallies' %}">Tallies</a></li>
-                  <li><a class="dropdown-item" href="{% url 'grades' %}">Grades</a></li>
-                  <li><a class="dropdown-item" href="#">WPs and Resos</a></li>
-              </ul>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'pospapers' %}">Position Papers</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'tallies' %}">Tallies</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'grades' %}">Grades</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'resos' %}">WPs and Resos</a>
             </li>
           </ul>
         </div>

@@ -53,21 +53,29 @@ def create_committee():
     committee.save()
     indices = random.sample(list(range(len(countries))), len(countries))
 
-    # initialize people and grade managers
+    # initialize managers
     people_manager = PeopleManager()
     people_manager.save()
     grades_manager = GradesManager()
     grades_manager.save()
     parli_pro_manager = ParliProManager()
     parli_pro_manager.save()
+    writing_manager = WritingManager()
+    writing_manager.save()
+    caucus_manager = CaucusManager()
+    caucus_manager.save()
     committee.people = people_manager
     committee.grades = grades_manager
     committee.parli_pro = parli_pro_manager
-    committee.save()
-    caucus_manager = CaucusManager()
-    caucus_manager.save()
     committee.parli_pro.caucus = caucus_manager
     committee.parli_pro.save()
+    committee.writing = writing_manager
+    committee.save()
+
+
+
+
+
     topic1 = Topic(topic="Air Pollution in Southeast Asia", number=1)
     topic2 = Topic(topic="Managing Outdated Nuclear Facilities", number=2)
     topic1.save()
@@ -89,11 +97,11 @@ def create_committee():
         committee_tally_category.save()
         committee.grades.tally_categories.add(committee_tally_category)
 
-
     # add delegates
     for num in range(40):
         committee.people.delegations.add(create_delegation(committee))
         committee.people.save()
+    committee.people.set_quorum()
     committee.save()
 
 
@@ -121,4 +129,7 @@ def reset_committee():
     CriterionScore.objects.all().delete()
     Rubric.objects.all().delete()
     RubricEntry.objects.all().delete()
+    WorkingPaper.objects.all().delete()
+    Resolution.objects.all().delete()
+    WritingManager.objects.all().delete()
     User.objects.filter(is_superuser=False).delete()

@@ -40,3 +40,8 @@ admin.site.register(Criterion)
 admin.site.register(Descriptor)
 admin.site.register(CriterionScore)
 admin.site.register(RubricEntry)
+
+# writing models
+admin.site.register(WorkingPaper)
+admin.site.register(Resolution)
+admin.site.register(WritingManager)

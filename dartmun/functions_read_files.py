@@ -13,9 +13,9 @@ def read_file(file_name):
         elif file_name == "wp_part_rubric":
             part_rubric = Rubric(title="Working Paper Participation Rubric", tally_category=TallyCategory.objects.get(acronym="WP"))
             part_rubric.save()
-        elif file_name == "wp_rubric":
-            wp_rubric = Rubric(title="Working Paper Rubric", tally_category=TallyCategory.objects.get(acronym="R"))
-            wp_rubric.save()
+        elif file_name == "reso_rubric":
+            reso_rubric = Rubric(title="Resolution Rubric", tally_category=TallyCategory.objects.get(acronym="R"))
+            reso_rubric.save()
         for row in csv_reader:
             if line_count != 0:
                 if file_name == "groups":
@@ -30,8 +30,8 @@ def read_file(file_name):
                     read_rubric(row, header_row, "Position Paper Rubric")
                 elif file_name == "wp_part_rubric":
                     read_rubric(row, header_row, "Working Paper Participation Rubric")
-                elif file_name == "wp_rubric":
-                    read_rubric(row, header_row, "Working Paper Rubric")
+                elif file_name == "reso_rubric":
+                    read_rubric(row, header_row, "Resolution Rubric")
             else:
                 header_row = row
             line_count += 1

@@ -11,32 +11,38 @@
 
 {%  block body %}
     <h2>{{committee.name}}</h2>
-    <table>
-        <tr>
-{#            <th>Timestamp</th>#}
-{#            <th>Scorer</th>#}
-            <th>Delegation</th>
-            <th>Category</th>
-            <th>Score</th>
-            <th>Comments</th>
-            <th>Delete</th>
-        </tr>
-        {% for tally in committee.grades.tallies.all %}
+    {% if committee.grades.tallies.all %}
+        <table>
             <tr>
-{#                <td>{{ tally.timestamp }}</td>#}
-{#                <td>{{ tally.scorer }}</td>#}
-                <td>{{ tally.delegation.country.name }}</td>
-                <td>{{ tally.category.name }}</td>
-                <td>{{ tally.score }}</td>
-                <td>{{ tally.comments }}</td>
-                <td>
-                    <a href="{% url 'remove_tally' tally.id %}"><button class="btn btn-danger">
-                        X
-                    </button></a>
-                </td>
+    {#            <th>Timestamp</th>#}
+    {#            <th>Scorer</th>#}
+                <th>Delegation</th>
+                <th>Category</th>
+                <th>Score</th>
+                <th>Comments</th>
+                <th>Delete</th>
             </tr>
-        {% endfor %}
-    </table>
+            {% for tally in committee.grades.tallies.all %}
+                <tr>
+    {#                <td>{{ tally.timestamp }}</td>#}
+    {#                <td>{{ tally.scorer }}</td>#}
+                    <td>{{ tally.delegation.country.name }}</td>
+                    <td>{{ tally.category.name }}</td>
+                    <td>{{ tally.score }}</td>
+                    <td>{{ tally.comments }}</td>
+                    <td>
+                        <a href="{% url 'remove_tally' tally.id %}"><button class="btn btn-danger">
+                            X
+                        </button></a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% elif committee.parli_pro.open %}
+        <h3>No tallies yet!</h3>
+    {% else %}
+        <h3>Open debate to start tallying!</h3>
+    {% endif %}
 {%  endblock %}
 
 {%  block scripts %}

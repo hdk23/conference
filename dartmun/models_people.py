@@ -84,18 +84,30 @@ class PeopleManager(models.Model):
     directors = models.ManyToManyField(CommitteeDirector)
     managers = models.ManyToManyField(CommitteeManager)
     delegations = models.ManyToManyField(Delegation)
+    quorum = models.PositiveSmallIntegerField(blank=True, null=True)
     simple_majority = models.PositiveSmallIntegerField(blank=True, null=True)
     super_majority = models.PositiveSmallIntegerField(blank=True, null=True)
+    super_majority = models.PositiveSmallIntegerField(blank=True, null=True)
+    min_signatory = models.PositiveSmallIntegerField(blank=True, null=True)
     number_present = models.PositiveSmallIntegerField(default=0)
 
     def sorted_all_delegations(self):
+        """returns the list of all delegations sorted by country"""
         return self.delegations.all().order_by('country')
 
     def sorted_present_delegations(self):
+        """
+        returns the list of present delegations sorted by country
+        returns None if no delegates have been marked present
+        """
         if self.number_present:
             return self.delegations.filter(present=True).order_by('country')
         else:
-            return self.delegations.filter(present=True)
+            return None
+
+    def set_quorum(self):
+        self.quorum = round(self.delegations.count() / 4)
+        self.save()
 
     def count_present(self):
         """counts the number of delegates present in the committee"""
@@ -104,9 +116,13 @@ class PeopleManager(models.Model):
         return self.delegations.filter(present=True).count()
 
     def calc_votes(self):
-        """calculates the number of votes needed for a simple majority or a 2/3 majority"""
+        """
+        calculates the number of votes needed for a simple majority or a 2/3 majority
+        also sets the minimum signatory count as 1/5 of the delegations present
+        """
         self.simple_majority = self.number_present // 2 + 1
         self.super_majority = round(self.number_present * 2 / 3)
+        self.min_signatory = round(self.number_present / 5)
         self.save()
 
     def __str__(self):

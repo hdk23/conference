@@ -1,0 +1,61 @@
+{% extends "./layout.html" %}
+
+{%  block title %}
+    WPs and Resos
+{%  endblock %}
+
+{% load static %}
+{%  block css %}
+
+{%  endblock %}
+
+{%  block body %}
+    <h2>{{committee.name}} Working Papers and Resos</h2>
+    <h4>Working Papers</h4>
+    <table>
+        <tr>
+            <th>Topic</th>
+            <th>Sponsors</th>
+            <th>Signatories</th>
+            <th>Introduced?</th>
+        </tr>
+        {% for wp in working_papers %}
+            <tr>
+                <td>{{ wp.topic.number }}</td>
+                <td>{{ wp.sponsors }}</td>
+                <td>{{ wp.signatories }}</td>
+                <td>{{ wp.introduced }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <h4>Resolutions</h4>
+    <table>
+        <tr>
+            <th>Topic</th>
+            <th>Sponsors</th>
+            <th>Signatories</th>
+            <th>Introduced?</th>
+            <th>Votes For</th>
+            <th>Votes Against</th>
+            <th>Abstentions</th>
+            <th>Passed?</th>
+        </tr>
+        {% for reso in resolutions %}
+            <tr>
+                <td>{{ reso.topic.number }}</td>
+                <td>{{ reso.sponsors }}</td>
+                <td>{{ reso.signatories }}</td>
+                <td>{{ reso.introduced }}</td>
+                <th>{{ reso.votes_for }}</th>
+                <th>{{ reso.votes_against }}</th>
+                <th>{{ reso.votes_abstain }}</th>
+                <th>{{ reso.passed }}</th>
+            </tr>
+        {% endfor %}
+    </table>
+    {# add form to add working papers and resos   #}
+{%  endblock %}
+
+{%  block scripts %}
+
+{%  endblock %}

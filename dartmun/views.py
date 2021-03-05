@@ -6,7 +6,6 @@ from django.contrib.auth.decorators import login_required
 from .functions_read_files import read_file
 from .views_my_committee import *
 import time
-committee = Committee.objects.get(acronym="UNEP")
 
 
 # Create your views here.
@@ -20,7 +19,7 @@ def index(request):
     read_file("motions")
     read_file("pp_rubric")
     read_file("wp_part_rubric")
-    read_file("wp_rubric")
+    read_file("reso_rubric")
     create_committee()
     return render(request, 'dartmun/index.html', context)
 
@@ -99,3 +98,9 @@ def update_paper(request, id):
     committee = Committee.objects.get(acronym="UNEP")
     committee.grades.update_tally(paper, old_score)
     return HttpResponseRedirect(reverse('delegation_papers', kwargs={"id": paper.delegation.id}))
+
+
+@login_required
+def resos(request):
+    context = get_context()
+    return render(request, 'dartmun/resos.html', context)
