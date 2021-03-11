@@ -19,5 +19,19 @@ class Committee(models.Model):
     parli_pro = models.OneToOneField(ParliProManager, null=True, on_delete=models.CASCADE)
     writing = models.OneToOneField(WritingManager, null=True, on_delete=models.CASCADE)
 
+    def has_wps(self):
+        """method used to determine whether the committee has resolutions submitted"""
+        for topic in self.topics.all():
+            if topic.working_papers.count():
+                return True
+        return False
+
+    def has_resos(self):
+        """method used to determine whether the committee has resolutions submitted"""
+        for topic in self.topics.all():
+            if topic.resolutions.count():
+                return True
+        return False
+
     def __str__(self):
         return f"{self.name} ({self.acronym})"

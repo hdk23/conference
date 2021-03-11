@@ -5,7 +5,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from .functions_read_files import read_file
 from .views_my_committee import *
-import time
+from .views_writing import *
 
 
 # Create your views here.
@@ -13,7 +13,6 @@ def index(request):
     """loads the index page"""
     context = {}
     reset_committee()
-    read_file("groups")
     read_file("categories")
     read_file("modes")
     read_file("motions")
@@ -102,5 +101,8 @@ def update_paper(request, id):
 
 @login_required
 def resos(request):
+    """loads the writings page"""
     context = get_context()
+    context['reso_rubric'] = Rubric.objects.get(title="Resolution Rubric")
     return render(request, 'dartmun/resos.html', context)
+

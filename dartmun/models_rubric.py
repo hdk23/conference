@@ -62,6 +62,15 @@ class RubricEntry(models.Model):
     criterion_scores = models.ManyToManyField(CriterionScore)
     total_score = models.FloatField(blank=True, null=True)
 
+    def add_scores(self, scores):
+        index = 0
+        for criterion in self.rubric.criteria.all():
+            criterion_score = CriterionScore(criterion=criterion, score=int(scores[index]))
+            criterion_score.save()
+            self.criterion_scores.add(criterion_score)
+            index += 1
+        self.calc_total()
+
     def calc_total(self):
         """calculates the points that an entry earns based on a rubric"""
         self.total_score = 0

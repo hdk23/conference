@@ -22,13 +22,3 @@ class CommitteeTallyCategory(models.Model):
 
     def __str__(self):
         return f"{self.category} Committee Tally Category"
-
-
-class TallyGroup(models.Model):
-    """A group of tally categories that reflect the same delegate skill"""
-    name = models.CharField(max_length=64)
-    acronym = models.CharField(max_length=8)
-    categories = models.ManyToManyField(TallyCategory)
-
-    def __str__(self):
-        return f"{self.name} ({self.acronym})"

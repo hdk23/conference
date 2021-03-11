@@ -1,0 +1,11 @@
+#wp-sponsor-list, #wp-signatory-list {
+    height: 180px;
+}
+
+#reso-sponsor-list, #reso-signatory-list {
+    height: 180px;
+}
+
+form > div.row {
+    margin-bottom: 20px;
+}

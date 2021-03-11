@@ -1,8 +1,6 @@
-Group,Category,Acronym,Weight,Curve
-POS,Position Papers,PP,20,False
-S,Speeches,S,50,True
-WPR,WP Participation,WP,10,False
-WPR,Sponsorship,R,5,False
-PP,Motions,M,5,True
-PP,Notepassing,N,5,True
-PP,Engagement,E,5,True
+Category,Acronym,Weight,Curve
+Position Papers,PP,20,False
+Speeches,S,50,True
+Participation,P,10,False
+Sponsorship,R,10,True
+Motions,M,10,True

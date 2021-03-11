@@ -17,3 +17,11 @@ table > tbody > tr > td, th {
   padding: 0px 20px;
   text-align: center;
 }
+
+form {
+    margin-bottom: 48px;
+}
+
+p {
+  text-align: center;
+}

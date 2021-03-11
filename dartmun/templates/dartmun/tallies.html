@@ -11,6 +11,7 @@
 
 {%  block body %}
     <h2>{{committee.name}}</h2>
+    <h3>Tallies</h3>
     {% if committee.grades.tallies.all %}
         <table>
             <tr>
@@ -39,9 +40,9 @@
             {% endfor %}
         </table>
     {% elif committee.parli_pro.open %}
-        <h3>No tallies yet!</h3>
+        <h4>No tallies yet!</h4>
     {% else %}
-        <h3>Open debate to start tallying!</h3>
+        <h4>Open debate to start tallying!</h4>
     {% endif %}
 {%  endblock %}
 

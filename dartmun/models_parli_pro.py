@@ -1,12 +1,49 @@
 from django.db import models
 from .models_people import Delegation
-from datetime import datetime, timedelta
-from django.utils import timezone
+from .models_writing import WorkingPaper, Resolution, SponSig
 
 
 class Topic(models.Model):
+    """Topic class that tracks working papers and resolutions"""
     topic = models.CharField(max_length=128)
     number = models.PositiveSmallIntegerField()
+    working_papers = models.ManyToManyField(WorkingPaper)
+    resolutions = models.ManyToManyField(Resolution)
+
+    def add_wp(self, sponsor_ids, signatory_ids):
+        """
+        receives a list of sponsor_ids and signatory_ids  (Delegation ids)
+        adds the corresponding delegates as sponsors
+        adds a working paper to the topic
+        """
+        wp = WorkingPaper()
+        sponsig = SponSig()
+        sponsig.save()
+        sponsig.add_sponsors(sponsor_ids)
+        sponsig.add_signatories(signatory_ids)
+        sponsig.save()
+        wp.sponsig = sponsig
+        wp.save()
+        self.working_papers.add(wp)
+        self.save()
+
+    def add_reso(self, sponsor_ids: list, signatory_ids: list) -> Resolution:
+        """
+        receives a list of sponsor_ids and signatory_ids  (Delegation ids)
+        adds the corresponding delegates as sponsors
+        adds a resolution to the topic and returns it
+        """
+        reso = Resolution()
+        sponsig = SponSig()
+        sponsig.save()
+        sponsig.add_sponsors(sponsor_ids)
+        sponsig.add_signatories(signatory_ids)
+        sponsig.save()
+        reso.sponsig = sponsig
+        reso.save()
+        self.resolutions.add(reso)
+        self.save()
+        return reso
 
     def __str__(self):
         return f"Topic {self.number}: {self.topic}"

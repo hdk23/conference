@@ -305,7 +305,7 @@
                     <div class="col-10">
                         <p>Delegation</p>
                         <select name="delegation" class="form-control">
-                            {% for delegation in delegations %}
+                            {% for delegation in delegations.all %}
                                 <option value="{{ delegation.id }}">{{ delegation.country.name }}</option>
                             {% endfor %}
                         </select>

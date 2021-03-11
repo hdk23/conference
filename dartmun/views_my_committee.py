@@ -2,8 +2,6 @@ from django.shortcuts import render, reverse
 from django.http import Http404, HttpResponseRedirect
 from django.contrib.admin.views.decorators import staff_member_required
 from .models import *
-import time
-# committee = Committee.objects.get(acronym="UNEP")
 
 
 @staff_member_required
@@ -35,7 +33,9 @@ def add_tally(request):
     time = request.POST.get("time")
     category = TallyCategory.objects.get(acronym="S")
     tally = TallyScore(scorer=Chair.objects.get(user=request.user), delegation=delegation, category=category,
-                       score=score, comments=comments)
+                       score=score)
+    if comments:
+        tally.comments = comments
     if time:
         tally.time = time
     tally.save()

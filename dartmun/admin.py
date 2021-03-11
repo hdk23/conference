@@ -32,7 +32,6 @@ admin.site.register(Topic)
 # models in models_tally
 admin.site.register(TallyCategory)
 admin.site.register(CommitteeTallyCategory)
-admin.site.register(TallyGroup)
 
 # rubric models
 admin.site.register(Rubric)
@@ -42,6 +41,8 @@ admin.site.register(CriterionScore)
 admin.site.register(RubricEntry)
 
 # writing models
+admin.site.register(SponSig)
 admin.site.register(WorkingPaper)
 admin.site.register(Resolution)
+admin.site.register(Amendment)
 admin.site.register(WritingManager)

@@ -1,10 +1,10 @@
 
-var points = document.querySelectorAll("#scoring-sheet > tbody > tr > td > .points")
-var paperScore = document.querySelector("#paper-score")
+let points = document.querySelectorAll("#scoring-sheet > tbody > tr > td > .points")
+let paperScore = document.querySelector("#paper-score")
 
 function updateTotal(event){
-    var total = 0;
-    for (var score of points){
+    let total = 0;
+    for (let score of points){
         if (score.value != null)
             total += score.value;
     }
@@ -14,5 +14,5 @@ function updateTotal(event){
 
 
 for (var criterion of points){
-    criterion.addEventListener('input', updateTotal);
+    criterion.addEventListener('change', updateTotal);
 }

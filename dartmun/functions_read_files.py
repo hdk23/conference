@@ -11,16 +11,14 @@ def read_file(file_name):
             pp_rubric = Rubric(title="Position Paper Rubric", tally_category=TallyCategory.objects.get(acronym="PP"))
             pp_rubric.save()
         elif file_name == "wp_part_rubric":
-            part_rubric = Rubric(title="Working Paper Participation Rubric", tally_category=TallyCategory.objects.get(acronym="WP"))
+            part_rubric = Rubric(title="Working Paper Participation Rubric", tally_category=TallyCategory.objects.get(acronym="P"))
             part_rubric.save()
         elif file_name == "reso_rubric":
             reso_rubric = Rubric(title="Resolution Rubric", tally_category=TallyCategory.objects.get(acronym="R"))
             reso_rubric.save()
         for row in csv_reader:
             if line_count != 0:
-                if file_name == "groups":
-                    read_groups(row)
-                elif file_name == "categories":
+                if file_name == "categories":
                     read_categories(row)
                 elif file_name == "modes":
                     read_modes(row)
@@ -37,16 +35,9 @@ def read_file(file_name):
             line_count += 1
 
 
-def read_groups(row):
-    TallyGroup(name=row[0], acronym=row[1]).save()
-
-
 def read_categories(row):
-    group = TallyGroup.objects.get(acronym=row[0])
-    category = TallyCategory(name=row[1], acronym=row[2], weight=row[3], scaled=row[4])
+    category = TallyCategory(name=row[0], acronym=row[1], weight=row[2], scaled=row[3])
     category.save()
-    group.categories.add(category)
-    group.save()
 
 
 def read_modes(row):

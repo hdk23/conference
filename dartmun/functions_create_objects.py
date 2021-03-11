@@ -39,7 +39,7 @@ def create_delegation(committee: Committee) -> Delegation:
             rubric_entry.criterion_scores.add(criterion_score)
             rubric_entry.save()
         paper_category = TallyCategory.objects.get(acronym="PP")
-        paper = TallyScore(delegation=delegation, category=paper_category, rubric=rubric_entry)
+        paper = TallyScore(delegation=delegation, category=paper_category, rubric=rubric_entry, comments="")
         paper.save()
         committee_category = CommitteeTallyCategory.objects.get(category=paper_category)
         score_manager.tally_category_scores.get(category=committee_category).add_tally(paper)
@@ -71,10 +71,6 @@ def create_committee():
     committee.parli_pro.save()
     committee.writing = writing_manager
     committee.save()
-
-
-
-
 
     topic1 = Topic(topic="Air Pollution in Southeast Asia", number=1)
     topic2 = Topic(topic="Managing Outdated Nuclear Facilities", number=2)
@@ -110,7 +106,6 @@ def reset_committee():
     Chair.objects.all().delete()
     Delegation.objects.all().delete()
     Delegate.objects.all().delete()
-    TallyGroup.objects.all().delete()
     TallyCategory.objects.all().delete()
     CommitteeTallyCategory.objects.all().delete()
     TallyScore.objects.all().delete()
@@ -131,5 +126,7 @@ def reset_committee():
     RubricEntry.objects.all().delete()
     WorkingPaper.objects.all().delete()
     Resolution.objects.all().delete()
+    Amendment.objects.all().delete()
     WritingManager.objects.all().delete()
+    SponSig.objects.all().delete()
     User.objects.filter(is_superuser=False).delete()

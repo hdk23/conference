@@ -42,9 +42,6 @@ form {
   margin: 10px;
 }
 
-p {
-  text-align: center;
-}
 
 form .row .col {
   margin-left: auto;
@@ -55,10 +52,6 @@ form .row .col {
   text-align: center;
   width:90%;
   margin: 10px;
-}
-
-p {
-  text-align: center;
 }
 
 div.committee-form {

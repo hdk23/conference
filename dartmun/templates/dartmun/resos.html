@@ -6,56 +6,200 @@
 
 {% load static %}
 {%  block css %}
-
+    <link rel="stylesheet" type="text/css" href="{% static 'dartmun/css/resos.css' %}">
 {%  endblock %}
 
 {%  block body %}
-    <h2>{{committee.name}} Working Papers and Resos</h2>
-    <h4>Working Papers</h4>
-    <table>
-        <tr>
-            <th>Topic</th>
-            <th>Sponsors</th>
-            <th>Signatories</th>
-            <th>Introduced?</th>
-        </tr>
-        {% for wp in working_papers %}
-            <tr>
-                <td>{{ wp.topic.number }}</td>
-                <td>{{ wp.sponsors }}</td>
-                <td>{{ wp.signatories }}</td>
-                <td>{{ wp.introduced }}</td>
-            </tr>
-        {% endfor %}
-    </table>
-    <h4>Resolutions</h4>
-    <table>
-        <tr>
-            <th>Topic</th>
-            <th>Sponsors</th>
-            <th>Signatories</th>
-            <th>Introduced?</th>
-            <th>Votes For</th>
-            <th>Votes Against</th>
-            <th>Abstentions</th>
-            <th>Passed?</th>
-        </tr>
-        {% for reso in resolutions %}
-            <tr>
-                <td>{{ reso.topic.number }}</td>
-                <td>{{ reso.sponsors }}</td>
-                <td>{{ reso.signatories }}</td>
-                <td>{{ reso.introduced }}</td>
-                <th>{{ reso.votes_for }}</th>
-                <th>{{ reso.votes_against }}</th>
-                <th>{{ reso.votes_abstain }}</th>
-                <th>{{ reso.passed }}</th>
-            </tr>
-        {% endfor %}
-    </table>
-    {# add form to add working papers and resos   #}
+    <h2>{{committee.name}}</h2>
+    <h3>View Working Papers and Resolutions</h3>
+    <ul class="nav nav-tabs" id="view-writings" role="tablist">
+        <li class="nav-item active">
+            <a class="nav-link active" id="view-wp-tab" data-toggle="tab" href="#wps" role="tab" aria-controls="wps" aria-selected="true">View Working Papers</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="view-reso-tab" data-toggle="tab" href="#resos" role="tab" aria-controls="resos" aria-selected="false">View Resolutions</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade active show" id="wps" role="tabpanel" aria-labelledby="view-wp-tab">
+            {% if committee.has_wps %}
+                <table>
+                    <tr>
+                        <th>Topic</th>
+                        <th>Sponsors</th>
+                        <th>Signatories</th>
+                        <th>Introduced?</th>
+                        <th>Remove</th>
+                    </tr>
+                    {% for topic in committee.topics.all %}
+                        {% for wp in topic.working_papers.all %}
+                            <tr>
+                                <td>{{ topic.number }}</td>
+                                <td>{{ wp.sponsig.get_sponsors }}</td>
+                                <td>{{ wp.sponsig.get_signatories }}</td>
+                                <td>{{ wp.introduced }}</td>
+                                <td><a href="{% url 'remove_wp' wp.id %}"><button class="btn btn-sm btn-danger">X</button></a></td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </table>
+            {% else %}
+                <h4>No working papers submitted!</h4>
+            {% endif %}
+        </div>
+        <div class="tab-pane fade" id="resos" role="tabpanel" aria-labelledby="view-reso-tab">
+            {% if committee.has_resos %}
+                <table>
+                    <tr>
+                        <th>Topic</th>
+                        <th>Sponsors</th>
+                        <th>Signatories</th>
+                        <th>Introduced?</th>
+                        <th>Votes For</th>
+                        <th>Votes Against</th>
+                        <th>Abstentions</th>
+                        <th>Passed?</th>
+                    </tr>
+                    {% for topic in committee.topics.all %}
+                        {% for reso in topic.resolutions.all %}
+                            <tr>
+                                <td>{{ topic.number }}</td>
+                                <td>{{ reso.sponsig.get_sponsors }}</td>
+                                <td>{{ reso.sponsig.get_signatories }}</td>
+                                <td>{{ reso.introduced }}</td>
+                                <th>{{ reso.votes_for }}</th>
+                                <th>{{ reso.votes_against }}</th>
+                                <th>{{ reso.votes_abstain }}</th>
+                                <th>{{ reso.passed }}</th>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </table>
+            {% else %}
+                <h4>No resolutions submitted!</h4>
+            {% endif %}
+        </div>
+    </div>
+
+    <br><br>
+    {% if request.user.is_staff %}
+        <h3>Add Working Papers and Resolutions</h3>
+        {% if committee.parli_pro.current_topic %}
+            <ul class="nav nav-tabs" id="add-writings" role="tablist">
+                <li class="nav-item active">
+                    <a class="nav-link active" id="add-wp-tab" data-toggle="tab" href="#add-wp" role="tab" aria-controls="add-wp" aria-selected="true">Add Working Paper</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="add-reso-tab" data-toggle="tab" href="#add-reso" role="tab" aria-controls="add-reso" aria-selected="false">Add Resolution</a>
+                </li>
+            </ul>
+        {% elif committee.parli_pro.open %}
+            <h4>Set an agenda to add working papers and resolutions!</h4>
+        {% else %}
+            <h4>Open debate to get the delegates to discuss working papers and resolutions!</h4>
+        {% endif %}
+    {% endif %}
+
+    {% if committee.parli_pro.current_topic and request.user.is_staff %}
+        <div class="tab-content" id="add-writing">
+            <div class="tab-pane fade active show" id="add-wp" role="tabpanel" aria-labelledby="add-wp-tab">
+                <form action="{% url 'add_wp' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col container overflow-auto">
+                        <p>Topic</p>
+                            <select name="topic" class="form-control" id="selected-topic">
+                                {% for topic in committee.topics.all %}
+                                    <option value="{{ topic.id }}">{{ topic }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col">
+                            <p>Sponsors</p>
+                            <div class="container overflow-auto" id="wp-sponsor-list">
+                                {% for delegation in delegations.all %}
+                                    <div id="reso-sponsor{{delegation.id}}">
+                                        <input type="checkbox" name="sponsors" value="{{ delegation.id }}">
+                                        <label for="sponsor{{ delegation.id }}">{{ delegation.country.name }}</label><br>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <p>Signatories</p>
+                            <div class="container overflow-auto" id="wp-signatory-list">
+                                {% for delegation in delegations.all %}
+                                    <div id="reso-signatory{{ delegation.id }}">
+                                        <input type="checkbox" name="signatories" value="{{ delegation.id }}">
+                                        <label for="signatory{{ delegation.id }}"> {{ delegation.country.name }}</label><br>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <button class="form-control btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+            <div class="tab-pane fade" id="add-reso" role="tabpanel" aria-labelledby="view-reso-tab">
+                {% if committee.has_wps %}
+                    <form action="{% url 'add_reso' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col container overflow-auto">
+                            <p>Topic</p>
+                                <select name="topic" class="form-control" id="selected-topic">
+                                    {% for topic in committee.topics.all %}
+                                        {% if topic.working_papers.count %}
+                                            <option value="{{ topic.id }}">{{ topic }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col">
+                                <p>Sponsors</p>
+                                <div class="container overflow-auto" id="reso-sponsor-list">
+                                    {% for delegation in delegations.all %}
+                                        <div id="sponsor{{ delegation.id }}">
+                                            <input type="checkbox" name="sponsors" value="{{ delegation.id }}">
+                                            <label for="sponsor{{ delegation.id }}"> {{ delegation.country.name }}</label><br>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <p>Signatories</p>
+                                <div class="container overflow-auto" id="reso-signatory-list">
+                                    {% for delegation in delegations.all %}
+                                        <div id="signatory{{ delegation.id }}">
+                                            <input type="checkbox" name="signatories" value="{{ delegation.id }}">
+                                            <label for="signatory{{ delegation.id }}"> {{ delegation.country.name }}</label><br>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            {% for criterion in reso_rubric.criteria.all %}
+                                <div class="col-4">{{ criterion.criterion }}</div>
+                                <div class="col-2"><input name="score" type="number" min="0" max="{{ criterion.weight }}"></div>
+                            {% endfor %}
+                        </div>
+                        <div class="row">
+                            <button class="form-control btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+                </div>
+                {% else %}
+                    <h4>Add working papers first to add a resolution!</h4>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
 {%  endblock %}
 
 {%  block scripts %}
-
+    <script src="{% static 'dartmun/js/resos.js' %}"></script>
 {%  endblock %}
