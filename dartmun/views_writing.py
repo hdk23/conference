@@ -37,3 +37,26 @@ def add_reso(request):
     committee.grades.add_reso_grades(reso, topic, rubric_entry)
 
     return HttpResponseRedirect(reverse('resos'))
+
+
+def get_category_tallies(category_acronym, committee_acronym):
+    """helper method that gets a category's tallies"""
+    category = TallyCategory.objects.get(acronym=category_acronym)
+    committee = Committee.objects.get(acronym=committee_acronym)
+    return committee.grades.tallies.filter(category=category).order_by('delegation__country')
+
+
+@staff_member_required
+def update_participation(request):
+    part_tallies = get_category_tallies("P", "UNEP")
+    for tally in part_tallies:
+        old_score = tally.score
+        for criterion in tally.rubric.criterion_scores.all():
+            if request.POST.get(f"criterion{criterion.id}"):
+                new_score = float(request.POST.get(f"criterion{criterion.id}"))
+                tally.rubric.replace_criterion(criterion, new_score)
+        tally.set_rubric_score()
+        print("update part", tally.score)
+        committee = Committee.objects.get(acronym="UNEP")
+        committee.grades.update_tally(tally, old_score)
+    return HttpResponseRedirect(reverse('resos'))

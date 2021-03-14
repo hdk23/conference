@@ -62,7 +62,16 @@ class RubricEntry(models.Model):
     criterion_scores = models.ManyToManyField(CriterionScore)
     total_score = models.FloatField(blank=True, null=True)
 
+    def set_rubric(self):
+        """initializes criterion scores in rubric"""
+        for criterion in self.rubric.criteria.all():
+            criterion_score = CriterionScore(criterion=criterion)
+            criterion_score.save()
+            self.criterion_scores.add(criterion_score)
+            self.save()
+
     def add_scores(self, scores):
+        """adds scores entered in a list to the rubric entry's total score"""
         index = 0
         for criterion in self.rubric.criteria.all():
             criterion_score = CriterionScore(criterion=criterion, score=int(scores[index]))
@@ -78,7 +87,16 @@ class RubricEntry(models.Model):
             if criterion_score.score:
                 self.total_score += criterion_score.score
         self.save()
-        print(self.total_score)
+        print("Total Score:", self.total_score)
+
+    @staticmethod
+    def replace_criterion(criterion: CriterionScore, new_score):
+        """updates criterion score"""
+        print(criterion.criterion.possible_scores.get(points=new_score))
+        criterion.descriptor = criterion.criterion.possible_scores.get(points=new_score)
+        criterion.score = new_score
+        criterion.save()
+
 
     def __str__(self):
         return f"{self.rubric}: {self.total_score}"

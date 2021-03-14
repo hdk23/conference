@@ -29,4 +29,5 @@ urlpatterns = [
     path('resos/add_wp', views.add_wp, name='add_wp'),
     path('resos/remove_wp/<int:id>', views.remove_wp, name='remove_wp'),
     path('resos/add_reso', views.add_reso, name='add_reso'),
+    path('resos/update_participation', views.update_participation, name='update_participation'),
 ]

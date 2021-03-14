@@ -17,7 +17,7 @@ def index(request):
     read_file("modes")
     read_file("motions")
     read_file("pp_rubric")
-    read_file("wp_part_rubric")
+    read_file("part_rubric")
     read_file("reso_rubric")
     create_committee()
     return render(request, 'dartmun/index.html', context)
@@ -104,5 +104,8 @@ def resos(request):
     """loads the writings page"""
     context = get_context()
     context['reso_rubric'] = Rubric.objects.get(title="Resolution Rubric")
+    context['part_rubric'] = Rubric.objects.get(title="Participation Rubric")
+    context['part_tallies'] = get_category_tallies("P", "UNEP")
     return render(request, 'dartmun/resos.html', context)
+
 

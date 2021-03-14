@@ -32,15 +32,13 @@ class GradesManager(models.Model):
         # calculate tallies within each category
         for score_manager in self.score_managers.all():
             for tally_category_score in score_manager.tally_category_scores.all():
-                tally_category_score.calc_tallies(self.category_average, self.category_stdev)
+                if tally_category_score.category.category.scaled:
+                    tally_category_score.calc_tallies(self.category_average, self.category_stdev)
+                else:
+                    tally_category_score.calc_tallies(delegation=score_manager.delegation)
 
-        # adjust the maximum possible score if not all categories have tallies
-        max_possible = 100
-        for committee_tally_category in self.tally_categories.all():
-            if committee_tally_category.average <= 0:
-                max_possible -= committee_tally_category.category.weight
         for score_manager in self.score_managers.all():
-            score_manager.calc_score(max_possible)
+            score_manager.calc_score()
 
         # set need_update back to false
         self.need_update = False
@@ -86,17 +84,17 @@ class GradesManager(models.Model):
         category = TallyCategory.objects.get(acronym="R")
         rubric_score = rubric_entry.total_score
         for sponsor in reso.sponsig.sponsors.all():
-            tally = TallyScore(category=category, delegation=sponsor, score=rubric_score)
+            tally = TallyScore(category=category, delegation=sponsor, score=rubric_score, comments="Reso Sponsor")
             tally.save()
             self.add_tally(tally)
         for signatory in reso.sponsig.signatories.all():
-            tally = TallyScore(category=category, delegation=signatory, score=4)
+            tally = TallyScore(category=category, delegation=signatory, score=4, comments="Signatory")
             tally.save()
             self.add_tally(tally)
         for wp in topic.working_papers.all():
             for sponsor in wp.sponsig.sponsors.all():
                 if sponsor not in reso.sponsig.sponsors.all() and sponsor not in reso.sponsig.signatories.all():
-                    tally = TallyScore(category=category, delegation=sponsor, score=rubric_score/2)
+                    tally = TallyScore(category=category, delegation=sponsor, score=rubric_score/2, comments="WP Sponsor")
                     tally.save()
                     self.add_tally(tally)
         self.save()

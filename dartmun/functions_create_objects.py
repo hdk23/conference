@@ -7,10 +7,11 @@ indices = random.sample(list(range(len(countries))), len(countries))
 
 
 def create_delegation(committee: Committee) -> Delegation:
-    """creates a delegation for the test committee"""
+    """creates and returns a Delegation object"""
     country_index = indices.pop()
     country = countries[country_index]
-    user = User(first_name=country.name, last_name=committee.acronym, username=f"{committee.acronym.lower()}{country.name.lower()}".replace(" ", ""))
+    user = User(first_name=country.name, last_name=committee.acronym,
+                username=f"{committee.acronym.lower()}{country.name.lower()}".replace(" ", ""))
     user.save()
     delegate = Delegate(user=user)
     delegate.save()
@@ -18,10 +19,34 @@ def create_delegation(committee: Committee) -> Delegation:
     delegation.save()
     delegation.delegates.add(delegate)
     delegation.save()
+    return delegation
+
+
+def add_rubric(committee: Committee, score_manager: ScoreManager, category_acronym: str, title: str, topic=None):
+    """adds rubric entry for position paper/participation"""
+    category = TallyCategory.objects.get(acronym=category_acronym)
+    committee_category = committee.grades.tally_categories.get(category=category)
+    rubric = Rubric.objects.get(title=title)
+    rubric_entry = RubricEntry(rubric=rubric)
+    if topic:
+        rubric_entry.topic = topic
+    rubric_entry.save()
+    rubric_entry.set_rubric()
+    tally = TallyScore(delegation=score_manager.delegation, category=category, rubric=rubric_entry, comments="")
+    tally.save()
+    score_manager.tally_category_scores.get(category=committee_category).add_tally(tally)
+    committee.grades.add_tally(tally)
+    committee.grades.save()
+
+
+def initialize_delegation(committee: Committee) -> Delegation:
+    """creates a delegation for the test committee"""
+    # initialize delegation and score manager
+    delegation = create_delegation(committee)
     score_manager = ScoreManager(delegation=delegation)
     score_manager.save()
 
-    committee = Committee.objects.get(acronym="UNEP")
+    # create tally category scores
     for category in committee.grades.tally_categories.all():
         category_score = TallyCategoryScore(category=category)
         category_score.save()
@@ -29,21 +54,13 @@ def create_delegation(committee: Committee) -> Delegation:
         score_manager.save()
     committee.grades.score_managers.add(score_manager)
     committee.save()
-    rubric = Rubric.objects.get(title="Position Paper Rubric")
+
+    # position papers
     for topic in committee.topics.all():
-        rubric_entry = RubricEntry(rubric=rubric, topic=topic)
-        rubric_entry.save()
-        for criterion in rubric.criteria.all():
-            criterion_score = CriterionScore(criterion=criterion)
-            criterion_score.save()
-            rubric_entry.criterion_scores.add(criterion_score)
-            rubric_entry.save()
-        paper_category = TallyCategory.objects.get(acronym="PP")
-        paper = TallyScore(delegation=delegation, category=paper_category, rubric=rubric_entry, comments="")
-        paper.save()
-        committee_category = CommitteeTallyCategory.objects.get(category=paper_category)
-        score_manager.tally_category_scores.get(category=committee_category).add_tally(paper)
-        score_manager.save()
+        add_rubric(committee, score_manager, "PP", "Position Paper Rubric", topic)
+
+    # participation
+    add_rubric(committee, score_manager, "P", "Participation Rubric")
     return delegation
 
 
@@ -92,16 +109,24 @@ def create_committee():
         committee_tally_category = CommitteeTallyCategory(category=category)
         committee_tally_category.save()
         committee.grades.tally_categories.add(committee_tally_category)
+        rubrics = Rubric.objects.filter(tally_category=category)
+        for rubric in rubrics:
+            if category.acronym == "PP":
+                for topic in committee.topics.all():
+                    committee_tally_category.add_points_possible(rubric.max_possible)
+            else:
+                committee_tally_category.add_points_possible(rubric.max_possible)
 
     # add delegates
     for num in range(40):
-        committee.people.delegations.add(create_delegation(committee))
+        committee.people.delegations.add(initialize_delegation(committee))
         committee.people.save()
     committee.people.set_quorum()
     committee.save()
 
 
 def reset_committee():
+    """resets committee by deleting all objects except for the superuser"""
     Committee.objects.all().delete()
     Chair.objects.all().delete()
     Delegation.objects.all().delete()

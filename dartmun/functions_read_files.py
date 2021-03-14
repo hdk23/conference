@@ -10,8 +10,8 @@ def read_file(file_name):
         if file_name == "pp_rubric":
             pp_rubric = Rubric(title="Position Paper Rubric", tally_category=TallyCategory.objects.get(acronym="PP"))
             pp_rubric.save()
-        elif file_name == "wp_part_rubric":
-            part_rubric = Rubric(title="Working Paper Participation Rubric", tally_category=TallyCategory.objects.get(acronym="P"))
+        elif file_name == "part_rubric":
+            part_rubric = Rubric(title="Participation Rubric", tally_category=TallyCategory.objects.get(acronym="P"))
             part_rubric.save()
         elif file_name == "reso_rubric":
             reso_rubric = Rubric(title="Resolution Rubric", tally_category=TallyCategory.objects.get(acronym="R"))
@@ -26,8 +26,8 @@ def read_file(file_name):
                     read_motions(row)
                 elif file_name == "pp_rubric":
                     read_rubric(row, header_row, "Position Paper Rubric")
-                elif file_name == "wp_part_rubric":
-                    read_rubric(row, header_row, "Working Paper Participation Rubric")
+                elif file_name == "part_rubric":
+                    read_rubric(row, header_row, "Participation Rubric")
                 elif file_name == "reso_rubric":
                     read_rubric(row, header_row, "Resolution Rubric")
             else:

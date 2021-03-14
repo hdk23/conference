@@ -19,6 +19,12 @@ class CommitteeTallyCategory(models.Model):
     category = models.ForeignKey(TallyCategory, on_delete=models.CASCADE)
     average = models.FloatField(blank=True, null=True)
     stdev = models.FloatField(blank=True, null=True)
+    points_possible = models.FloatField(default=0)
+
+    def add_points_possible(self, points: float):
+        """adds points to category points possible"""
+        self.points_possible += points
+        self.save()
 
     def __str__(self):
         return f"{self.category} Committee Tally Category"

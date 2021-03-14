@@ -55,9 +55,9 @@
                         <th>Sponsors</th>
                         <th>Signatories</th>
                         <th>Introduced?</th>
-                        <th>Votes For</th>
-                        <th>Votes Against</th>
-                        <th>Abstentions</th>
+                        <th>For</th>
+                        <th>Against</th>
+                        <th>Abstain</th>
                         <th>Passed?</th>
                     </tr>
                     {% for topic in committee.topics.all %}
@@ -67,10 +67,10 @@
                                 <td>{{ reso.sponsig.get_sponsors }}</td>
                                 <td>{{ reso.sponsig.get_signatories }}</td>
                                 <td>{{ reso.introduced }}</td>
-                                <th>{{ reso.votes_for }}</th>
-                                <th>{{ reso.votes_against }}</th>
-                                <th>{{ reso.votes_abstain }}</th>
-                                <th>{{ reso.passed }}</th>
+                                <td>{{ reso.votes_for }}</td>
+                                <td>{{ reso.votes_against }}</td>
+                                <td>{{ reso.votes_abstain }}</td>
+                                <td>{{ reso.passed }}</td>
                             </tr>
                         {% endfor %}
                     {% endfor %}
@@ -91,6 +91,9 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="add-reso-tab" data-toggle="tab" href="#add-reso" role="tab" aria-controls="add-reso" aria-selected="false">Add Resolution</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="score-part-tab" data-toggle="tab" href="#score-part" role="tab" aria-controls="score-part" aria-selected="false">Score Participation</a>
                 </li>
             </ul>
         {% elif committee.parli_pro.open %}
@@ -194,6 +197,40 @@
                 {% else %}
                     <h4>Add working papers first to add a resolution!</h4>
                 {% endif %}
+            </div>
+            <div class="tab-pane fade" id="score-part" role="tabpanel" aria-labelledby="score-part-tab">
+                <form action="{% url 'update_participation' %}" method="POST">
+                    {% csrf_token %}
+                    <table id="score-part-table">
+                        <tr>
+                            <th>Delegation</th>
+                            {% for criterion in part_rubric.criteria.all %}
+                                <th>{{ criterion }}</th>
+                            {% endfor %}
+                        </tr>
+                        {% for tally in part_tallies %}
+                            <tr>
+                                <th>{{ tally.delegation.country.name }}</th>
+                                {% for criterion in tally.rubric.criterion_scores.all %}
+                                    <td>
+                                        <input type="hidden" value="{{ criterion.descriptor.points }}" class="points">
+                                        <select class="form-control" name="criterion{{ criterion.id }}">
+                                            <option></option>
+                                            {% for descriptor in criterion.criterion.possible_scores.all %}
+                                                {% if criterion.descriptor == descriptor %}
+                                                    <option selected value="{{ descriptor.points }}"> {{ descriptor }}</option>
+                                                {% else %}
+                                                    <option value="{{ descriptor.points }}"> {{ descriptor }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+                    <button type="submit" class="btn btn-primary form-control">Update</button>
+                </form>
             </div>
         </div>
     {% endif %}

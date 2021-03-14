@@ -9,3 +9,8 @@
 form > div.row {
     margin-bottom: 20px;
 }
+
+#score-part-table > tr > td, th {
+    padding: 10px;
+    text-align: center;
+}
