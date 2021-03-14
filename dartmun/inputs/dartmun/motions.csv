@@ -1,15 +1,18 @@
 Motion,Type,Speeches,Duration,Speaking Time,Topic,Purpose
+Open Debate,simple,False,False,False,False,False
+Set a Working Agenda,simple,True,False,False,True,False
+Adjourn,simple,False,False,False,False,False
+Recess,simple,False,False,False,False,False
 Close Debate,2/3,True,False,False,False,False
 Divide the Question,2/3,False,False,False,False,False
-Adjourn,simple,False,False,False,False,False
+Table Debate,simple,False,False,False,False,False
+Set the Speaking Time,simple,True,False,True,False,False
+Introduce a Working Paper,simple,False,False,False,False,False
+Introduce a Resolution,simple,False,False,False,False,False
+Introduce an Amendment,simple,False,False,False,False,False
+Move into an Unmoderated Caucus,simple,False,True,False,False,False
+Move into a Moderated Caucus,simple,False,True,True,False,True
 Amend a Pending Motion,simple,False,False,False,False,False
 Appeal the Decision of a Chair,simple,False,False,False,False,False
 Conduct a Roll Call Vote,simple,False,False,False,False,False
-Introduce a Working Paper,simple,False,False,False,False,False
-Lay on the Table,simple,False,False,False,False,False
-Move into a Moderated Caucus,simple,False,True,True,False,True
-Move into an Unmoderated Caucus,simple,False,True,False,False,False
-Open Debate,simple,False,False,False,False,False
 Reconsider a Motion,simple,False,False,False,False,False
-Set a Working Agenda,simple,True,False,False,True,False
-Set the Speaking Time,simple,True,False,True,False,False

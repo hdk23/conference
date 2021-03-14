@@ -86,7 +86,6 @@ class TallyCategoryScore(models.Model):
         else:
             self.calc_tallies(delegation=tally.delegation)
         self.save()
-        print("New score is:", tally.score)
 
     def __str__(self):
         return f"{self.category}: {self.raw_score} pts"
@@ -112,7 +111,6 @@ class ScoreManager(models.Model):
             else:
                 max_possible -= tally_category.category.category.weight
         if scores:
-            print(scores)
             self.score = round(np.dot(weights, scores) * 100 / max_possible, 2)
         self.save()
 

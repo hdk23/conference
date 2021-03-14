@@ -3,14 +3,18 @@ var votes_for = document.getElementById("votes-for");
 var votes_against = document.getElementById("votes-against");
 var vote_alert = document.getElementById("vote-alert");
 var del_count = document.getElementById("del-count");
+var vote_button = document.getElementById("vote-button");
 
 function validate_votes(event){
   if ((parseInt(votes_for.value, 10) + parseInt(votes_against.value, 10)) > del_count.value){
     vote_alert.innerHTML = "The number of votes exceeds the number of delegates present."
     vote_alert.hidden = false;
+    vote_button.disabled = true;
   }
-  else
+  else{
     vote_alert.hidden = true;
+    vote_button.disabled = false;
+  }
 }
 
 votes_for.addEventListener('input', validate_votes)
@@ -32,8 +36,6 @@ var discretion = document.getElementById("discretion");
 var vote = document.getElementById("vote");
 
 function hide_submit_btns(element, value){
-  console.log(element);
-  console.log(value.value);
   if (!element.hidden && value.value == 0) {
     discretion.disabled = true;
     vote.disabled = true;
@@ -59,12 +61,12 @@ function show_inputs(event){
   const has_duration =["Move into a Moderated Caucus", "Move into an Unmoderated Caucus"]
   const has_speaktime =["Move into a Moderated Caucus", "Set the Speaking Time"]
   var motion_name = selectedMotion.options[selectedMotion.selectedIndex].text;
-  duration.hidden = !has_duration.includes(motion_name);
-  hide_submit_btns(duration, duration_value);
   speakTime.hidden = !has_speaktime.includes(motion_name);
   hide_submit_btns(speakTime, time_value);
   purpose.hidden = motion_name !== "Move into a Moderated Caucus";
   hide_submit_btns(purpose, purpose_value);
+  duration.hidden = !has_duration.includes(motion_name);
+  hide_submit_btns(duration, duration_value);
   topic.hidden = motion_name !== "Set a Working Agenda";
 }
 

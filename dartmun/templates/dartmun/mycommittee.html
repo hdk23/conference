@@ -73,12 +73,31 @@
                 {% endif %}
             </div>
         </div>
+        {% if committee.writing.current_wp or committee.writing.current_reso or committee.writing.current_amend %}
+            <div class="row">
+                {% if committee.writing.current_wp %}
+                    <div class="col">
+                        <h4>Current WP by {{ committee.writing.current_wp.sponsig.get_sponsors }}</h4>
+                    </div>
+                {% endif %}
+                {% if committee.writing.current_reso %}
+                    <div class="col">
+                        <h4>Current Reso by {{ committee.writing.current_reso.sponsig.get_sponsors }}</h4>
+                    </div>
+                {% endif %}
+                {% if committee.writing.current_amend %}
+                    <div class="col">
+                        <h4>Current Amend by {{ committee.writing.current_amend.sponsor }}</h4>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
         <div class="row">
             {% if delegations.count %}
                 <div class="col">
                     <h4>Motion List</h4>
                     <ul>
-                        {% for motion in committee.parli_pro.motion_list.all %}
+                        {% for motion in committee.parli_pro.get_motion_list %}
                             <li><a href="{% url 'remove_motion_entry' motion.id %}">{{ motion }}</a></li>
                         {% empty %}
                             <h5>Are there any points or motions on the floor?</h5>
@@ -93,12 +112,16 @@
                         {% for speaker in committee.parli_pro.speaker_list.all %}
                             <li><a href="{% url 'remove_speech_entry' speaker.id %}">{{ speaker.delegation.country.name }}</a></li>
                         {% empty %}
-                            <h5>Delegates wishing to speak, please raise your virtual placards!</h5>
+                            <h5>Raise your virtual placard to speak!</h5>
                         {% endfor %}
                     </ul>
                 </div>
             {% endif %}
+            <div class="col">
+                <iframe width="100%" height="100%" src="https://vclock.com/embed/stopwatch/#theme=0" frameborder="0" allowfullscreen></iframe>
+            </div>
         </div>
+
     </div>
     {% if request.user.is_staff %}
         <div class="container overflow-auto" id="staff-only">
@@ -318,8 +341,8 @@
             </form>
         </div>
         <div class="tab-pane fade show" id="vote-motion" role="tabpanel" aria-labelledby="vote-motion-tab">
-            {% if committee.parli_pro.motion_list.first.motion.vote_type %}
-                This motion requires a {{ committee.parli_pro.motion_list.first.motion.vote_type }} majority to pass.<br>
+            {% if committee.parli_pro.get_motion_list.first.motion.vote_type %}
+                This motion requires a {{ committee.parli_pro.get_motion_list.first.motion.vote_type }} majority to pass.<br>
                 All delegates wishing to vote for, please raise your virtual placard.<br>
                 All delegates wishing to vote against, please raise your virtual placard.<br>
             {% endif %}
@@ -330,7 +353,7 @@
                     <div class="col-6">
                         <p>Motion</p>
                         <select name="motion-entry" class="form-control">
-                            <option value="{{ committee.parli_pro.motion_list.first.id }}">{{ committee.parli_pro.motion_list.first }}</option>
+                            <option value="{{ committee.parli_pro.get_motion_list.first.id }}">{{ committee.parli_pro.get_motion_list.first }}</option>
                         </select>
                         <input type="hidden" id="del-count" value="{{ committee.people.number_present }}">
                     </div>
@@ -344,7 +367,7 @@
                     </div>
                     <div class="col-2">
                         <p>Submit</p>
-                        <p><button type="submit" class="btn btn-primary">Submit</button></p>
+                        <p><button type="submit" class="btn btn-primary" id="vote-button">Submit</button></p>
                     </div>
                 </div>
             </form>

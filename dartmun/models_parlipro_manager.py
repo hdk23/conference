@@ -13,6 +13,13 @@ class ParliProManager(models.Model):
     speaker_list = models.ManyToManyField(SpeechEntry, blank=True)
     motion_list = models.ManyToManyField(MotionEntry, blank=True)
 
+    def get_motion_list(self):
+        """
+        retrieves the list of motion entries in order of precedence
+        order of precedence determined by motion id and duration (destructiveness)
+        """
+        return self.motion_list.order_by('motion', '-duration')
+
     def start_ssl(self):
         """starts a secondary speaker's list in the committee"""
         self.current_mode = DebateMode.objects.get(acronym="SSL")
