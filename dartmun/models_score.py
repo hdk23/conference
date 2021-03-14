@@ -105,7 +105,7 @@ class ScoreManager(models.Model):
         scores = []
         max_possible = 100
         for tally_category in self.tally_category_scores.all():
-            if tally_category.scaled_score:
+            if tally_category.scaled_score is not None:
                 weights.append(tally_category.category.category.weight / 100)
                 scores.append(tally_category.scaled_score)
             else:

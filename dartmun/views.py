@@ -85,15 +85,20 @@ def update_paper(request, id):
     """updates a paper's score"""
     paper = TallyScore.objects.get(pk=int(id))
     old_score = paper.score
-    for criterion in paper.rubric.criterion_scores.all():
-        score = request.POST.get(f"criterion{criterion.id}")
-        if score:
-            criterion.update_score(float(score))
-        comments = request.POST.get("comments")
-        if comments:
-            paper.comments = comments
-            paper.save()
-    paper.set_rubric_score()
+    if request.POST.get("late"):
+        paper.score = 0
+        paper.rubric.total_score = 0
+        paper.save()
+    else:
+        for criterion in paper.rubric.criterion_scores.all():
+            score = request.POST.get(f"criterion{criterion.id}")
+            if score:
+                criterion.update_score(float(score))
+            comments = request.POST.get("comments")
+            if comments:
+                paper.comments = comments
+                paper.save()
+        paper.set_rubric_score()
     committee = Committee.objects.get(acronym="UNEP")
     committee.grades.update_tally(paper, old_score)
     return HttpResponseRedirect(reverse('delegation_papers', kwargs={"id": paper.delegation.id}))
