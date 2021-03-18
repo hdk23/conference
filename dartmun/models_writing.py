@@ -49,18 +49,25 @@ class WorkingPaper(models.Model):
 
 
 class Amendment(models.Model):
+    """Amendment model to represent an amendment"""
     TYPE_CHOICES = [('A', 'Add'), ('M', 'Modify'), ('S', 'Strike')]
     amendment_type = models.CharField(max_length=16, choices=TYPE_CHOICES)
-    clause = models.PositiveSmallIntegerField()
-    subclause = models.CharField(max_length=2)  # number
-    subsubclause = models.CharField(max_length=5)  # letter
-    friendly = models.BooleanField(default=False)  # roman numeral
+    clause = models.CharField(max_length=16)
+    friendly = models.BooleanField(default=False)
     score = models.PositiveSmallIntegerField()
     old = models.TextField(null=True, blank=True)
     new = models.TextField(null=True, blank=True)
     sponsor = models.ForeignKey(Delegation, on_delete=models.CASCADE, related_name="amend_sponsor")
     signatories = models.ManyToManyField(Delegation, related_name="amend_signatories")
+    votes_for = models.PositiveSmallIntegerField(null=True)
+    votes_against = models.PositiveSmallIntegerField(null=True)
+    votes_abstain = models.PositiveSmallIntegerField(null=True)
     passed = models.BooleanField(null=True)
+
+    def passes(self):
+        """calculates whether the motion passes"""
+        self.passed = self.votes_for > self.votes_against
+        self.save()
 
     def __str__(self):
         return f"{self.amendment_type} Clause {self.clause}.{self.subclause}.{self.subsubclause} by {self.sponsor.country.name}"
@@ -90,6 +97,23 @@ class WritingManager(models.Model):
     current_wp = models.ForeignKey(WorkingPaper, on_delete=models.CASCADE, null=True, blank=True, related_name="current_wp")
     current_reso = models.ForeignKey(Resolution, on_delete=models.CASCADE, null=True, blank=True, related_name="current_reso")
     current_amend = models.ForeignKey(Amendment, on_delete=models.CASCADE, null=True, blank=True, related_name="current_amend")
+
+    def set_wp(self, wp_id):
+        """sets the current working paper"""
+        self.current_wp = WorkingPaper.objects.get(pk=wp_id)
+        self.current_reso = None
+        self.save()
+
+    def set_reso(self, reso_id):
+        """sets the current resolution"""
+        self.current_reso = Resolution.objects.get(pk=reso_id)
+        self.current_wp = None
+        self.save()
+
+    def set_amend(self, amend_id):
+        """sets the current amendment"""
+        self.current_amend = Amendment.objects.get(pk=amend_id)
+        self.save()
 
     def __str__(self):
         if self.current_wp:

@@ -1,7 +1,7 @@
 from django.db import models
 from .models_tally import *
 from .models_people import Delegation, Chair
-from .models_rubric import RubricEntry, Rubric
+from .models_rubric import RubricEntry
 import numpy as np
 
 
@@ -28,6 +28,7 @@ class TallyScore(models.Model):
 
 
 class TallyCategoryScore(models.Model):
+    delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE, null=True)
     category = models.ForeignKey(CommitteeTallyCategory, on_delete=models.CASCADE)
     raw_score = models.FloatField(default=0)
     zscore = models.FloatField(blank=True, null=True)
@@ -51,7 +52,7 @@ class TallyCategoryScore(models.Model):
         """calculates the delegation's tally category score's z-score used for calculating total score"""
         return (raw_score - average) / stdev
 
-    def calc_tallies(self, committee_average=None, committee_stdev=None, delegation=None):
+    def calc_tallies(self, committee_average=None, committee_stdev=None):
         """calculates tally category score based on delegation's tallies"""
         average = self.category.average
         stdev = self.category.stdev
@@ -63,7 +64,7 @@ class TallyCategoryScore(models.Model):
                     self.scaled_score = round(committee_average + committee_stdev * self.zscore, 2)
         else:
             if self.category.points_possible:
-                tallies = TallyScore.objects.filter(category=self.category.category, delegation=delegation)
+                tallies = TallyScore.objects.filter(category=self.category.category, delegation=self.delegation)
                 points_possible = self.category.points_possible
                 for tally in tallies:
                     if tally.rubric.total_score is None:
@@ -81,14 +82,11 @@ class TallyCategoryScore(models.Model):
             self.raw_score -= old_score
         self.raw_score += tally.score
         self.save()
-        if tally.category.scaled:
-            self.calc_tallies()
-        else:
-            self.calc_tallies(delegation=tally.delegation)
+        self.calc_tallies()
         self.save()
 
     def __str__(self):
-        return f"{self.category}: {self.raw_score} pts"
+        return f"{self.delegation} {self.category}: {self.raw_score} pts"
 
 
 class ScoreManager(models.Model):
@@ -113,6 +111,10 @@ class ScoreManager(models.Model):
         if scores:
             self.score = round(np.dot(weights, scores) * 100 / max_possible, 2)
         self.save()
+
+    def remove_score_manager(self):
+        self.tally_category_scores.all().delete()
+        self.delete()
 
     def __str__(self):
         return f"{self.delegation} Score Manager"

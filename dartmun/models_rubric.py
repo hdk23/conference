@@ -97,6 +97,5 @@ class RubricEntry(models.Model):
         criterion.score = new_score
         criterion.save()
 
-
     def __str__(self):
         return f"{self.rubric}: {self.total_score}"

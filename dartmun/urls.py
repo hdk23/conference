@@ -17,6 +17,7 @@ urlpatterns = [
     path('my_committee/remove_motion_entry/<int:id>', views.remove_motion_entry, name='remove_motion_entry'),
     path('my_committee/update_attendance/', views.update_attendance, name='update_attendance'),
     path('my_committee/ssl/', views.ssl, name='ssl'),
+    path('my_committee/add_amendment/', views.add_amendment, name='add_amendment'),
 
     # Other Page URLs
     path('grades/', views.grades, name='grades'),

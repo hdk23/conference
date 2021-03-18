@@ -1,41 +1,48 @@
 // motion validation code
-var votes_for = document.getElementById("votes-for");
-var votes_against = document.getElementById("votes-against");
-var vote_alert = document.getElementById("vote-alert");
-var del_count = document.getElementById("del-count");
-var vote_button = document.getElementById("vote-button");
+let votesFor = document.getElementById("votes-for");
+let votesAgainst = document.getElementById("votes-against");
+let voteAlert = document.getElementById("vote-alert");
+let delCount = document.getElementById("del-count");
+let voteButton = document.getElementById("vote-button");
 
 function validate_votes(event){
-  if ((parseInt(votes_for.value, 10) + parseInt(votes_against.value, 10)) > del_count.value){
-    vote_alert.innerHTML = "The number of votes exceeds the number of delegates present."
-    vote_alert.hidden = false;
-    vote_button.disabled = true;
+  if ((parseInt(votesFor.value, 10) + parseInt(votesAgainst.value, 10)) > delCount.value){
+    voteAlert.innerHTML = "The number of votes exceeds the number of delegates present."
+    voteAlert.hidden = false;
+    voteButton.disabled = true;
   }
   else{
-    vote_alert.hidden = true;
-    vote_button.disabled = false;
+    voteAlert.hidden = true;
+    voteButton.disabled = false;
   }
 }
 
-votes_for.addEventListener('input', validate_votes)
-votes_against.addEventListener('input', validate_votes)
+votesFor.addEventListener('input', validate_votes)
+votesAgainst.addEventListener('input', validate_votes)
 
 // add motion form code
-var selectedMotion = document.getElementById("selected-motion");
-var motion_alert = document.getElementById("motion-alert");
+let selectedMotion = document.getElementById("selected-motion");
+let motionAlert = document.getElementById("motion-alert");
 
-var duration = document.getElementById("duration");
-var speakTime = document.getElementById("speak-time");
-var duration_value = document.getElementById("duration-value");
-var time_value = document.getElementById("time-value");
-var purpose = document.getElementById("purpose");
-var purpose_value = document.getElementById("purpose-value");
-var topic = document.getElementById("topic");
-var selectedTopic = document.getElementById("selected-topic");
-var discretion = document.getElementById("discretion");
-var vote = document.getElementById("vote");
+let duration = document.getElementById("duration");
+let durationValue = document.getElementById("duration-value");
+let speakTime = document.getElementById("speak-time");
+let timeValue = document.getElementById("time-value");
+let purpose = document.getElementById("purpose");
+let purposeValue = document.getElementById("purpose-value");
+let wp = document.getElementById("wp");
+let selectedWP = document.getElementById("selected-WP");
+let reso = document.getElementById("reso");
+let selectedReso = document.getElementById("selected-reso");
+let amend = document.getElementById("amend");
+let selectedAmend = document.getElementById("selected-amend");
+let topic = document.getElementById("topic");
+let selectedTopic = document.getElementById("selected-topic");
+let discretion = document.getElementById("discretion");
+let vote = document.getElementById("vote");
 
-function hide_submit_btns(element, value){
+
+function hideSubmitBtns(element, value){
   if (!element.hidden && value.value == 0) {
     discretion.disabled = true;
     vote.disabled = true;
@@ -46,7 +53,7 @@ function hide_submit_btns(element, value){
   }
 }
 
-function submit_btns_after_edit(event){
+function submitBtnsAfterEdit(event){
   if (!event.target.hidden && event.target.value != 0){
     discretion.disabled = false;
     vote.disabled = false;
@@ -57,32 +64,39 @@ function submit_btns_after_edit(event){
   }
 }
 
-function show_inputs(event){
-  const has_duration =["Move into a Moderated Caucus", "Move into an Unmoderated Caucus"]
-  const has_speaktime =["Move into a Moderated Caucus", "Set the Speaking Time"]
-  var motion_name = selectedMotion.options[selectedMotion.selectedIndex].text;
-  speakTime.hidden = !has_speaktime.includes(motion_name);
-  hide_submit_btns(speakTime, time_value);
-  purpose.hidden = motion_name !== "Move into a Moderated Caucus";
-  hide_submit_btns(purpose, purpose_value);
-  duration.hidden = !has_duration.includes(motion_name);
-  hide_submit_btns(duration, duration_value);
-  topic.hidden = motion_name !== "Set a Working Agenda";
+function showInputs(event){
+  const hasDuration =["Move into a Moderated Caucus", "Move into an Unmoderated Caucus"]
+  const hasSpeakTime =["Move into a Moderated Caucus", "Set the Speaking Time"]
+  let motionName = selectedMotion.options[selectedMotion.selectedIndex].text;
+  speakTime.hidden = !hasSpeakTime.includes(motionName);
+  hideSubmitBtns(speakTime, timeValue);
+  purpose.hidden = motionName !== "Move into a Moderated Caucus";
+  hideSubmitBtns(purpose, purposeValue);
+  duration.hidden = !hasDuration.includes(motionName);
+  hideSubmitBtns(duration, durationValue);
+  topic.hidden = motionName !== "Set a Working Agenda";
+  hideSubmitBtns(topic, selectedTopic);
+  wp.hidden = motionName !== "Introduce a Working Paper";
+  hideSubmitBtns(wp, selectedWP);
+  reso.hidden = motionName !== "Introduce a Resolution";
+  hideSubmitBtns(reso, selectedReso);
+  amend.hidden = motionName !== "Introduce an Amendment";
+  hideSubmitBtns(amend, selectedAmend);
 }
 
 function divisibility_check(event) {
-  var motion_name = selectedMotion.options[selectedMotion.selectedIndex].text;
-  if (motion_name === "Move into a Moderated Caucus") {
-    if (!duration_value.value || !time_value.value || (duration_value.value == 0 || time_value.value == 0) || ! purpose_value.value) {
+  let motionName = selectedMotion.options[selectedMotion.selectedIndex].text;
+  if (motionName === "Move into a Moderated Caucus") {
+    if (!durationValue.value || !timeValue.value || (durationValue.value == 0 || timeValue.value == 0) || ! purposeValue.value) {
       discretion.disabled = true;
       vote.disabled = true;
-    } else if (duration_value.value * 60 % time_value.value) {
-      motion_alert.innerHTML = "The duration and speaking time must be divisible.";
-      motion_alert.hidden = false;
+    } else if (durationValue.value * 60 % timeValue.value) {
+      motionAlert.innerHTML = "The duration and speaking time must be divisible.";
+      motionAlert.hidden = false;
       discretion.disabled = true;
       vote.disabled = true;
     } else {
-      motion_alert.hidden = true;
+      motionAlert.hidden = true;
       discretion.disabled = false;
       vote.disabled = false;
     }
@@ -90,19 +104,25 @@ function divisibility_check(event) {
 }
 
 
-selectedMotion.addEventListener('input', show_inputs);
-selectedTopic.addEventListener('input', show_inputs);
-duration.addEventListener('input', submit_btns_after_edit);
-speakTime.addEventListener('input', submit_btns_after_edit);
+selectedMotion.addEventListener('input', showInputs);
+selectedTopic.addEventListener('input', showInputs);
+selectedWP.addEventListener('input', showInputs);
+selectedReso.addEventListener('input', showInputs);
+selectedAmend.addEventListener('input', showInputs);
+duration.addEventListener('input', submitBtnsAfterEdit);
+speakTime.addEventListener('input', submitBtnsAfterEdit);
 duration.addEventListener('input', divisibility_check);
 speakTime.addEventListener('input', divisibility_check);
-purpose_value.addEventListener('input', submit_btns_after_edit);
+purposeValue.addEventListener('input', submitBtnsAfterEdit);
 
 
 // slider code
-var slider = document.getElementById("myRange");
-var output = document.getElementById("score");
+let slider = document.getElementById("myRange");
+let slider2 = document.getElementById("myRange2");
+let output = document.getElementById("score");
+let output2 = document.getElementById("score2");
 output.innerHTML = slider.value; // Display the default slider value
+output2.innerHTML = slider2.value;
 
 // update the current slider value (each time you drag the slider handle)
 slider.oninput = function() {
@@ -119,3 +139,16 @@ slider.oninput = function() {
     output.style.color = "green";
 }
 
+slider2.oninput = function() {
+  output2.innerHTML = this.value;
+  if (this.value == 0)
+    output2.style.color = "black";
+  else if (this.value == 1)
+    output2.style.color = "red";
+  else if (this.value == 2)
+    output2.style.color = "orange";
+  else if (this.value == 3)
+    output2.style.color = "gold";
+  else
+    output2.style.color = "green";
+}

@@ -9,7 +9,7 @@ def add_speech_entry(request):
     """adds an entry to the speaker's list"""
     delegation_id = int(request.POST.get("delegation"))
     delegation = Delegation.objects.get(pk=delegation_id)
-    committee = Committee.objects.get(acronym="UNEP")
+    committee = get_committee(request)
     committee.parli_pro.add_speaker(delegation)
     return HttpResponseRedirect(reverse('my_committee'))
 
@@ -17,7 +17,7 @@ def add_speech_entry(request):
 @staff_member_required
 def remove_speech_entry(request, id):
     """removes an entry from the speaker's list"""
-    committee = Committee.objects.get(acronym="UNEP")
+    committee = get_committee(request)
     committee.parli_pro.remove_speaker(id)
     return HttpResponseRedirect(reverse('my_committee'))
 
@@ -25,7 +25,7 @@ def remove_speech_entry(request, id):
 @staff_member_required
 def add_tally(request):
     """adds tally for the delegation"""
-    committee = Committee.objects.get(acronym="UNEP")
+    committee = get_committee(request)
     delegation_id = int(request.POST.get("delegation"))
     delegation = Delegation.objects.get(pk=delegation_id)
     score = int(request.POST.get("score"))
@@ -44,10 +44,22 @@ def add_tally(request):
     return HttpResponseRedirect(reverse('my_committee'))
 
 
+def get_committee(request):
+    """determines the user's committee"""
+    chair = Chair.objects.get(user=request.user)
+    try:
+        cd = CommitteeDirector.objects.get(chair=chair)
+        manager = PeopleManager.objects.get(directors=cd)
+    except:
+        cm = CommitteeManager.objects.get(chair=chair)
+        manager = PeopleManager.objects.get(directors=cm)
+    return Committee.objects.get(people=manager)
+
+
 @staff_member_required
 def remove_tally(request, id):
     """removes a tally from a delegation's record"""
-    committee = Committee.objects.get(acronym="UNEP")
+    committee = get_committee(request)
     tally = TallyScore.objects.get(pk=id)
     committee.grades.remove_tally(tally)
     return HttpResponseRedirect(reverse('tallies'))
@@ -63,7 +75,7 @@ def create_motion_tally(request, motion_entry, score):
 
 @staff_member_required
 def add_motion_entry(request):
-    committee = Committee.objects.get(acronym="UNEP")
+    committee = get_committee(request)
     """adds a motion entry to the motion list"""
     delegation_id = int(request.POST.get("delegation"))
     delegation = Delegation.objects.get(pk=delegation_id)
@@ -80,8 +92,18 @@ def add_motion_entry(request):
     if motion.topic:
         topic_id = int(request.POST.get("topic"))
         motion_entry.topic = Topic.objects.get(pk=topic_id)
+    if motion.motion == "Introduce a Working Paper":
+        committee.writing.set_wp(int(request.POST.get("wp")))
+    elif motion.motion == "Introduce a Resolution":
+        committee.writing.set_reso(int(request.POST.get("reso")))
+    elif motion.motion == "Introduce an Amendment":
+        committee.writing.set_amend(int(request.POST.get("amend")))
+    elif motion.motion == "Recess":
+        pass
+    elif motion.motion == "Adjourn":
+        pass
     motion_entry.save()
-    if request.POST.get("discretion"):
+    if request.POST.get("discretion") or "Introduce" in motion.motion:
         present = committee.people.delegations.filter(present=True).count()
         score = motion_entry.calc_motion_score(present)
         motion_tally = create_motion_tally(request, motion_entry, score)
@@ -103,7 +125,7 @@ def remove_motion_entry(request, id):
 @staff_member_required
 def vote_motion(request):
     """votes on the motion"""
-    committee = Committee.objects.get(acronym="UNEP")
+    committee = get_committee(request)
     motion_entry_id = int(request.POST.get("motion-entry"))
     motion_entry = MotionEntry.objects.get(pk=motion_entry_id)
     votes_for = int(request.POST.get("votes-for"))
@@ -122,7 +144,7 @@ def vote_motion(request):
 @staff_member_required
 def update_attendance(request):
     """updates committee attendance"""
-    committee = Committee.objects.get(acronym="UNEP")
+    committee = get_committee(request)
     for delegation in committee.people.delegations.all():
         attendance = request.POST.get(f"attendance{delegation.id}")
         delegation.update_attendance(attendance)
@@ -134,7 +156,7 @@ def update_attendance(request):
 @staff_member_required
 def set_mod_speaker(request, order):
     """sets the delegate that raised the motion as either the first or last speaker"""
-    committee = Committee.objects.get(acronym="UNEP")
+    committee = get_committee(request)
     committee.parli_pro.caucus.set_mod_speaker(order)
     return HttpResponseRedirect(reverse('my_committee'))
 
@@ -142,6 +164,19 @@ def set_mod_speaker(request, order):
 @staff_member_required
 def ssl(request):
     """starts a secondary speaker's list (SSL) for the committee"""
-    committee = Committee.objects.get(acronym="UNEP")
+    committee = get_committee(request)
     committee.parli_pro.start_ssl()
+    return HttpResponseRedirect(reverse('my_committee'))
+
+
+@staff_member_required
+def add_amendment(request):
+    amend_type = request.POST.get("type")
+    clause = int(request.POST.get("clause"))
+    friendly = request.POST.get("friendly")
+    score = int(request.POST.get("score"))
+    original = request.POST.get("original")
+    new = request.POST.get("new")
+    sponsor = Delegation.objects.get(pk=int(request.POST.get("sponsor")))
+    signatory_ids = request.POST.getlist('signatories')
     return HttpResponseRedirect(reverse('my_committee'))

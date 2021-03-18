@@ -94,6 +94,10 @@ input {
   text-align: center;
 }
 
+#sponsor-list, #signatory-list {
+    height: 90px;
+}
+
 #show-delegates{
     height: 400px;
     border: 2px solid lightgrey;

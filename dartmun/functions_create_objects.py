@@ -48,7 +48,7 @@ def initialize_delegation(committee: Committee) -> Delegation:
 
     # create tally category scores
     for category in committee.grades.tally_categories.all():
-        category_score = TallyCategoryScore(category=category)
+        category_score = TallyCategoryScore(delegation=delegation, category=category)
         category_score.save()
         score_manager.tally_category_scores.add(category_score)
         score_manager.save()

@@ -13,6 +13,6 @@ function updateTotal(event){
 }
 
 
-for (var criterion of points){
+for (let criterion of points){
     criterion.addEventListener('change', updateTotal);
 }

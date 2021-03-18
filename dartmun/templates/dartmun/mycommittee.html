@@ -165,6 +165,14 @@
                 {% else %}
                     <li class="nav-item active">
                 {% endif %}
+                {% if committee.writing.current_reso %}
+                    <li class="nav-item">
+                {% else %}
+                    <li class="nav-item" hidden>
+                {% endif %}
+                <a class="nav-link" id="amendment-tab" data-toggle="tab" href="#amendment" role="tab" aria-controls="amendment" aria-selected="false">Add Amendment</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" id="attendance-tab" data-toggle="tab" href="#attendance" role="tab" aria-controls="attendance" aria-selected="false">Attendance</a>
                 </li>
             </ul>
@@ -292,6 +300,30 @@
                             {% endfor %}
                         </select>
                     </div>
+                    <div class="col-4" id="wp" hidden>
+                        <p>Working Paper</p>
+                        <select name="wp" class="form-control" id="selected-WP">
+                            {% for wp in committee.parli_pro.current_topic.working_papers.all %}
+                                <option value="{{ wp.id }}">{{ wp }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-4" id="reso" hidden>
+                        <p>Resolution</p>
+                        <select name="reso" class="form-control" id="selected-reso">
+                            {% for reso in committee.parli_pro.current_topic.resolutions.all %}
+                                <option value="{{ reso.id }}">{{ reso }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-4" id="amend" hidden>
+                        <p>Amendment</p>
+                        <select name="amend" class="form-control" id="selected-amend">
+                            {% for amend in committee.writing.current_reso.amendments.all %}
+                                <option value="{{ amend.id }}">{{ amend }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
                 <div class="row" id="purpose" hidden>
                     <div class="col">
@@ -368,6 +400,79 @@
                     <div class="col-2">
                         <p>Submit</p>
                         <p><button type="submit" class="btn btn-primary" id="vote-button">Submit</button></p>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="tab-pane fade" id="amendment" role="tabpanel" aria-labelledby="amendment-tab">
+            <form action="{% url 'add_amendment' %}" method="POST">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-3">
+                        <p>Type</p>
+                        <input type="radio" name="type" id="add" value="A">
+                        <label for="add">Add</label>
+                        <input type="radio" name="type" id="modify" value="M">
+                        <label for="modify">Modify</label>
+                        <input type="radio" name="type" id="strike" value="S">
+                        <label for="strike">Strike</label>
+                    </div>
+                    <div class="col-2">
+                        <p>Clause</p>
+                        <input type="text" maxlength="16" class="form-control" aria-label="Clause" name="clause">
+                    </div>
+                    <div class="col-1">
+                        <p>Friendly</p>
+                        <input type="checkbox"class="form-control" aria-label="friendly" name="friendly">
+                    </div>
+                    <div class="col-4">
+                        <p>Score</p>
+                        <div class="row">
+                            <div class="col-9 slidecontainer">
+                                <input type="range" min="0" max="4" value="3" class="slider" id="myRange2" name="score">
+                            </div>
+                            <div class="col-3">
+                                <h4 id="score2"></h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <p>Submit</p>
+                        <p><button type="submit" class="btn btn-primary">Submit</button></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col" hidden id="original">
+                        <p>Original Clause</p>
+                        <input type="text" class="form-control" aria-label="original" name="original">
+                    </div>
+                    <div class="col" hidden id="new">
+                        <p>New Clause</p>
+                        <input type="text" class="form-control" aria-label="new" name="new">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <p>Sponsor</p>
+                        <div class="container overflow-auto" id="sponsor-list">
+                            {% for delegation in delegations.all %}
+                                <div id="amend-sponsor">
+                                    <input type="radio" name="sponsor" value="{{ delegation.id }}">
+                                    <label for="sponsor{{ delegation.id }}">{{ delegation.country.name }}</label><br>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col">
+                        <p>Signatories</p>
+                        <div class="container overflow-auto" id="signatory-list">
+                            {% for delegation in delegations.all %}
+                                <div id="amend-signatories">
+                                    <input type="checkbox" name="signatories" value="{{ delegation.id }}">
+                                    <label for="signatory{{ delegation.id }}">{{ delegation.country.name }}</label><br>
+                                </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
             </form>

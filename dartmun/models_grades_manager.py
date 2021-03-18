@@ -35,7 +35,7 @@ class GradesManager(models.Model):
                 if tally_category_score.category.category.scaled:
                     tally_category_score.calc_tallies(self.category_average, self.category_stdev)
                 else:
-                    tally_category_score.calc_tallies(delegation=score_manager.delegation)
+                    tally_category_score.calc_tallies()
 
         for score_manager in self.score_managers.all():
             score_manager.calc_score()

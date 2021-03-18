@@ -1,6 +1,7 @@
 from django.shortcuts import render, reverse
 from django.http import Http404, HttpResponseRedirect
 from django.contrib.admin.views.decorators import staff_member_required
+from .views import get_committee
 from .models import *
 
 
@@ -23,6 +24,7 @@ def remove_wp(request, id):
 
 @staff_member_required
 def add_reso(request):
+    """add resolution entry"""
     topic = Topic.objects.get(pk=int(request.POST.get("topic")))
     sponsor_ids = request.POST.getlist('sponsors')
     signatory_ids = request.POST.getlist('signatories')
@@ -36,6 +38,13 @@ def add_reso(request):
     committee = Committee.objects.get(acronym="UNEP")
     committee.grades.add_reso_grades(reso, topic, rubric_entry)
 
+    return HttpResponseRedirect(reverse('resos'))
+
+
+@staff_member_required
+def remove_reso(request, id):
+    """removes a resolution and the corresponding tally entries"""
+    Resolution.objects.get(pk=id).delete()
     return HttpResponseRedirect(reverse('resos'))
 
 

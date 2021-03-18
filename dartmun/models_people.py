@@ -72,15 +72,20 @@ class Delegation(models.Model):
             self.save()
 
     def __str__(self):
-        if self.voting:
-            return f"Delegation of {self.country.name}: Present and Voting"
-        elif self.present:
-            return f"Delegation of {self.country.name}: Present"
-        else:
-            return f"Delegation of {self.country.name}: Absent"
+        return f"Delegation of {self.country.name}"
+        # if self.voting:
+        #     return f"Delegation of {self.country.name}: Present and Voting"
+        # elif self.present:
+        #     return f"Delegation of {self.country.name}: Present"
+        # else:
+        #     return f"Delegation of {self.country.name}: Absent"
 
 
 class PeopleManager(models.Model):
+    """
+    PeopleManager class that manages people in the committee
+    Also tracks delegation-count related properties
+    """
     directors = models.ManyToManyField(CommitteeDirector)
     managers = models.ManyToManyField(CommitteeManager)
     delegations = models.ManyToManyField(Delegation)
@@ -123,6 +128,13 @@ class PeopleManager(models.Model):
         self.simple_majority = self.number_present // 2 + 1
         self.super_majority = round(self.number_present * 2 / 3)
         self.min_signatory = round(self.number_present / 5)
+        self.save()
+
+    def add_delegation(self, country: str):
+        """adds a delegation to the committee"""
+        delegation = Delegation(country=country)
+        delegation.save()
+        self.delegations.add(delegation)
         self.save()
 
     def __str__(self):

@@ -23,8 +23,25 @@ def index(request):
     return render(request, 'dartmun/index.html', context)
 
 
-def get_context():
-    committee = Committee.objects.get(acronym="UNEP")
+def get_committee(request):
+    """determines the user's committee"""
+    if request.user.is_staff:
+        chair = Chair.objects.get(user=request.user)
+        try:
+            cd = CommitteeDirector.objects.get(chair=chair)
+            manager = PeopleManager.objects.get(directors=cd)
+        except:
+            cm = CommitteeManager.objects.get(chair=chair)
+            manager = PeopleManager.objects.get(directors=cm)
+    else:
+        delegation = Delegation.objects.get(user=request.user)
+        manager = PeopleManager.objects.get(delegations=delegation)
+    return Committee.objects.get(people=manager)
+
+
+def get_context(request):
+    """fills the context dictionary used by multiple pages"""
+    committee = get_committee(request)
     committee.parli_pro.caucus_over()
     context = {'committee': committee, 'delegations': committee.people.sorted_present_delegations(),
                'all_delegations': committee.people.sorted_all_delegations(), 'modes': DebateMode.objects.all(),
@@ -37,7 +54,7 @@ def get_context():
 @login_required
 def my_committee(request):
     """loads the my committee page"""
-    context = get_context()
+    context = get_context(request)
     return render(request, 'dartmun/mycommittee.html', context)
 
 
@@ -47,7 +64,7 @@ def grades(request):
     loads the page that displays all delegations' grades
     recalculates delegates' scores each time
     """
-    context = get_context()
+    context = get_context(request)
     context['tally_categories'] = TallyCategory.objects.all()
     if context['committee'].grades.need_update:
         context['committee'].grades.calc_grades()
@@ -58,21 +75,21 @@ def grades(request):
 @staff_member_required
 def tallies(request):
     """loads a transcript of the tallies"""
-    context = get_context()
+    context = get_context(request)
     return render(request, 'dartmun/tallies.html', context)
 
 
 @login_required
 def pospapers(request):
     """loads the position papers page"""
-    context = get_context()
+    context = get_context(request)
     return render(request, 'dartmun/pospapers.html', context)
 
 
 @staff_member_required
 def delegation_papers(request, id):
     """gets a delegation's position papers"""
-    context = get_context()
+    context = get_context(request)
     delegation = Delegation.objects.get(pk=id)
     context['delegation'] = delegation
     category = TallyCategory.objects.get(acronym="PP")
@@ -99,7 +116,7 @@ def update_paper(request, id):
                 paper.comments = comments
                 paper.save()
         paper.set_rubric_score()
-    committee = Committee.objects.get(acronym="UNEP")
+    committee = get_committee(request)
     committee.grades.update_tally(paper, old_score)
     return HttpResponseRedirect(reverse('delegation_papers', kwargs={"id": paper.delegation.id}))
 
@@ -107,7 +124,7 @@ def update_paper(request, id):
 @login_required
 def resos(request):
     """loads the writings page"""
-    context = get_context()
+    context = get_context(request)
     context['reso_rubric'] = Rubric.objects.get(title="Resolution Rubric")
     context['part_rubric'] = Rubric.objects.get(title="Participation Rubric")
     context['part_tallies'] = get_category_tallies("P", "UNEP")
