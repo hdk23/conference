@@ -1,0 +1,114 @@
+{% extends "./layout.html" %}
+
+{% block title %}
+    Admin
+{% endblock %}
+
+{% block css %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'dartmun/css/pospapers.css' %}">
+{% endblock %}
+
+{% block body %}
+    <h2>{{committee.name}}</h2>
+    <h3>Committee Admin</h3>
+    <div class="row">
+        <div class="col-4" id="country-col">
+            {% for delegation in committee.people.sorted_all_delegations %}
+                <a href="{% url 'manage_delegation' delegation.id %}">
+                    <div class="row country">
+                    {{ delegation.country.name }}
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+        <div class="col-8" id="delegation-col">
+            {% if not delegation %}
+                <h4>Add Delegation</h4>
+                <form action="{% url 'add_delegation' %}" method="POST">
+                    {% csrf_token %}
+                    <table id="add-delegation-table">
+                        <tr>
+                            <th>Country</th>
+                            <td>
+                                <select class="form-control" name="country">
+                                    {% for choice in countries.countries %}
+                                        <option value="{{ choice.code }}">{{ choice.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th colspan="2"><h5>Delegation 1</h5></th>
+                        </tr>
+                        <tr>
+                            <th>First Name</th>
+                            <td><input type="text" name="first"></td>
+                        </tr>
+                        <tr>
+                            <th>Last Name</th>
+                            <td><input type="text" name="last"></td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td><input type="email" name="email"></td>
+                        </tr>
+                        {% if committee.people.double_delegation %}
+                            <tr>
+                                <th colspan="2"><h5>Delegation 2</h5></th>
+                            </tr>
+                            <tr>
+                                <th>First Name</th>
+                                <td><input type="text" name="first2"></td>
+                            </tr>
+                            <tr>
+                                <th>Last Name</th>
+                                <td><input type="text" name="last2"></td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                <td><input type="email" name="email2"></td>
+                            </tr>
+                        {% endif %}
+                        <tr>
+                            <td colspan="2"><button id="add-delegation-btn" type="submit" class="btn btn-primary form-control">Add Delegation</button></td>
+                        </tr>
+                    </table>
+                </form>
+            {% else %}
+                <h2 id="delegation-name">{{ delegation.country.name }}</h2>
+
+                <h4>Scores</h4>
+                <table>
+                    <tr>
+                        <th>Category</th>
+                        <th>Weight</th>
+                        <th>Scaled Score</th>
+                        <th>Committee Average</th>
+                    </tr>
+                    {% for tally_category in scores.tally_category_scores.all %}
+                        <tr>
+                            <th>{{ tally_category.category.category.name }}</th>
+                            <td>{{ tally_category.category.category.weight }}</td>
+                            <td>{{ tally_category.scaled_score }}</td>
+                            <td>{{ tally_category.category.scaled_average }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <th>Total</th>
+                        <td>100</td>
+                        <td>{{ scores.score }}</td>
+                        <td>{{ committee.grades.committee_average }}</td>
+                    </tr>
+                </table>
+
+                <h4>Tallies</h4>
+
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock %}

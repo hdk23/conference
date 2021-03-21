@@ -1,0 +1,40 @@
+from .models import *
+from django.shortcuts import render, reverse
+from django.http import Http404, HttpResponseRedirect
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import login_required
+from .views_context import get_context, get_committee
+
+
+@staff_member_required
+def manage_delegation(request, id):
+    context = get_context(request)
+    delegation = Delegation.objects.get(pk=id)
+    context['delegation'] = delegation
+    context['scores'] = ScoreManager.objects.get(delegation=delegation)
+    return render(request, 'dartmun/admin.html', context)
+
+
+@staff_member_required
+def add_delegation(request):
+    """adds a delegation via the site admin page"""
+    committee = get_committee(request)
+    country = request.POST.get("country")
+    inputs = ["first", "last", "email"]
+    responses = []
+    for form_input in inputs:
+        responses.append(request.POST.get(form_input))
+
+    if committee.people.double_delegation:
+        for form_input in inputs:
+            responses.append(request.POST.get(f"{form_input}2"))
+    responses.append(committee.acronym)
+    delegation = committee.initialize_delegation(country, responses)
+    return HttpResponseRedirect(reverse('manage_delegation', kwargs={"id": delegation.id}))
+
+
+@staff_member_required
+def remove_delegation(request, id):
+    """removes a delegation via the admin page"""
+    Delegation.objects.get(pk=id).delete()
+    return HttpResponseRedirect(reverse('admin'))

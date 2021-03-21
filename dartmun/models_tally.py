@@ -18,6 +18,7 @@ class CommitteeTallyCategory(models.Model):
     """Committee Tally Category class for tracking committee category averages"""
     category = models.ForeignKey(TallyCategory, on_delete=models.CASCADE)
     average = models.FloatField(blank=True, null=True)
+    scaled_average = models.FloatField(blank=True, null=True)
     stdev = models.FloatField(blank=True, null=True)
     points_possible = models.FloatField(default=0)
 

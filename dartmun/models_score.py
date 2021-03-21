@@ -23,6 +23,12 @@ class TallyScore(models.Model):
         self.score = self.rubric.total_score
         self.save()
 
+    def mark_late(self):
+        """marks a position paper as late"""
+        self.score = 0
+        self.rubric.total_score = 0
+        self.save()
+
     def __str__(self):
         return f"{self.category.name} ({self.score}) by {self.delegation}"
 

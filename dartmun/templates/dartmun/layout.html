@@ -37,6 +37,11 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'resos' %}">WPs and Resos</a>
             </li>
+            {% if request.user.is_staff %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'admin' %}">Admin</a>
+              </li>
+            {% endif %}
           </ul>
         </div>
       </div>

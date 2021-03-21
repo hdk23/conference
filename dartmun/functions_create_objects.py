@@ -6,10 +6,11 @@ import random
 indices = random.sample(list(range(len(countries))), len(countries))
 
 
-def create_delegation(committee: Committee) -> Delegation:
+def create_delegation(committee: Committee, country=None) -> Delegation:
     """creates and returns a Delegation object"""
-    country_index = indices.pop()
-    country = countries[country_index]
+    if country is None:
+        country_index = indices.pop()
+        country = countries[country_index]
     user = User(first_name=country.name, last_name=committee.acronym,
                 username=f"{committee.acronym.lower()}{country.name.lower()}".replace(" ", ""))
     user.save()
@@ -39,10 +40,11 @@ def add_rubric(committee: Committee, score_manager: ScoreManager, category_acron
     committee.grades.save()
 
 
-def initialize_delegation(committee: Committee) -> Delegation:
+def initialize_delegation(committee: Committee, delegation=None) -> Delegation:
     """creates a delegation for the test committee"""
     # initialize delegation and score manager
-    delegation = create_delegation(committee)
+    if delegation is None:
+        delegation = create_delegation(committee)
     score_manager = ScoreManager(delegation=delegation)
     score_manager.save()
 

@@ -77,17 +77,17 @@
             <div class="row">
                 {% if committee.writing.current_wp %}
                     <div class="col">
-                        <h4>Current WP by {{ committee.writing.current_wp.sponsig.get_sponsors }}</h4>
+                        <h4><a href="{% url 'reset_wp' %}">Current WP by {{ committee.writing.current_wp.sponsig.get_sponsors }}</a></h4>
                     </div>
                 {% endif %}
                 {% if committee.writing.current_reso %}
                     <div class="col">
-                        <h4>Current Reso by {{ committee.writing.current_reso.sponsig.get_sponsors }}</h4>
+                        <h4><a href="{% url 'reset_reso' %}">Current Reso by {{ committee.writing.current_reso.sponsig.get_sponsors }}</a></h4>
                     </div>
                 {% endif %}
                 {% if committee.writing.current_amend %}
                     <div class="col">
-                        <h4>Current Amend by {{ committee.writing.current_amend.sponsor }}</h4>
+                        <h4><a href="{% url 'reset_amend' %}">Current Amend by {{ committee.writing.current_amend.sponsor }}</a></h4>
                     </div>
                 {% endif %}
             </div>

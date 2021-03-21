@@ -101,18 +101,35 @@ class WritingManager(models.Model):
     def set_wp(self, wp_id):
         """sets the current working paper"""
         self.current_wp = WorkingPaper.objects.get(pk=wp_id)
+        self.current_wp.introduced = True
         self.current_reso = None
+        self.save()
+
+    def reset_wp(self):
+        """resets the current working paper"""
+        self.current_wp = None
         self.save()
 
     def set_reso(self, reso_id):
         """sets the current resolution"""
         self.current_reso = Resolution.objects.get(pk=reso_id)
+        self.current_reso.introduced = True
         self.current_wp = None
+        self.save()
+
+    def reset_reso(self):
+        """resets the current resolution"""
+        self.current_reso = None
         self.save()
 
     def set_amend(self, amend_id):
         """sets the current amendment"""
         self.current_amend = Amendment.objects.get(pk=amend_id)
+        self.save()
+
+    def reset_amend(self):
+        """resets the current amend"""
+        self.current_amend = None
         self.save()
 
     def __str__(self):

@@ -95,17 +95,22 @@ input {
 }
 
 #sponsor-list, #signatory-list {
-    height: 90px;
+  height: 90px;
 }
 
 #show-delegates{
-    height: 400px;
-    border: 2px solid lightgrey;
-    border-radius: 10px;
+  height: 400px;
+  border: 2px solid lightgrey;
+  border-radius: 10px;
 }
 
 #staff-only{
-    height: 400px;
-    border: 2px solid lightgrey;
-    border-radius: 10px;
+  height: 400px;
+  border: 2px solid lightgrey;
+  border-radius: 10px;
+}
+
+#show-delegates > div.row > div.col > h4 > a{
+  color: black;
+  text-decoration: none;
 }

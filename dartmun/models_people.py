@@ -87,8 +87,9 @@ class PeopleManager(models.Model):
     Also tracks delegation-count related properties
     """
     directors = models.ManyToManyField(CommitteeDirector)
-    managers = models.ManyToManyField(CommitteeManager)
+    managers = models.ManyToManyField(CommitteeManager, blank=True)
     delegations = models.ManyToManyField(Delegation)
+    double_delegation = models.BooleanField(default=False)
     quorum = models.PositiveSmallIntegerField(blank=True, null=True)
     simple_majority = models.PositiveSmallIntegerField(blank=True, null=True)
     super_majority = models.PositiveSmallIntegerField(blank=True, null=True)
@@ -130,12 +131,36 @@ class PeopleManager(models.Model):
         self.min_signatory = round(self.number_present / 5)
         self.save()
 
-    def add_delegation(self, country: str):
-        """adds a delegation to the committee"""
+    @staticmethod
+    def add_delegate(committee_acronym: str, delegation: Delegation, first: str, last: str, email: str, number=1):
+        """
+        adds a delegate to a delegation
+        """
+        username = f"{committee_acronym.lower()}{delegation.country.name.lower()}{number}".replace(" ", "")
+        user = User(username=username, first_name=first, last_name=last, email=email)
+        user.save()
+        delegate = Delegate(user=user)
+        delegate.save()
+        delegation.delegates.add(delegate)
+        delegation.save()
+        return delegation
+
+    def add_delegation(self, country: str, responses) -> Delegation:
+        """
+        adds a delegation to the committee
+        responses[0], responses[3]: user first name
+        responses[1], responses[4]: user last name
+        responses[2], responses[5]: user email
+        responses[-1]: committee acronym
+        """
         delegation = Delegation(country=country)
         delegation.save()
+        self.add_delegate(responses[-1], delegation, responses[0], responses[1], responses[2])
+        if len(responses) > 3:
+            self.add_delegate(responses[-1], delegation, responses[3], responses[4], responses[5], 2)
         self.delegations.add(delegation)
         self.save()
+        return delegation
 
     def __str__(self):
         if self.number_present:

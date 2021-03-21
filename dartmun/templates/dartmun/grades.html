@@ -15,10 +15,17 @@
     <table>
         <tr>
             <th id="del-header">Delegation</th>
-            {% for category in tally_categories.all %}
-                <th>{{ category }}</th>
+            {% for category in committee.grades.tally_categories.all %}
+                <th>{{ category.category.name }}</th>
             {% endfor %}
             <th>Total</th>
+        </tr>
+        <tr>
+            <th>Average</th>
+            {% for category in committee.grades.tally_categories.all %}
+                <th>{{ category.scaled_average }}</th>
+            {% endfor %}
+            <th>{{ committee.grades.committee_average }}</th>
         </tr>
         {% for score_manager in score_managers %}
             <tr>

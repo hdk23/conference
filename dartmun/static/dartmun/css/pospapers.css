@@ -1,5 +1,5 @@
-#country-col, #paper-col {
-    height:840px;
+#country-col, #paper-col, #delegation-col {
+    height:700px;
     overflow: scroll;
     border: 2px solid lightgrey;
     border-radius: 10px;

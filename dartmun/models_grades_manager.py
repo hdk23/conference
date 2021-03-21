@@ -10,6 +10,7 @@ class GradesManager(models.Model):
     tallies = models.ManyToManyField(TallyScore)
     category_average = models.FloatField(default=87.5)
     category_stdev = models.FloatField(default=5)
+    committee_average = models.FloatField(null=True, blank=True)
     need_update = models.BooleanField(default=False)
 
     def set_normal(self):
@@ -32,6 +33,7 @@ class GradesManager(models.Model):
         # calculate tallies within each category
         for score_manager in self.score_managers.all():
             for tally_category_score in score_manager.tally_category_scores.all():
+                scores = []
                 if tally_category_score.category.category.scaled:
                     tally_category_score.calc_tallies(self.category_average, self.category_stdev)
                 else:
@@ -39,6 +41,8 @@ class GradesManager(models.Model):
 
         for score_manager in self.score_managers.all():
             score_manager.calc_score()
+
+        self.calc_scaled_averages()
 
         # set need_update back to false
         self.need_update = False
@@ -97,6 +101,27 @@ class GradesManager(models.Model):
                     tally = TallyScore(category=category, delegation=sponsor, score=rubric_score/2, comments="WP Sponsor")
                     tally.save()
                     self.add_tally(tally)
+        self.save()
+
+    def calc_scaled_averages(self):
+        """calculates the scaled average for each category"""
+        for tally_category in self.tally_categories.all():
+            if tally_category.category.scaled:
+                tally_category.scaled_average = self.category_average
+            else:
+                scores = []
+                for score_manager in self.score_managers.all():
+                    score = score_manager.tally_category_scores.get(category=tally_category).scaled_score
+                    if score:
+                        scores.append(score)
+                tally_category.scaled_average = round(np.average(scores), 2)
+            tally_category.save()
+
+        # calculate committee scaled average
+        scores = []
+        for score_manager in self.score_managers.all():
+            scores.append(score_manager.score)
+        self.committee_average = round(np.average(scores), 2)
         self.save()
 
     def __str__(self):

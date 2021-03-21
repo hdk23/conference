@@ -151,7 +151,7 @@
                         {% csrf_token %}
                         <div class="row">
                             <div class="col container overflow-auto">
-                            <p>Topic</p>
+                                <p>Topic</p>
                                 <select name="topic" class="form-control" id="selected-topic">
                                     {% for topic in committee.topics.all %}
                                         {% if topic.working_papers.count %}
@@ -193,7 +193,6 @@
                             <button class="form-control btn btn-primary">Submit</button>
                         </div>
                     </form>
-                </div>
                 {% else %}
                     <h4>Add working papers first to add a resolution!</h4>
                 {% endif %}

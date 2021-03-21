@@ -2,6 +2,7 @@ from django.shortcuts import render, reverse
 from django.http import Http404, HttpResponseRedirect
 from django.contrib.admin.views.decorators import staff_member_required
 from .models import *
+from .views_context import *
 
 
 @staff_member_required
@@ -42,18 +43,6 @@ def add_tally(request):
     committee.grades.add_tally(tally)
     committee.parli_pro.after_tally(delegation)
     return HttpResponseRedirect(reverse('my_committee'))
-
-
-def get_committee(request):
-    """determines the user's committee"""
-    chair = Chair.objects.get(user=request.user)
-    try:
-        cd = CommitteeDirector.objects.get(chair=chair)
-        manager = PeopleManager.objects.get(directors=cd)
-    except:
-        cm = CommitteeManager.objects.get(chair=chair)
-        manager = PeopleManager.objects.get(directors=cm)
-    return Committee.objects.get(people=manager)
 
 
 @staff_member_required
@@ -179,4 +168,25 @@ def add_amendment(request):
     new = request.POST.get("new")
     sponsor = Delegation.objects.get(pk=int(request.POST.get("sponsor")))
     signatory_ids = request.POST.getlist('signatories')
+    return HttpResponseRedirect(reverse('my_committee'))
+
+
+@staff_member_required
+def reset_wp(request):
+    committee = get_committee(request)
+    committee.writing.reset_wp()
+    return HttpResponseRedirect(reverse('my_committee'))
+
+
+@staff_member_required
+def reset_reso(request):
+    committee = get_committee(request)
+    committee.writing.reset_reso()
+    return HttpResponseRedirect(reverse('my_committee'))
+
+
+@staff_member_required
+def reset_amend(request):
+    committee = get_committee(request)
+    committee.writing.reset_amend()
     return HttpResponseRedirect(reverse('my_committee'))
