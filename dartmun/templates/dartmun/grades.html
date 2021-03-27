@@ -21,6 +21,13 @@
             <th>Total</th>
         </tr>
         <tr>
+            <th>Weight</th>
+            {% for category in committee.grades.tally_categories.all %}
+                <th>{{ category.category.weight }}</th>
+            {% endfor %}
+            <th>100</th>
+        </tr>
+        <tr>
             <th>Average</th>
             {% for category in committee.grades.tally_categories.all %}
                 <th>{{ category.scaled_average }}</th>

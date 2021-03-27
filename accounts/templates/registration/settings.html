@@ -1,0 +1,43 @@
+{% extends "../dartmun/layout.html" %}
+
+{%  block title %}
+    Settings
+{%  endblock %}
+
+{%  block css %}
+    {% load static %}
+{%  endblock %}
+
+{%  block body %}
+    <h2>{{request.user.get_full_name}}</h2>
+    <h3>Settings Page</h3>
+    <h4>User Information</h4>
+    <form action="{% url 'update_info' %}" method="POST">
+        {% csrf_token %}
+        <table>
+            <tr>
+                <th>First Name</th>
+                <td><input type="text" value="{{ request.user.first_name }}" class="form-control" name="first"></td>
+            </tr>
+            <tr>
+                <th>Last Name</th>
+                <td><input type="text" value="{{ request.user.last_name }}" class="form-control" name="last"></td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td><input type="email" value="{{ request.user.email }}" class="form-control" name="email"></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button type="submit" class="form-control btn btn-primary">Update</button></td>
+            </tr>
+        </table>
+    </form>
+    <h4>Password Reset</h4>
+    <a href="{% url 'password_change' %}">
+        <button class="btn btn-primary">Click Here to Reset Password</button>
+    </a>
+{%  endblock %}
+
+{%  block scripts %}
+
+{%  endblock %}

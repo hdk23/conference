@@ -4,15 +4,13 @@ from django.contrib.auth.models import User
 import random
 
 indices = random.sample(list(range(len(countries))), len(countries))
-
-
 def create_delegation(committee: Committee, country=None) -> Delegation:
     """creates and returns a Delegation object"""
     if country is None:
         country_index = indices.pop()
         country = countries[country_index]
     user = User(first_name=country.name, last_name=committee.acronym,
-                username=f"{committee.acronym.lower()}{country.name.lower()}".replace(" ", ""))
+                username=f"{committee.acronym.lower()}{country.name.lower()}".replace(" ", ""), password="conference")
     user.save()
     delegate = Delegate(user=user)
     delegate.save()
@@ -70,7 +68,6 @@ def create_committee():
     """creates a test committee"""
     committee = Committee(name="United Nations Environmental Programme", acronym="UNEP")
     committee.save()
-    indices = random.sample(list(range(len(countries))), len(countries))
 
     # initialize managers
     people_manager = PeopleManager()

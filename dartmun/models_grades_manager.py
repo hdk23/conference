@@ -121,7 +121,10 @@ class GradesManager(models.Model):
         scores = []
         for score_manager in self.score_managers.all():
             scores.append(score_manager.score)
-        self.committee_average = round(np.average(scores), 2)
+        try:
+            self.committee_average = round(np.average(scores), 2)
+        except TypeError:
+            self.committee_average = None
         self.save()
 
     def __str__(self):

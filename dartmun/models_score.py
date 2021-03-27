@@ -2,6 +2,7 @@ from django.db import models
 from .models_tally import *
 from .models_people import Delegation, Chair
 from .models_rubric import RubricEntry
+from .models_parli_pro import Motion
 import numpy as np
 
 
@@ -16,6 +17,7 @@ class TallyScore(models.Model):
     time = models.PositiveSmallIntegerField(blank=True, null=True)
     comments = models.TextField(blank=True, null=True)
     rubric = models.ForeignKey(RubricEntry, on_delete=models.CASCADE, blank=True, null=True)
+    motion = models.ForeignKey(Motion, on_delete=models.CASCADE, blank=True, null=True)
 
     def set_rubric_score(self):
         """sets the rubric score as the tally entry's score"""

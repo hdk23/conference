@@ -5,7 +5,7 @@ from .views import get_committee
 from .models import *
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin/login/')
 def add_wp(request):
     """adds a working paper"""
     topic = Topic.objects.get(pk=int(request.POST.get("topic")))
@@ -15,14 +15,14 @@ def add_wp(request):
     return HttpResponseRedirect(reverse('resos'))
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin/login/')
 def remove_wp(request, id):
     """removes a working paper"""
     WorkingPaper.objects.get(pk=id).delete()
     return HttpResponseRedirect(reverse('resos'))
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin/login/')
 def add_reso(request):
     """add resolution entry"""
     topic = Topic.objects.get(pk=int(request.POST.get("topic")))
@@ -41,7 +41,7 @@ def add_reso(request):
     return HttpResponseRedirect(reverse('resos'))
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin/login/')
 def remove_reso(request, id):
     """removes a resolution and the corresponding tally entries"""
     Resolution.objects.get(pk=id).delete()
@@ -55,7 +55,7 @@ def get_category_tallies(category_acronym, committee_acronym):
     return committee.grades.tallies.filter(category=category).order_by('delegation__country')
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin/login/')
 def update_participation(request):
     part_tallies = get_category_tallies("P", "UNEP")
     for tally in part_tallies:

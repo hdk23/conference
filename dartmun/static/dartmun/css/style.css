@@ -25,3 +25,31 @@ form {
 p {
   text-align: center;
 }
+
+@media print{
+    #navbar, h1, h3, #footer {
+         display: none !important;
+    }
+
+    #body{
+        height: 100%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    h2 {
+        font-size: 36px;
+    }
+
+    h4{
+        font-size: 24px;
+    }
+
+    h5{
+        font-size: 20px;
+    }
+
+    h6, text{
+        font-size: 16px;
+    }
+}

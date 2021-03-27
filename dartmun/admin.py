@@ -46,3 +46,7 @@ admin.site.register(WorkingPaper)
 admin.site.register(Resolution)
 admin.site.register(Amendment)
 admin.site.register(WritingManager)
+
+# scalability models
+admin.site.register(School)
+admin.site.register(Advisor)

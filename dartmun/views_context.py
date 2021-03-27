@@ -12,7 +12,8 @@ def get_committee(request):
             cm = CommitteeManager.objects.get(chair=chair)
             manager = PeopleManager.objects.get(directors=cm)
     else:
-        delegation = Delegation.objects.get(user=request.user)
+        delegate = Delegate.objects.get(user=request.user)
+        delegation = Delegation.objects.get(delegates=delegate)
         manager = PeopleManager.objects.get(delegations=delegation)
     return Committee.objects.get(people=manager)
 

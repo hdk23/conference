@@ -43,7 +43,7 @@ let vote = document.getElementById("vote");
 
 
 function hideSubmitBtns(element, value){
-  if (!element.hidden && value.value == 0) {
+  if (!element.hidden && (value.value == 0 || value.value == "")) {
     discretion.disabled = true;
     vote.disabled = true;
   }
@@ -77,11 +77,14 @@ function showInputs(event){
   topic.hidden = motionName !== "Set a Working Agenda";
   hideSubmitBtns(topic, selectedTopic);
   wp.hidden = motionName !== "Introduce a Working Paper";
-  hideSubmitBtns(wp, selectedWP);
+  if (!wp.hidden)
+    hideSubmitBtns(wp, selectedWP);
   reso.hidden = motionName !== "Introduce a Resolution";
-  hideSubmitBtns(reso, selectedReso);
+  if (!reso.hidden)
+    hideSubmitBtns(reso, selectedReso);
   amend.hidden = motionName !== "Introduce an Amendment";
-  hideSubmitBtns(amend, selectedAmend);
+  if (!amend.hidden)
+    hideSubmitBtns(amend, selectedAmend);
 }
 
 function divisibility_check(event) {

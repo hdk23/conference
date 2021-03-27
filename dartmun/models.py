@@ -6,6 +6,7 @@ from .models_rubric import *
 from .models_writing import *
 from .models_grades_manager import GradesManager
 from .models_parlipro_manager import ParliProManager
+from .models_people_manager import PeopleManager
 from .models_caucus_manager import CaucusManager
 
 
@@ -76,3 +77,7 @@ class Committee(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.acronym})"
+
+
+class Conference:
+    """Conference model to hold organs and logistical info"""

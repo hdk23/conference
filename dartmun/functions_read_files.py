@@ -30,6 +30,8 @@ def read_file(file_name):
                     read_rubric(row, header_row, "Participation Rubric")
                 elif file_name == "reso_rubric":
                     read_rubric(row, header_row, "Resolution Rubric")
+                elif file_name == "schools":
+                    School(name=row[0]).save()
             else:
                 header_row = row
             line_count += 1

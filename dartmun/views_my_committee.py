@@ -5,7 +5,7 @@ from .models import *
 from .views_context import *
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin/login/')
 def add_speech_entry(request):
     """adds an entry to the speaker's list"""
     delegation_id = int(request.POST.get("delegation"))
@@ -15,7 +15,7 @@ def add_speech_entry(request):
     return HttpResponseRedirect(reverse('my_committee'))
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin/login/')
 def remove_speech_entry(request, id):
     """removes an entry from the speaker's list"""
     committee = get_committee(request)
@@ -23,7 +23,7 @@ def remove_speech_entry(request, id):
     return HttpResponseRedirect(reverse('my_committee'))
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin/login/')
 def add_tally(request):
     """adds tally for the delegation"""
     committee = get_committee(request)
@@ -45,7 +45,7 @@ def add_tally(request):
     return HttpResponseRedirect(reverse('my_committee'))
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin/login/')
 def remove_tally(request, id):
     """removes a tally from a delegation's record"""
     committee = get_committee(request)
@@ -57,12 +57,12 @@ def remove_tally(request, id):
 def create_motion_tally(request, motion_entry, score):
     scorer = Chair.objects.get(user=request.user)
     category = TallyCategory.objects.get(acronym="M")
-    motion_tally = TallyScore(scorer=scorer, delegation=motion_entry.delegation, category=category, score=score)
+    motion_tally = TallyScore(scorer=scorer, delegation=motion_entry.delegation, category=category, score=score, motion=motion_entry.motion)
     motion_tally.save()
     return motion_tally
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin/login/')
 def add_motion_entry(request):
     committee = get_committee(request)
     """adds a motion entry to the motion list"""
@@ -104,14 +104,14 @@ def add_motion_entry(request):
     return HttpResponseRedirect(reverse('my_committee'))
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin/login/')
 def remove_motion_entry(request, id):
     """removes an entry from the motion list"""
     MotionEntry.objects.get(pk=id).delete()
     return HttpResponseRedirect(reverse('my_committee'))
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin/login/')
 def vote_motion(request):
     """votes on the motion"""
     committee = get_committee(request)
@@ -130,7 +130,7 @@ def vote_motion(request):
     return HttpResponseRedirect(reverse('my_committee'))
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin/login/')
 def update_attendance(request):
     """updates committee attendance"""
     committee = get_committee(request)
@@ -142,7 +142,7 @@ def update_attendance(request):
     return HttpResponseRedirect(reverse('my_committee'))
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin/login/')
 def set_mod_speaker(request, order):
     """sets the delegate that raised the motion as either the first or last speaker"""
     committee = get_committee(request)
@@ -150,7 +150,7 @@ def set_mod_speaker(request, order):
     return HttpResponseRedirect(reverse('my_committee'))
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin/login/')
 def ssl(request):
     """starts a secondary speaker's list (SSL) for the committee"""
     committee = get_committee(request)
@@ -158,7 +158,7 @@ def ssl(request):
     return HttpResponseRedirect(reverse('my_committee'))
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin/login/')
 def add_amendment(request):
     amend_type = request.POST.get("type")
     clause = int(request.POST.get("clause"))
@@ -171,21 +171,21 @@ def add_amendment(request):
     return HttpResponseRedirect(reverse('my_committee'))
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin/login/')
 def reset_wp(request):
     committee = get_committee(request)
     committee.writing.reset_wp()
     return HttpResponseRedirect(reverse('my_committee'))
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin/login/')
 def reset_reso(request):
     committee = get_committee(request)
     committee.writing.reset_reso()
     return HttpResponseRedirect(reverse('my_committee'))
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin/login/')
 def reset_amend(request):
     committee = get_committee(request)
     committee.writing.reset_amend()

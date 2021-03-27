@@ -1,7 +1,11 @@
 {% extends "./layout.html" %}
 
 {% block title %}
-    Admin
+    {% if delegation %}
+        {{ committee.acronym }} - {{ delegation.country.name }}
+    {% else %}
+        Admin
+    {% endif %}
 {% endblock %}
 
 {% block css %}
@@ -33,7 +37,9 @@
                             <td>
                                 <select class="form-control" name="country">
                                     {% for choice in countries.countries %}
-                                        <option value="{{ choice.code }}">{{ choice.name }}</option>
+                                        {% if choice.code not in taken_countries %}
+                                            <option value="{{ choice.code }}">{{ choice.name }}</option>
+                                        {% endif %}
                                     {% endfor %}
                                 </select>
                             </td>
@@ -77,7 +83,7 @@
                 </form>
             {% else %}
                 <h2 id="delegation-name">{{ delegation.country.name }}</h2>
-
+                <p>{{ delegation.get_delegate_names }}</p>
                 <h4>Scores</h4>
                 <table>
                     <tr>
@@ -88,27 +94,116 @@
                     </tr>
                     {% for tally_category in scores.tally_category_scores.all %}
                         <tr>
-                            <th>{{ tally_category.category.category.name }}</th>
+                            <th>
+                                {% if tally_category.category.category.acronym == "PP" %}
+                                    <a href="{% url 'delegation_papers' delegation.id %}">{{ tally_category.category.category.name }}</a>
+                                {% else %}
+                                    {{ tally_category.category.category.name }}
+                                {% endif %}
+                            </th>
                             <td>{{ tally_category.category.category.weight }}</td>
-                            <td>{{ tally_category.scaled_score }}</td>
-                            <td>{{ tally_category.category.scaled_average }}</td>
+                            <td style="text-align:center">{{ tally_category.scaled_score }}</td>
+                            <td style="text-align:center">{{ tally_category.category.scaled_average }}</td>
                         </tr>
                     {% endfor %}
                     <tr>
                         <th>Total</th>
                         <td>100</td>
-                        <td>{{ scores.score }}</td>
-                        <td>{{ committee.grades.committee_average }}</td>
+                        <td style="text-align:center">{{ scores.score }}</td>
+                        <td style="text-align:center">{{ committee.grades.committee_average }}</td>
                     </tr>
                 </table>
+                <br>
+                <h4>Position Papers</h4>
+                {% for paper in papers %}
+                    <h5>{{ paper.rubric.topic }}</h5>
+                    <h5>
+                        Score: <span style="color:red">{{ paper.score }}</span> / {{ paper.rubric.rubric.max_possible }}
+                        {% if paper.scorer %}
+                            ({{ paper.scorer }})
+                        {% endif %}
+                    </h5>
+                    {% if paper.score %}
+                        <table>
+                            <tr>
+                                <th>Category</th>
+                                <th>Descriptor</th>
+                                <th>Score</th>
+                            </tr>
+                            {% for criterion in paper.rubric.criterion_scores.all %}
+                                <tr>
+                                    <th>{{ criterion.criterion }}</th>
+                                    <td>{{ criterion.descriptor.descriptor }}</td>
+                                    <td style="text-align:right"><p>{{ criterion.score }}/{{ criterion.criterion.weight }}</p></td>
+                                </tr>
+                            {% endfor %}
+                            <tr>
+                                <th>Comments</th>
+                                <td colspan="3">{{ paper.comments }}</td>
+                            </tr>
+                        </table>
+                    {% endif %}
+                    <br>
+                {% endfor %}
+                <h4>Speeches</h4>
+                <table>
+                    {% if speeches %}
+                        <tr>
+                            <th>Scorer</th>
+                            <th>Timestamp</th>
+                            <th>Score</th>
+                            <th>Comments</th>
+                        </tr>
+                    {% endif %}
+                    {% for speech in speeches %}
+                        <tr>
+                            <td>{{ speech.scorer }}</td>
+                            <td>{{ speech.timestamp }}</td>
+                            <td>{{ speech.score }}</td>
+                            <td>
+                                {% if speech.comments %}
+                                    {{ speech.comments }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        No records.
+                    {% endfor %}
+                </table>
+                <br>
+                <h4>Participation</h4>
+                <h5>Score: <span style="color:red">{{ participation.score }}</span> / {{ participation.rubric.rubric.max_possible }}</h5>
+                {{ participation.rubric.criterion_scores.first.descriptor.descriptor }}
+                <br><br>
 
-                <h4>Tallies</h4>
-
+                <h4>Motions</h4>
+                <table>
+                    {% if motions %}
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Motion</th>
+                            <th>Score</th>
+                        </tr>
+                    {% endif %}
+                    {% for motion in motions %}
+                        <tr>
+                            <td>{{ motion.timestamp }}</td>
+                            <td>{{ motion.motion }}</td>
+                            <td>{{ motion.score }}</td>
+                        </tr>
+                    {% empty %}
+                        No records.
+                    {% endfor %}
+                </table>
+                <br>
+            {% endif %}
+            {% if delegation %}
+                <button class="form-control btn btn-danger" id="remove-delegation">Remove Delegation</button><br><br>
             {% endif %}
         </div>
     </div>
 {% endblock %}
 
 {% block scripts %}
-
+    <script src="{% static 'dartmun/js/admin.js' %}"></script>
 {% endblock %}
