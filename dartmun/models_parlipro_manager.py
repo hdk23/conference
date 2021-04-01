@@ -63,7 +63,10 @@ class ParliProManager(models.Model):
             self.caucus.default_st = motion_entry.speaking_time
             self.save()
         elif motion_entry.motion.motion == "Open Debate":
-            self.current_mode = DebateMode.objects.get(acronym="PSL")
+            if self.current_topic:
+                self.current_mode = DebateMode.objects.get(acronym="Open")
+            else:
+                self.current_mode = DebateMode.objects.get(acronym="PSL")
             self.open = True
             self.save()
         self.save()
@@ -86,6 +89,15 @@ class ParliProManager(models.Model):
         """determines whether the caucus is over based on the time until"""
         if self.current_mode and self.current_mode.acronym == "Unmod" and self.caucus.caucus_over():
             self.current_mode = DebateMode.objects.get(acronym="Open")
+        self.save()
+
+    def reset(self):
+        """reset a committee after recessing"""
+        self.open = False
+        self.default_st = 120
+        self.current_mode = None
+        self.caucus.reset()
+        self.caucus.save()
         self.save()
 
     def __str__(self):

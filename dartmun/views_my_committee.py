@@ -88,9 +88,9 @@ def add_motion_entry(request):
     elif motion.motion == "Introduce an Amendment":
         committee.writing.set_amend(int(request.POST.get("amend")))
     elif motion.motion == "Recess":
-        pass
+        committee.recess()
     elif motion.motion == "Adjourn":
-        pass
+        committee.adjourn()
     motion_entry.save()
     if request.POST.get("discretion") or "Introduce" in motion.motion:
         present = committee.people.delegations.filter(present=True).count()
@@ -136,7 +136,7 @@ def update_attendance(request):
     committee = get_committee(request)
     for delegation in committee.people.delegations.all():
         attendance = request.POST.get(f"attendance{delegation.id}")
-        delegation.update_attendance(attendance)
+        delegation.update_attendance(attendance, committee.current_session.number)
     committee.people.count_present()
     committee.people.calc_votes()
     return HttpResponseRedirect(reverse('my_committee'))
@@ -160,14 +160,23 @@ def ssl(request):
 
 @staff_member_required(login_url='/admin/login/')
 def add_amendment(request):
+    reso_id = int(request.POST.get("reso_id"))
     amend_type = request.POST.get("type")
-    clause = int(request.POST.get("clause"))
-    friendly = request.POST.get("friendly")
+    clause = request.POST.get("clause")
+    friendly = bool(request.POST.get("friendly"))
     score = int(request.POST.get("score"))
-    original = request.POST.get("original")
-    new = request.POST.get("new")
-    sponsor = Delegation.objects.get(pk=int(request.POST.get("sponsor")))
+    sponsor_id = request.POST.get("sponsor")
     signatory_ids = request.POST.getlist('signatories')
+    resolution = Resolution.objects.get(pk=reso_id)
+    resolution.add_amend(amend_type, clause, friendly, score, sponsor_id, signatory_ids)
+    committee = get_committee(request)
+    delegation = Delegation.objects.get(pk=sponsor_id)
+    category = TallyCategory.objects.get(acronym="R")
+    tally = TallyScore(scorer=Chair.objects.get(user=request.user), delegation=delegation, category=category,
+                       score=score)
+    tally.save()
+    committee.grades.add_tally(tally)
+
     return HttpResponseRedirect(reverse('my_committee'))
 
 
@@ -189,4 +198,17 @@ def reset_reso(request):
 def reset_amend(request):
     committee = get_committee(request)
     committee.writing.reset_amend()
+    return HttpResponseRedirect(reverse('my_committee'))
+
+
+@staff_member_required(login_url='/admin/login/')
+def substantive_vote(request):
+    vote_on = request.POST.get("vote-on")
+    votes_for = int(request.POST.get("votes-for"))
+    votes_against = int(request.POST.get("votes-against"))
+    votes_abstain = int(request.POST.get("votes-abstain"))
+    if vote_on == "reso":
+        get_committee(request).writing.vote_reso(votes_for, votes_against, votes_abstain)
+    else:
+        get_committee(request).writing.vote_amend(votes_for, votes_against, votes_abstain)
     return HttpResponseRedirect(reverse('my_committee'))

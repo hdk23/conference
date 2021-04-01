@@ -1,0 +1,52 @@
+{% extends "./layout.html" %}
+
+{%  block title %}
+    Tallies
+{%  endblock %}
+
+{%  block css %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'dartmun/css/tallies.css' %}">
+{%  endblock %}
+
+{%  block body %}
+    <h2>{{committee.name}}</h2>
+    <h3>About Committee</h3>
+    <h4>Topics</h4>
+    <div class="row">
+        {% for topic in committee.topics.all %}
+            <div class="col">
+                {{ topic }}
+            </div>
+        {% endfor %}
+    </div><br>
+
+    <h4>Chairs</h4>
+    {% if committee.people.directors.count %}
+        <h5>Committee Directors (CDs)</h5>
+        <div class="row">
+            {% for cd in committee.people.directors.all %}
+                <div class="col">
+                    {{ cd }}
+                </div>
+            {% endfor %}
+        </div><br>
+    {% endif %}
+
+    {% if committee.people.managers.count %}
+        <h5>Committee Managers (CMs)</h5>
+        <div class="row">
+            {% for cm in committee.people.managers.all %}
+                <div class="col">
+                    {{ cm }}
+                </div>
+            {% endfor %}
+        </div><br>
+    {% endif %}
+    <a href="{% url 'committees' 'my_committee' %}">Return to Committees</a>
+
+{%  endblock %}
+
+{%  block scripts %}
+
+{%  endblock %}

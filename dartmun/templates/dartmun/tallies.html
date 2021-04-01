@@ -21,7 +21,9 @@
                 <th>Category</th>
                 <th>Score</th>
                 <th>Comments</th>
-                <th>Delete</th>
+                {% if not request.user.is_superuser %}
+                    <th>Delete</th>
+                {% endif %}
             </tr>
             {% for tally in committee.grades.tallies.all %}
                 {% if tally.category.scaled %}
@@ -32,11 +34,13 @@
                         <td>{{ tally.category.name }}</td>
                         <td>{{ tally.score }}</td>
                         <td>{{ tally.comments }}</td>
-                        <td>
-                            <a href="{% url 'remove_tally' tally.id %}"><button class="btn btn-danger">
-                                X
-                            </button></a>
-                        </td>
+                        {% if not request.user.is_superuser %}
+                            <td>
+                                <a href="{% url 'remove_tally' tally.id %}"><button class="btn btn-danger">
+                                    X
+                                </button></a>
+                            </td>
+                        {% endif %}
                     </tr>
                 {% endif %}
             {% endfor %}
@@ -45,6 +49,9 @@
         <h4>No tallies yet!</h4>
     {% else %}
         <h4>Open debate to start tallying!</h4>
+    {% endif %}
+    {% if request.user.is_superuser %}
+        <a href="{% url 'committees' 'tallies' %}">Return to Committees</a>
     {% endif %}
 {%  endblock %}
 

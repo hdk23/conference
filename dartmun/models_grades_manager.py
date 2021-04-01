@@ -1,6 +1,7 @@
 from django.db import models
 from .models_score import *
 from .models_parli_pro import Topic
+from .models_tally import TallyCategory
 from .models_writing import Resolution
 
 
@@ -8,10 +9,22 @@ class GradesManager(models.Model):
     score_managers = models.ManyToManyField(ScoreManager)
     tally_categories = models.ManyToManyField(CommitteeTallyCategory)
     tallies = models.ManyToManyField(TallyScore)
+    awards = models.OneToOneField(Awards, on_delete=models.CASCADE, null=True)
     category_average = models.FloatField(default=87.5)
     category_stdev = models.FloatField(default=5)
     committee_average = models.FloatField(null=True, blank=True)
     need_update = models.BooleanField(default=False)
+
+    def create_tally_categories(self):
+        for category in TallyCategory.objects.all():
+            committee_category = CommitteeTallyCategory(category=category)
+            committee_category.save()
+            if category.acronym == "PP":
+                committee_category.add_points_possible(40)
+            elif category.acronym == "R":
+                committee_category.add_points_possible(20)
+            self.tally_categories.add(committee_category)
+            self.save()
 
     def set_normal(self):
         """
@@ -125,6 +138,28 @@ class GradesManager(models.Model):
             self.committee_average = round(np.average(scores), 2)
         except TypeError:
             self.committee_average = None
+        self.save()
+        self.give_awards()
+
+    def give_awards(self):
+        """declares awardees for the top 3 scores"""
+        to_give = self.score_managers.order_by('delegation__country').order_by('-score')[0:3]
+        self.awards.best_delegate = to_give[0].delegation
+        self.awards.outstanding_delegate = to_give[1].delegation
+        self.awards.honorable_mention = to_give[2].delegation
+        self.awards.save()
+
+    def reset(self):
+        """resets the grade manager"""
+        for sm in self.score_managers.all():
+            sm.reset()
+        for tc in self.tally_categories.all():
+            tc.reset()
+        self.tallies.all().delete()
+        self.category_average = 87.5
+        self.category_stdev = 5
+        self.committee_average = None
+        self.need_update = False
         self.save()
 
     def __str__(self):

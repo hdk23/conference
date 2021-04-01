@@ -19,7 +19,11 @@
     <div class="row">
         <div class="col-4" id="country-col">
             {% for delegation in committee.people.sorted_all_delegations %}
-                <a href="{% url 'manage_delegation' delegation.id %}">
+                {% if request.user.is_superuser %}
+                    <a href="{% url 'manage_delegation' committee.acronym delegation.id %}">
+                {% else %}
+                    <a href="{% url 'manage_delegation' delegation.id %}">
+                {% endif %}
                     <div class="row country">
                     {{ delegation.country.name }}
                     </div>
@@ -28,89 +32,73 @@
         </div>
         <div class="col-8" id="delegation-col">
             {% if not delegation %}
-                <h4>Add Delegation</h4>
-                <form action="{% url 'add_delegation' %}" method="POST">
-                    {% csrf_token %}
-                    <table id="add-delegation-table">
-                        <tr>
-                            <th>Country</th>
-                            <td>
-                                <select class="form-control" name="country">
-                                    {% for choice in countries.countries %}
-                                        {% if choice.code not in taken_countries %}
-                                            <option value="{{ choice.code }}">{{ choice.name }}</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th colspan="2"><h5>Delegation 1</h5></th>
-                        </tr>
-                        <tr>
-                            <th>First Name</th>
-                            <td><input type="text" name="first"></td>
-                        </tr>
-                        <tr>
-                            <th>Last Name</th>
-                            <td><input type="text" name="last"></td>
-                        </tr>
-                        <tr>
-                            <th>Email</th>
-                            <td><input type="email" name="email"></td>
-                        </tr>
-                        {% if committee.people.double_delegation %}
-                            <tr>
-                                <th colspan="2"><h5>Delegation 2</h5></th>
-                            </tr>
-                            <tr>
-                                <th>First Name</th>
-                                <td><input type="text" name="first2"></td>
-                            </tr>
-                            <tr>
-                                <th>Last Name</th>
-                                <td><input type="text" name="last2"></td>
-                            </tr>
-                            <tr>
-                                <th>Email</th>
-                                <td><input type="email" name="email2"></td>
-                            </tr>
-                        {% endif %}
-                        <tr>
-                            <td colspan="2"><button id="add-delegation-btn" type="submit" class="btn btn-primary form-control">Add Delegation</button></td>
-                        </tr>
-                    </table>
-                </form>
+{#                <h4>Add Delegation</h4>#}
+{#                <form action="{% url 'add_delegation' %}" method="POST">#}
+{#                    {% csrf_token %}#}
+{#                    <table id="add-delegation-table">#}
+{#                        <tr>#}
+{#                            <th>Country</th>#}
+{#                            <td>#}
+{#                                <select class="form-control" name="country">#}
+{#                                    {% for choice in countries.countries %}#}
+{#                                        {% if choice.code not in taken_countries %}#}
+{#                                            <option value="{{ choice.code }}">{{ choice.name }}</option>#}
+{#                                        {% endif %}#}
+{#                                    {% endfor %}#}
+{#                                </select>#}
+{#                            </td>#}
+{#                        </tr>#}
+{#                        <tr>#}
+{#                            <th colspan="2"><h5>Delegation 1</h5></th>#}
+{#                        </tr>#}
+{#                        <tr>#}
+{#                            <th>First Name</th>#}
+{#                            <td><input type="text" name="first" required></td>#}
+{#                        </tr>#}
+{#                        <tr>#}
+{#                            <th>Last Name</th>#}
+{#                            <td><input type="text" name="last" required></td>#}
+{#                        </tr>#}
+{#                        <tr>#}
+{#                            <th>Email</th>#}
+{#                            <td><input type="email" name="email" required></td>#}
+{#                        </tr>#}
+{#                        {% if committee.people.double_delegation %}#}
+{#                            <tr>#}
+{#                                <th colspan="2"><h5>Delegation 2</h5></th>#}
+{#                            </tr>#}
+{#                            <tr>#}
+{#                                <th>First Name</th>#}
+{#                                <td><input type="text" name="first2"></td>#}
+{#                            </tr>#}
+{#                            <tr>#}
+{#                                <th>Last Name</th>#}
+{#                                <td><input type="text" name="last2"></td>#}
+{#                            </tr>#}
+{#                            <tr>#}
+{#                                <th>Email</th>#}
+{#                                <td><input type="email" name="email2"></td>#}
+{#                            </tr>#}
+{#                        {% endif %}#}
+{#                        <tr>#}
+{#                            <td colspan="2"><button id="add-delegation-btn" type="submit" class="btn btn-primary form-control">Add Delegation</button></td>#}
+{#                        </tr>#}
+{#                    </table>#}
+{#                </form>#}
             {% else %}
                 <h2 id="delegation-name">{{ delegation.country.name }}</h2>
                 <p>{{ delegation.get_delegate_names }}</p>
-                <h4>Scores</h4>
+                <h4>Attendance</h4>
                 <table>
                     <tr>
-                        <th>Category</th>
-                        <th>Weight</th>
-                        <th>Scaled Score</th>
-                        <th>Committee Average</th>
+                        {% for ar in delegation.attendance_records.all %}
+                            <th>Session {{ ar.session.number }}</th>
+                        {% endfor %}
                     </tr>
-                    {% for tally_category in scores.tally_category_scores.all %}
-                        <tr>
-                            <th>
-                                {% if tally_category.category.category.acronym == "PP" %}
-                                    <a href="{% url 'delegation_papers' delegation.id %}">{{ tally_category.category.category.name }}</a>
-                                {% else %}
-                                    {{ tally_category.category.category.name }}
-                                {% endif %}
-                            </th>
-                            <td>{{ tally_category.category.category.weight }}</td>
-                            <td style="text-align:center">{{ tally_category.scaled_score }}</td>
-                            <td style="text-align:center">{{ tally_category.category.scaled_average }}</td>
-                        </tr>
-                    {% endfor %}
                     <tr>
-                        <th>Total</th>
-                        <td>100</td>
-                        <td style="text-align:center">{{ scores.score }}</td>
-                        <td style="text-align:center">{{ committee.grades.committee_average }}</td>
+                        {% for ar in delegation.attendance_records.all %}
+                            <td>{{ ar.attendance }}</td>
+                        {% endfor %}
                     </tr>
                 </table>
                 <br>
@@ -145,6 +133,10 @@
                     {% endif %}
                     <br>
                 {% endfor %}
+                <h4>Participation</h4>
+                <h5>Score: <span style="color:red">{{ participation.score }}</span> / {{ participation.rubric.rubric.max_possible }}</h5>
+                {{ participation.rubric.criterion_scores.first.descriptor.descriptor }}
+                <br>
                 <h4>Speeches</h4>
                 <table>
                     {% if speeches %}
@@ -171,11 +163,6 @@
                     {% endfor %}
                 </table>
                 <br>
-                <h4>Participation</h4>
-                <h5>Score: <span style="color:red">{{ participation.score }}</span> / {{ participation.rubric.rubric.max_possible }}</h5>
-                {{ participation.rubric.criterion_scores.first.descriptor.descriptor }}
-                <br><br>
-
                 <h4>Motions</h4>
                 <table>
                     {% if motions %}
@@ -196,11 +183,48 @@
                     {% endfor %}
                 </table>
                 <br>
+                <h4>Scores</h4>
+                <table>
+                    <tr>
+                        <th>Category</th>
+                        <th>Weight</th>
+                        <th>Scaled Score</th>
+                        <th>Committee Average</th>
+                    </tr>
+                    {% for tally_category in scores.tally_category_scores.all %}
+                        <tr>
+                            <th>
+                                {% if tally_category.category.category.acronym == "PP" %}
+                                    {% if request.user.is_superuser %}
+                                        <a href="{% url 'delegation_papers' committee.acronym delegation.id %}">{{ tally_category.category.category.name }}</a>
+                                    {% else %}
+                                        <a href="{% url 'delegation_papers' delegation.id %}">{{ tally_category.category.category.name }}</a>
+                                    {% endif %}
+                                {% else %}
+                                    {{ tally_category.category.category.name }}
+                                {% endif %}
+                            </th>
+                            <td>{{ tally_category.category.category.weight }}</td>
+                            <td style="text-align:center">{{ tally_category.scaled_score }}</td>
+                            <td style="text-align:center">{{ tally_category.category.scaled_average }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <th>Total</th>
+                        <td>100</td>
+                        <td style="text-align:center">{{ scores.score }}</td>
+                        <td style="text-align:center">{{ committee.grades.committee_average }}</td>
+                    </tr>
+                </table>
+                <br>
             {% endif %}
-            {% if delegation %}
-                <button class="form-control btn btn-danger" id="remove-delegation">Remove Delegation</button><br><br>
-            {% endif %}
+{#            {% if delegation %}#}
+{#                <button class="form-control btn btn-danger" id="remove-delegation">Remove Delegation</button><br><br>#}
+{#            {% endif %}#}
         </div>
+        {% if request.user.is_superuser %}
+            <a href="{% url 'committees' 'admin' %}">Return to Committees</a>
+        {% endif %}
     </div>
 {% endblock %}
 

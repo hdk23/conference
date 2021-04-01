@@ -5,6 +5,7 @@ from .models import *
 admin.site.register(Committee)
 
 # models in models_people
+admin.site.register(Secretariat)
 admin.site.register(CommitteeDirector)
 admin.site.register(CommitteeManager)
 admin.site.register(Delegate)
@@ -14,6 +15,7 @@ admin.site.register(Delegation)
 admin.site.register(Chair)
 admin.site.register(TallyScore)
 admin.site.register(TallyCategoryScore)
+admin.site.register(Awards)
 admin.site.register(ScoreManager)
 
 # manager models
@@ -50,3 +52,6 @@ admin.site.register(WritingManager)
 # scalability models
 admin.site.register(School)
 admin.site.register(Advisor)
+admin.site.register(Session)
+admin.site.register(Organ)
+admin.site.register(Conference)

@@ -1,7 +1,6 @@
 from django.urls import path
 
 from . import views
-
 urlpatterns = [
     path('', views.index, name='index'),
 
@@ -21,11 +20,15 @@ urlpatterns = [
     path('my_committee/reset_wp/', views.reset_wp, name='reset_wp'),
     path('my_committee/reset_reso/', views.reset_reso, name='reset_reso'),
     path('my_committee/reset_amend/', views.reset_amend, name='reset_amend'),
+    path('my_committee/substantive_vote/', views.substantive_vote, name='substantive_vote'),
 
     # Other Page URLs
+    path('about_committee/<str:committee_acronym>', views.about_committee, name='about_committee'),
+    path('secretariat/', views.secretariat, name='secretariat'),
     path('admin/', views.admin, name='admin'),
     path('admin/add_delegation', views.add_delegation, name='add_delegation'),
     path('admin/manage_delegation/<int:id>', views.manage_delegation, name='manage_delegation'),
+    path('attendance/', views.attendance, name='attendance'),
     path('grades/', views.grades, name='grades'),
     path('pospapers/', views.pospapers, name='pospapers'),
     path('pospapers/<int:id>', views.delegation_papers, name='delegation_papers'),
@@ -36,5 +39,19 @@ urlpatterns = [
     path('resos/add_wp', views.add_wp, name='add_wp'),
     path('resos/remove_wp/<int:id>', views.remove_wp, name='remove_wp'),
     path('resos/add_reso', views.add_reso, name='add_reso'),
+    path('resos/<int:not_enough>', views.add_reso, name='add_reso'),
     path('resos/update_participation', views.update_participation, name='update_participation'),
+
+    # superuser URLs
+    path('committees/<str:mode>', views.committees, name='committees'),
+    path('my_committee/<str:committee_acronym>', views.my_committee, name='my_committee'),
+    path('pospapers/<str:committee_acronym>', views.pospapers, name='pospapers'),
+    path('pospapers/<str:committee_acronym>/<int:id>', views.delegation_papers, name='delegation_papers'),
+    path('grades/<str:committee_acronym>', views.grades, name='grades'),
+    path('resos/<str:committee_acronym>', views.resos, name='resos'),
+    path('tallies/<str:committee_acronym>', views.tallies, name='tallies'),
+    path('attendance/<str:committee_acronym>', views.attendance, name='attendance'),
+    path('admin/<str:committee_acronym>', views.admin, name='admin'),
+    path('admin/manage_delegation/<str:committee_acronym>/<int:id>', views.manage_delegation, name='manage_delegation'),
 ]
+

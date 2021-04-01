@@ -82,8 +82,14 @@
     </div>
 
     <br><br>
-    {% if request.user.is_staff %}
+    {% if request.user.is_staff and not request.user.is_superuser %}
         <h3>Add Working Papers and Resolutions</h3>
+        Minimum of {{ committee.people.min_signatory }} signatories needed
+        {% if message %}
+            <div class="alert alert-danger" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
         {% if committee.parli_pro.current_topic %}
             <ul class="nav nav-tabs" id="add-writings" role="tablist">
                 <li class="nav-item active">
@@ -108,6 +114,7 @@
             <div class="tab-pane fade active show" id="add-wp" role="tabpanel" aria-labelledby="add-wp-tab">
                 <form action="{% url 'add_wp' %}" method="POST">
                     {% csrf_token %}
+                    <input type="hidden" name="min_count" value="{{ committee.people.min_signatory }}">
                     <div class="row">
                         <div class="col container overflow-auto">
                         <p>Topic</p>
@@ -233,7 +240,9 @@
             </div>
         </div>
     {% endif %}
-
+    {% if request.user.is_superuser %}
+        <a href="{% url 'committees' 'resos' %}">Return to Committees</a>
+    {% endif %}
 {%  endblock %}
 
 {%  block scripts %}

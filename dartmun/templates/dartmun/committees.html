@@ -1,0 +1,31 @@
+{% extends "./layout.html" %}
+
+{%  block title %}
+    Committees
+{%  endblock %}
+
+{%  block css %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'dartmun/css/committees.css' %}">
+{%  endblock %}
+
+{%  block body %}
+    <h2>Committees</h2>
+    <h3>{{ page }}</h3>
+    {% for organ in organs %}
+        <h4><p>{{ organ }}</p></h4>
+        <div class="row">
+            {% for committee in organ.committees.all %}
+                <div class="col">
+                    <a href="{% url mode committee.acronym %}">
+                        <p>{{ committee }}</p>
+                    </a>
+                </div>
+            {% endfor %}
+        </div><br><br>
+    {% endfor %}
+{%  endblock %}
+
+{%  block scripts %}
+
+{%  endblock %}

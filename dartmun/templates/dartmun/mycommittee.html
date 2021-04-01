@@ -12,118 +12,139 @@
 {% block body %}
     <div class="container overflow-auto" id="show-delegates">
         <h2> {{ committee.name | upper }}</h2>
-        {% if delegations.count %}
-            <div class="row">
-                <div class="col-3"><h4>Simple Majority: {{ committee.people.simple_majority }}</h4></div>
-                <div class="col-6">
-                    {% if committee.parli_pro.speaker_list.first %}
-                        <h4>At Podium: {{ committee.parli_pro.speaker_list.first.delegation.country.name | upper}}</h4>
-                    {% endif %}
-                </div>
-                <div class="col-3"><h4>2/3 Majority: {{ committee.people.super_majority }}</h4></div>
-            </div>
-        {% endif %}
-        <div class="row">
-            <div class="col">
-                <h4>
-                    {% if committee.parli_pro.current_mode %}
-                        {{ committee.parli_pro.current_mode }}
-                    {% elif delegations.count %}
-                        Motion to Open Debate!
-                    {% else %}
-                        Roll Call
-                    {% endif %}
-                </h4>
-                <h5>
-                    {% if committee.parli_pro.caucus.caucus_duration %}
-                        {% if committee.parli_pro.caucus.caucus_until %}
-                            Until {{ committee.parli_pro.caucus.caucus_until }}
-                        {% else %}
-                            Duration: {{ committee.parli_pro.caucus.caucus_duration }} min
-                        {% endif %}
-                    {% endif %}
-                    {% if committee.parli_pro.caucus.current_st %}
-                        Speaking Time: {{ committee.parli_pro.caucus.current_st }} s
-                    {% endif %}
-                </h5>
-            </div>
-            <div class="col">
-                <h4>
-                    {% if committee.parli_pro.current_topic %}
-                        {{ committee.parli_pro.current_topic }}
-                    {% elif committee.parli_pro.open %}
-                        Set a Working Agenda!
-                    {% endif %}
-                </h4>
-                {% if committee.parli_pro.current_mode.acronym == "Mod" %}
-                    {% if committee.parli_pro.caucus.remaining_speeches == 1 %}
-                        {% if committee.parli_pro.caucus.last %}
-                            <h5>{{ committee.parli_pro.caucus.raised_by.country.name | upper}} WILL BE THE FINAL SPEAKER</h5>
-                        {% else %}
-                            <h5>THE CHAIR WILL TAKE ONE FINAL SPEAKER</h5>
-                        {% endif %}
-                    {% else %}
-                        {% if committee.parli_pro.caucus.last == False and committee.parli_pro.caucus.spoke == False %}
-                            <h5>{{ committee.parli_pro.caucus.raised_by.country.name | upper}} WILL BE THE FIRST SPEAKER</h5>
-                        {% else %}
-                            <h5>{{ committee.parli_pro.caucus.remaining_speeches }} Speeches Remaining</h5>
-                        {% endif %}
+        {% if committee.adjourned %}
+            <h3>Award Results</h3>
+            <table>
+                <tr>
+                    <th><h4>Best Delegate</h4></th>
+                    <td><h4>{{ committee.grades.awards.best_delegate }}</h4></td>
 
-                    {% endif %}
-                {% endif %}
-            </div>
-        </div>
-        {% if committee.writing.current_wp or committee.writing.current_reso or committee.writing.current_amend %}
-            <div class="row">
-                {% if committee.writing.current_wp %}
-                    <div class="col">
-                        <h4><a href="{% url 'reset_wp' %}">Current WP by {{ committee.writing.current_wp.sponsig.get_sponsors }}</a></h4>
-                    </div>
-                {% endif %}
-                {% if committee.writing.current_reso %}
-                    <div class="col">
-                        <h4><a href="{% url 'reset_reso' %}">Current Reso by {{ committee.writing.current_reso.sponsig.get_sponsors }}</a></h4>
-                    </div>
-                {% endif %}
-                {% if committee.writing.current_amend %}
-                    <div class="col">
-                        <h4><a href="{% url 'reset_amend' %}">Current Amend by {{ committee.writing.current_amend.sponsor }}</a></h4>
-                    </div>
-                {% endif %}
-            </div>
-        {% endif %}
-        <div class="row">
+                </tr>
+                <tr>
+                    <th><h5>Outstanding Delegate</h5></th>
+                    <td><h5>{{ committee.grades.awards.outstanding_delegate }}</h5></td>
+                </tr>
+                <tr>
+                    <th><h5>Honorable Mention</h5></th>
+                    <td><h5>{{ committee.grades.awards.honorable_mention }}</h5></td>
+                </tr>
+            </table>
+        {% else %}
             {% if delegations.count %}
-                <div class="col">
-                    <h4>Motion List</h4>
-                    <ul>
-                        {% for motion in committee.parli_pro.get_motion_list %}
-                            <li><a href="{% url 'remove_motion_entry' motion.id %}">{{ motion }}</a></li>
-                        {% empty %}
-                            <h5>Are there any points or motions on the floor?</h5>
-                        {% endfor %}
-                    </ul>
+                <div class="row">
+                    <div class="col-3"><h4>Simple Majority: {{ committee.people.simple_majority }}</h4></div>
+                    <div class="col-6">
+                        {% if committee.parli_pro.speaker_list.first %}
+                            <h4>At Podium: {{ committee.parli_pro.speaker_list.first.delegation.country.name | upper}}</h4>
+                        {% endif %}
+                    </div>
+                    <div class="col-3"><h4>2/3 Majority: {{ committee.people.super_majority }}</h4></div>
                 </div>
             {% endif %}
-            {% if committee.parli_pro.current_mode.acronym == "SSL" or committee.parli_pro.current_mode.acronym == "PSL" %}
+            <div class="row">
                 <div class="col">
-                    <h4>Speaker's List</h4>
-                    <ul>
-                        {% for speaker in committee.parli_pro.speaker_list.all %}
-                            <li><a href="{% url 'remove_speech_entry' speaker.id %}">{{ speaker.delegation.country.name }}</a></li>
-                        {% empty %}
-                            <h5>Raise your virtual placard to speak!</h5>
-                        {% endfor %}
-                    </ul>
+                    <h4>
+                        {% if committee.parli_pro.current_mode %}
+                            {{ committee.parli_pro.current_mode }}
+                        {% elif delegations.count %}
+                            Motion to Open Debate!
+                        {% else %}
+                            Roll Call
+                        {% endif %}
+                    </h4>
+                    <h5>
+                        {% if committee.parli_pro.caucus.caucus_duration %}
+                            {% if committee.parli_pro.caucus.caucus_until %}
+                                Until {{ committee.parli_pro.caucus.caucus_until }}
+                            {% else %}
+                                Duration: {{ committee.parli_pro.caucus.caucus_duration }} min
+                            {% endif %}
+                        {% endif %}
+                        {% if committee.parli_pro.caucus.current_st %}
+                            Speaking Time: {{ committee.parli_pro.caucus.current_st }} s
+                        {% endif %}
+                        {% if not committee.parli_pro.open %}
+                            Committee Session {{ committee.current_session.number }}
+                        {% endif %}
+                    </h5>
                 </div>
-            {% endif %}
-            <div class="col">
-                <iframe width="100%" height="100%" src="https://vclock.com/embed/stopwatch/#theme=0" frameborder="0" allowfullscreen></iframe>
-            </div>
-        </div>
+                <div class="col">
+                    <h4>
+                        {% if committee.parli_pro.current_topic %}
+                            {{ committee.parli_pro.current_topic }}
+                        {% elif committee.parli_pro.open %}
+                            Set a Working Agenda!
+                        {% endif %}
+                    </h4>
+                    {% if committee.parli_pro.current_mode.acronym == "Mod" %}
+                        {% if committee.parli_pro.caucus.remaining_speeches == 1 %}
+                            {% if committee.parli_pro.caucus.last %}
+                                <h5>{{ committee.parli_pro.caucus.raised_by.country.name | upper}} WILL BE THE FINAL SPEAKER</h5>
+                            {% else %}
+                                <h5>THE CHAIR WILL TAKE ONE FINAL SPEAKER</h5>
+                            {% endif %}
+                        {% else %}
+                            {% if committee.parli_pro.caucus.last == False and committee.parli_pro.caucus.spoke == False %}
+                                <h5>{{ committee.parli_pro.caucus.raised_by.country.name | upper}} WILL BE THE FIRST SPEAKER</h5>
+                            {% else %}
+                                <h5>{{ committee.parli_pro.caucus.remaining_speeches }} Speeches Remaining</h5>
+                            {% endif %}
 
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            {% if committee.writing.current_wp or committee.writing.current_reso or committee.writing.current_amend %}
+                <div class="row">
+                    {% if committee.writing.current_wp %}
+                        <div class="col">
+                            <h4><a href="{% url 'reset_wp' %}">Current WP by {{ committee.writing.current_wp.sponsig.get_sponsors }}</a></h4>
+                        </div>
+                    {% endif %}
+                    {% if committee.writing.current_reso %}
+                        <div class="col">
+                            <h4><a href="{% url 'reset_reso' %}">Current Reso by {{ committee.writing.current_reso.sponsig.get_sponsors }}</a></h4>
+                        </div>
+                    {% endif %}
+                    {% if committee.writing.current_amend %}
+                        <div class="col">
+                            <h4><a href="{% url 'reset_amend' %}">Current Amend: {{ committee.writing.current_amend }}</a></h4>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+            <div class="row">
+                {% if delegations.count %}
+                    <div class="col">
+                        <h4>Motion List</h4>
+                        <ul>
+                            {% for motion in committee.parli_pro.get_motion_list %}
+                                <li><a href="{% url 'remove_motion_entry' motion.id %}">{{ motion }}</a></li>
+                            {% empty %}
+                                <h5>Are there any points or motions on the floor?</h5>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+                {% if committee.parli_pro.current_mode.acronym == "SSL" or committee.parli_pro.current_mode.acronym == "PSL" %}
+                    <div class="col">
+                        <h4>Speaker's List</h4>
+                        <ul>
+                            {% for speaker in committee.parli_pro.speaker_list.all %}
+                                <li><a href="{% url 'remove_speech_entry' speaker.id %}">{{ speaker.delegation.country.name }}</a></li>
+                            {% empty %}
+                                <h5>Raise your virtual placard to speak!</h5>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+                <div class="col">
+                    <iframe width="100%" height="100%" src="https://vclock.com/embed/stopwatch/#theme=0" frameborder="0" allowfullscreen></iframe>
+                </div>
+            </div>
+        {% endif %}
     </div>
-    {% if request.user.is_staff %}
+    {% if request.user.is_staff and not request.user.is_superuser and not committee.adjourned %}
         <div class="container overflow-auto" id="staff-only">
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 {% if committee.parli_pro.current_mode %}
@@ -172,6 +193,11 @@
                 {% endif %}
                 <a class="nav-link" id="amendment-tab" data-toggle="tab" href="#amendment" role="tab" aria-controls="amendment" aria-selected="false">Add Amendment</a>
                 </li>
+                {% if committee.writing.current_reso or committee.writing.current_amend %}
+                    <li class="nav-item">
+                        <a class="nav-link" id="substantive-tab" data-toggle="tab" href="#substantive" role="tab" aria-controls="substantive" aria-selected="false">Vote Reso/Amend</a>
+                    </li>
+                {% endif %}
                 <li class="nav-item">
                     <a class="nav-link" id="attendance-tab" data-toggle="tab" href="#attendance" role="tab" aria-controls="attendance" aria-selected="false">Attendance</a>
                 </li>
@@ -303,7 +329,7 @@
                     <div class="col-4" id="wp" hidden>
                         <p>Working Paper</p>
                         <select name="wp" class="form-control" id="selected-WP">
-                            {% for wp in committee.parli_pro.current_topic.working_papers.all %}
+                            {% for wp in committee.parli_pro.current_topic.unintroduced_wps %}
                                 <option value="{{ wp.id }}">{{ wp }}</option>
                             {% endfor %}
                         </select>
@@ -311,7 +337,7 @@
                     <div class="col-4" id="reso" hidden>
                         <p>Resolution</p>
                         <select name="reso" class="form-control" id="selected-reso">
-                            {% for reso in committee.parli_pro.current_topic.resolutions.all %}
+                            {% for reso in committee.parli_pro.current_topic.unintroduced_resos %}
                                 <option value="{{ reso.id }}">{{ reso }}</option>
                             {% endfor %}
                         </select>
@@ -319,7 +345,7 @@
                     <div class="col-4" id="amend" hidden>
                         <p>Amendment</p>
                         <select name="amend" class="form-control" id="selected-amend">
-                            {% for amend in committee.writing.current_reso.amendments.all %}
+                            {% for amend in committee.writing.current_reso.unintroduced_amends %}
                                 <option value="{{ amend.id }}">{{ amend }}</option>
                             {% endfor %}
                         </select>
@@ -407,6 +433,7 @@
         <div class="tab-pane fade" id="amendment" role="tabpanel" aria-labelledby="amendment-tab">
             <form action="{% url 'add_amendment' %}" method="POST">
                 {% csrf_token %}
+                <input type="hidden" name="reso_id" value="{{ committee.writing.current_reso.id }}">
                 <div class="row">
                     <div class="col-3">
                         <p>Type</p>
@@ -513,7 +540,47 @@
                 <p><button type="submit" class="btn btn-primary">Submit Attendance</button></p>
             </form>
         </div>
+        {% if committee.writing.current_reso or committee.writing.current_amend %}
+            <div class="tab-pane fade" id="substantive" role="tabpanel" aria-labelledby="substantive-tab">
+        {% else %}
+            <div class="tab-pane fade" id="substantive" role="tabpanel" aria-labelledby="substantive-tab" hidden>
+        {% endif %}
+        <div class="alert alert-danger" id="vote-alert2" role="alert" hidden></div>
+        <form action="{% url 'substantive_vote' %}" method="POST">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-4">
+                    <p>Vote On</p>
+                    <input type="radio" name="vote-on" value="reso" id="vote-reso" required>
+                    <label for="vote-reso">Resolution</label>
+                    {% if committee.writing.current_amend %}
+                        <input type="radio" name="vote-on" value="amend" id="vote-amend">
+                        <label for="vote-amend">Amendment</label>
+                    {% endif %}
+                </div>
+                <div class="col-2">
+                    <p>Votes For</p>
+                    <input type="number" class="form-control" id="votes-for2" name="votes-for" min="0" max="{{ committee.people.number_present }}" required>
+                </div>
+                <div class="col-2">
+                    <p>Votes Against</p>
+                    <input type="number" class="form-control" id="votes-against2" name="votes-against" min="0" max="{{ committee.people.number_present }}" required>
+                </div>
+                <div class="col-2">
+                    <p>Votes Abstain</p>
+                    <input type="number" class="form-control" id="votes-abstain2" name="votes-abstain" min="0" max="{{ committee.people.number_present }}" required>
+                </div>
+                <div class="col-2">
+                    <p>Submit</p>
+                    <p><button type="submit" class="btn btn-primary" id="vote-button2">Submit</button></p>
+                </div>
+            </div>
+        </form>
+        </div>
     </div>
+    {% endif %}
+    {% if request.user.is_superuser %}
+        <a href="{% url 'committees' 'my_committee' %}">Return to Committee Pages</a>
     {% endif %}
 {% endblock %}
 

@@ -1,5 +1,7 @@
 from .models_people import *
 from django.db import models
+from django_countries import countries
+import pycountry
 
 
 class PeopleManager(models.Model):
@@ -52,18 +54,53 @@ class PeopleManager(models.Model):
         self.save()
 
     @staticmethod
-    def add_delegate(committee_acronym: str, delegation: Delegation, first: str, last: str, email: str, number=1):
-        """
-        adds a delegate to a delegation
-        """
-        username = f"{committee_acronym.lower()}{delegation.country.name.lower()}{number}".replace(" ", "")
-        user = User(username=username, first_name=first, last_name=last, email=email)
+    def add_user(first: str, last: str, email: str, username: str, staff=False, superuser=False) -> User:
+        """adds a user to the database"""
+        user = User.objects.create_user(username, email, 'dartmun2021')
+        user.first_name = first
+        user.last_name = last
+        user.is_staff = staff
+        user.is_superuser = superuser
         user.save()
-        delegate = Delegate(user=user)
+        return user
+
+    def add_chair(self, user: User, chair_type: str, year: int):
+        """adds a chair to the people manager"""
+        chair = Chair(user=user, year=year)
+        chair.save()
+        if chair_type == "CD":
+            cd = CommitteeDirector(chair=chair)
+            cd.save()
+            self.directors.add(cd)
+            self.save()
+        else:
+            cm = CommitteeManager(chair=chair)
+            cm.save()
+            self.managers.add(cm)
+            self.save()
+
+
+    def add_delegate(self, user, country_string, school=None, number=1) -> Delegate:
+        """adds a delegate to a delegation"""
+        delegate = Delegate(user=user, number=number)
         delegate.save()
+        try:
+            country = pycountry.countries.get(name=country_string).alpha_2
+        except:
+            country = pycountry.countries.get(common_name=country_string).alpha_2
+        try:
+            delegation = self.delegations.get(country=country)
+        except:
+            school = School.objects.get(name=school)
+            delegation = Delegation(country=country, school=school)
+            delegation.save()
+            self.delegations.add(delegation)
+            self.save()
+            school.delegations.add(delegation)
+            school.save()
         delegation.delegates.add(delegate)
         delegation.save()
-        return delegation
+        return delegate
 
     def add_delegation(self, country: str, responses) -> Delegation:
         """
@@ -75,12 +112,24 @@ class PeopleManager(models.Model):
         """
         delegation = Delegation(country=country)
         delegation.save()
-        self.add_delegate(responses[-1], delegation, responses[0], responses[1], responses[2])
-        if len(responses) > 3:
-            self.add_delegate(responses[-1], delegation, responses[3], responses[4], responses[5], 2)
+        username = f"{responses[-1]}{country}".replace(" ", "").lower()
+        user = self.add_user(responses[0], responses[1], username, responses[2])
+        self.add_delegate(user, country)
+        if len(responses) > 4:
+            username2 = f"{responses[-1]}{country}2".replace(" ", "").lower()
+            user2 = self.add_user(responses[3], responses[4], username2, responses[5])
+            self.add_delegate(user2, country, number=2)
         self.delegations.add(delegation)
         self.save()
         return delegation
+
+    def reset(self):
+        self.quorum = None
+        self.simple_majority = None
+        self.super_majority = None
+        self.min_signatory = None
+        self.number_present = 0
+        self.save()
 
     def __str__(self):
         if self.number_present:

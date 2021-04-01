@@ -27,5 +27,12 @@ class CommitteeTallyCategory(models.Model):
         self.points_possible += points
         self.save()
 
+    def reset(self):
+        self.scaled_average = None
+        self.scaled_average = None
+        self.stdev = None
+        self.points_possible = 0
+        self.save()
+
     def __str__(self):
         return f"{self.category} Committee Tally Category"

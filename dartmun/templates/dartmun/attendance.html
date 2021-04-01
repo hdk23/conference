@@ -1,0 +1,38 @@
+{% extends "./layout.html" %}
+
+{%  block title %}
+    Tallies
+{%  endblock %}
+
+{%  block css %}
+{%  endblock %}
+
+{%  block body %}
+    <h2>{{committee.name}}</h2>
+    <h3>Attendance</h3>
+    {% if committee.people.sorted_all_delegations %}
+        <table>
+            <tr>
+                <th>Delegation</th>
+                {% for session in sessions.all %}
+                    <th>Session {{ session.number }}</th>
+                {% endfor %}
+            </tr>
+            {% for delegation in committee.people.sorted_all_delegations %}
+                <tr>
+                    <th>{{ delegation.country.name }}</th>
+                    {% for ar in delegation.attendance_records.all %}
+                        <td>{{ ar.attendance }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+    {% if request.user.is_superuser %}
+        <a href="{% url 'committees' 'attendance' %}">Return to Committees</a>
+    {% endif %}
+{%  endblock %}
+
+{%  block scripts %}
+
+{%  endblock %}

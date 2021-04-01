@@ -11,7 +11,9 @@ def add_wp(request):
     topic = Topic.objects.get(pk=int(request.POST.get("topic")))
     sponsor_ids = request.POST.getlist('sponsors')
     signatory_ids = request.POST.getlist('signatories')
-    topic.add_wp(sponsor_ids, signatory_ids)
+    not_enough = len(sponsor_ids) + len(signatory_ids) - int(request.POST.get("min_count"))
+    if not_enough >= 0:
+        topic.add_wp(sponsor_ids, signatory_ids)
     return HttpResponseRedirect(reverse('resos'))
 
 
@@ -35,9 +37,8 @@ def add_reso(request):
     rubric_entry = RubricEntry(rubric=rubric, topic=topic)
     rubric_entry.save()
     rubric_entry.add_scores(scores)
-    committee = Committee.objects.get(acronym="UNEP")
+    committee = get_committee(request)
     committee.grades.add_reso_grades(reso, topic, rubric_entry)
-
     return HttpResponseRedirect(reverse('resos'))
 
 

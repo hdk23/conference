@@ -69,6 +69,15 @@ class CaucusManager(models.Model):
             return True
         return False
 
+    def reset(self):
+        self.caucus_duration = None
+        self.caucus_until = None
+        self.current_st = None
+        self.remaining_speeches = None
+        self.raised_by = None
+        self.last = None
+        self.spoke = None
+        self.save()
 
     def __str__(self):
         if self.current_st and self.caucus_duration:

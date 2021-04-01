@@ -70,7 +70,10 @@ def create_committee():
     committee.save()
 
     # initialize managers
-    people_manager = PeopleManager()
+    if committee.acronym == "UNEP":
+        people_manager = PeopleManager(double_delegation=True)
+    else:
+        people_manager = PeopleManager()
     people_manager.save()
     grades_manager = GradesManager()
     grades_manager.save()
@@ -124,13 +127,35 @@ def create_committee():
     committee.save()
 
 
+def soft_reset():
+    """resets committee without rereading the files"""
+    # reset writings
+    WorkingPaper.objects.all().delete()
+    Resolution.objects.all().delete()
+    Amendment.objects.all().delete()
+    SponSig.objects.all().delete()
+
+    # reset managers
+    for wm in WritingManager.objects.all():
+        wm.reset()
+    for gm in GradesManager.objects.all():
+        gm.reset()
+    for ppm in ParliProManager.objects.all():
+        ppm.reset()
+    for cm in CaucusManager.objects.all():
+        cm.reset()
+
+    # reset committees
+    for committee in Committee.objects.all():
+        committee.set_managers()
+
+
 def reset_committee():
     """resets committee by deleting all objects except for the superuser"""
     Committee.objects.all().delete()
     Chair.objects.all().delete()
     Delegation.objects.all().delete()
     Delegate.objects.all().delete()
-    TallyCategory.objects.all().delete()
     CommitteeTallyCategory.objects.all().delete()
     TallyScore.objects.all().delete()
     ScoreManager.objects.all().delete()
@@ -138,19 +163,28 @@ def reset_committee():
     PeopleManager.objects.all().delete()
     ParliProManager.objects.all().delete()
     CaucusManager.objects.all().delete()
-    Motion.objects.all().delete()
     MotionEntry.objects.all().delete()
     SpeechEntry.objects.all().delete()
-    DebateMode.objects.all().delete()
     Topic.objects.all().delete()
-    Descriptor.objects.all().delete()
-    Criterion.objects.all().delete()
     CriterionScore.objects.all().delete()
-    Rubric.objects.all().delete()
     RubricEntry.objects.all().delete()
     WorkingPaper.objects.all().delete()
     Resolution.objects.all().delete()
     Amendment.objects.all().delete()
     WritingManager.objects.all().delete()
     SponSig.objects.all().delete()
-    User.objects.filter(is_superuser=False).delete()
+    Awards.objects.all().delete()
+
+    # hard reset only
+    TallyCategory.objects.all().delete()
+    Motion.objects.all().delete()
+    DebateMode.objects.all().delete()
+    Descriptor.objects.all().delete()
+    Criterion.objects.all().delete()
+    Rubric.objects.all().delete()
+    Secretariat.objects.all().delete()
+    School.objects.all().delete()
+    Advisor.objects.all().delete()
+    Session.objects.all().delete()
+    Organ.objects.all().delete()
+    User.objects.all().delete()

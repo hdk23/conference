@@ -7,8 +7,8 @@ from .views_context import get_context, get_committee
 
 
 @staff_member_required(login_url='/admin/login/')
-def manage_delegation(request, id):
-    context = get_context(request)
+def manage_delegation(request, id, committee_acronym=None):
+    context = get_context(request, committee_acronym)
     delegation = Delegation.objects.get(pk=id)
     context['delegation'] = delegation
     context['scores'] = ScoreManager.objects.get(delegation=delegation)
@@ -24,9 +24,9 @@ def manage_delegation(request, id):
 
 
 @staff_member_required(login_url='/admin/login/')
-def add_delegation(request):
+def add_delegation(request, committee_acronym=None):
     """adds a delegation via the site admin page"""
-    committee = get_committee(request)
+    committee = get_committee(request, committee_acronym)
     country = request.POST.get("country")
     inputs = ["first", "last", "email"]
     responses = []
@@ -37,7 +37,8 @@ def add_delegation(request):
         for form_input in inputs:
             responses.append(request.POST.get(f"{form_input}2"))
     responses.append(committee.acronym)
-    delegation = committee.initialize_delegation(country, responses)
+    delegation = committee.people.add_delegation(country, responses)
+    committee.initialize_delegation(delegation)
     return HttpResponseRedirect(reverse('manage_delegation', kwargs={"id": delegation.id}))
 
 

@@ -20,11 +20,15 @@
         {% if request.user.is_staff %}
             <div class="col-4" id="country-col">
                 {% for delegation in all_delegations %}
-                    <a href="{% url 'delegation_papers' delegation.id %}">
-                        <div class="row country">
+                    {% if request.user.is_superuser %}
+                        <a href="{% url 'delegation_papers' committee.acronym delegation.id %}">
+                    {% else %}
+                        <a href="{% url 'delegation_papers' delegation.id %}">
+                    {% endif %}
+                    <div class="row country">
                         {{ delegation.country.name }}
-                        </div>
-                    </a>
+                    </div>
+                </a>
                 {% endfor %}
             </div>
         {% endif %}
@@ -33,78 +37,37 @@
     {% else %}
         <div class="col-12" id="paper-col">
     {% endif %}
-            {% if delegation %}
-                <h2 id="delegation-name">{{ delegation.country.name }}</h2>
-
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
-                    {% for paper in papers %}
-                        <li class="nav-item active">
-                        {% if forloop.first %}
-                            <a class="nav-link active" id="paper{{paper.id}}-tab" data-toggle="tab" href="#paper{{ paper.id }}" role="tab" aria-controls="paper{{ paper.id }}" aria-selected="false">
-                        {% else %}
-                            <a class="nav-link" id="paper{{paper.id}}-tab" data-toggle="tab" href="#paper{{paper.id}}" role="tab" aria-controls="paper{{ paper.id }}" aria-selected="false">
-                        {% endif %}
-                            {{ paper.rubric.topic }}
-                            </a>
-                        </li>
-
-                    {% endfor %}
-                </ul>
-                <div class="tab-content" id="myTabContent">
-                     {% for paper in papers %}
-                         {% if forloop.first %}
-                            <div class="tab-pane fade active show" id="paper{{ paper.id }}"
-                                 role="tabpanel" aria-labelledby="paper{{ paper.id }}-tab">
-                         {% else %}
-                             <div class="tab-pane fade" id="paper{{ paper.id }}"
-                                 role="tabpanel" aria-labelledby="paper{{ paper.id }}-tab">
-                         {% endif %}
-                         {% if paper.score == 0 %}
-                             <h4 style="color:red">MISSING OR LATE PAPER</h4>
-                         {% endif %}
-                         {% if request.user.is_staff %}
-                             <form action="{% url 'update_paper' paper.id %}" method="POST">
-                                {% csrf_token %}
-                                <table id="scoring-sheet">
-                                    <tr>
-                                        <th>Category</th>
-                                        <th>Descriptor</th>
-                                    </tr>
-                                    {% for criterion in paper.rubric.criterion_scores.all %}
-                                        {{ criterion.id }}
-                                        <tr>
-                                            <th>{{ criterion.criterion }}</th>
-                                            <td>
-                                                <input type="hidden" value="{{ criterion.descriptor.points }}" class="points">
-                                                <select class="form-control" name="criterion{{ criterion.id }}">
-                                                    <option></option>
-                                                    {% for descriptor in criterion.criterion.possible_scores.all %}
-                                                        {% if criterion.descriptor == descriptor %}
-                                                            <option selected value="{{ descriptor.points }}"> {{ descriptor }}</option>
-                                                        {% else %}
-                                                            <option value="{{ descriptor.points }}"> {{ descriptor }}</option>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </select>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                    <tr>
-                                        <th><h4>Total</h4></th>
-                                        <th><h4><span id="paper-score">{{ paper.score }}</span>/{{ paper.rubric.rubric.max_possible }}</h4></th>
-                                    </tr>
-                                    <tr>
-                                        <th>Comments</th>
-                                        <td><input type="text" name="comments" class="form-control" value="{{ paper.comments }}"></td>
-                                    </tr>
-                                </table>
-                                <div class="row">
-                                    <div class="col"><button type="submit" value="update" class="btn btn-primary form-control">Update</button></div>
-                                    <div class="col"><button type="submit" value="late" class="btn btn-danger form-control">Late</button></div>
-                                </div>
-                             </form>
-                         {% else %}
-                             <table id="scoring-sheet">
+    {% if delegation %}
+        <h2 id="delegation-name">{{ delegation.country.name }}</h2>
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            {% for paper in papers %}
+                <li class="nav-item active">
+                    {% if forloop.first %}
+                        <a class="nav-link active" id="paper{{paper.id}}-tab" data-toggle="tab" href="#paper{{ paper.id }}" role="tab" aria-controls="paper{{ paper.id }}" aria-selected="false">
+                    {% else %}
+                        <a class="nav-link" id="paper{{paper.id}}-tab" data-toggle="tab" href="#paper{{paper.id}}" role="tab" aria-controls="paper{{ paper.id }}" aria-selected="false">
+                    {% endif %}
+                        {{ paper.rubric.topic }}
+                        </a>
+                    </li>
+            {% endfor %}
+        </ul>
+            <div class="tab-content" id="myTabContent">
+                 {% for paper in papers %}
+                     {% if forloop.first %}
+                        <div class="tab-pane fade active show" id="paper{{ paper.id }}"
+                             role="tabpanel" aria-labelledby="paper{{ paper.id }}-tab">
+                     {% else %}
+                         <div class="tab-pane fade" id="paper{{ paper.id }}"
+                             role="tabpanel" aria-labelledby="paper{{ paper.id }}-tab">
+                     {% endif %}
+                     {% if paper.score == 0 %}
+                         <h4 style="color:red">MISSING OR LATE PAPER</h4>
+                     {% endif %}
+                     {% if request.user.is_staff and not request.user.is_superuser %}
+                         <form action="{% url 'update_paper' paper.id %}" method="POST">
+                            {% csrf_token %}
+                            <table id="scoring-sheet">
                                 <tr>
                                     <th>Category</th>
                                     <th>Descriptor</th>
@@ -113,7 +76,19 @@
                                     {{ criterion.id }}
                                     <tr>
                                         <th>{{ criterion.criterion }}</th>
-                                        <td>{{ criterion.descriptor }}</td>
+                                        <td>
+                                            <input type="hidden" value="{{ criterion.descriptor.points }}" class="points">
+                                            <select class="form-control" name="criterion{{ criterion.id }}">
+                                                <option></option>
+                                                {% for descriptor in criterion.criterion.possible_scores.all %}
+                                                    {% if criterion.descriptor == descriptor %}
+                                                        <option selected value="{{ descriptor.points }}"> {{ descriptor }}</option>
+                                                    {% else %}
+                                                        <option value="{{ descriptor.points }}"> {{ descriptor }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </td>
                                     </tr>
                                 {% endfor %}
                                 <tr>
@@ -122,15 +97,45 @@
                                 </tr>
                                 <tr>
                                     <th>Comments</th>
-                                    <td>{{ paper.comments }}</td>
+                                    <td><input type="text" name="comments" class="form-control" value="{{ paper.comments }}"></td>
                                 </tr>
                             </table>
-                         {% endif %}
-                         </div>
-                     {% endfor %}
-                </div>
-            {% endif %}
+                            <div class="row">
+                                <div class="col"><button type="submit" value="update" class="btn btn-primary form-control">Update</button></div>
+                                <div class="col"><button type="submit" value="late" class="btn btn-danger form-control">Late</button></div>
+                            </div>
+                         </form>
+                     {% else %}
+                         <table id="scoring-sheet">
+                            <tr>
+                                <th>Category</th>
+                                <th>Descriptor</th>
+                            </tr>
+                            {% for criterion in paper.rubric.criterion_scores.all %}
+                                {{ criterion.id }}
+                                <tr>
+                                    <th>{{ criterion.criterion }}</th>
+                                    <td>{{ criterion.descriptor }}</td>
+                                </tr>
+                            {% endfor %}
+                            <tr>
+                                <th><h4>Total</h4></th>
+                                <th><h4><span id="paper-score">{{ paper.score }}</span>/{{ paper.rubric.rubric.max_possible }}</h4></th>
+                            </tr>
+                            <tr>
+                                <th>Comments</th>
+                                <td>{{ paper.comments }}</td>
+                            </tr>
+                        </table>
+                     {% endif %}
+                     </div>
+                 {% endfor %}
+            </div>
+        {% endif %}
         </div>
+        {% if request.user.is_superuser %}
+            <a href="{% url 'committees' 'pospapers' %}">Return to Committee Pages</a>
+        {% endif %}
     </div>
 {%  endblock %}
 

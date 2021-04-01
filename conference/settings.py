@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,7 +34,14 @@ ALLOWED_HOSTS = []
 to_remove ={
     'AQ',	'NF',	'HM',	'CC',	'CX',	'JE',	'IM',	'GG',	'MO',	'HK',	'GL',	'FO',	'EH',	'TW',	'AX',	'WF',	'PM',	'MF',	'BL',	'RE',	'NC',	'YT',	'MQ',	'GP',	'TF',	'PF',	'GF',	'SX',	'CW',	'BQ',	'AW',	'TK',	'NU',	'CK',	'SJ',	'BV',	'VG',	'TC',	'GS',	'SH',	'PN',	'MS',	'GI',	'FK',	'KY',	'IO',	'BM',	'AI',	'VI',	'UM',	'PR',	'MP',	'GU',	'AS'
 }
-COUNTRIES_OVERRIDE = {}
+
+COUNTRIES_OVERRIDE = {
+    'US': {'names': [_('United States'), _('US'), _('USA'), _('United States of America')]},
+    'RU': {'names': [_('Russia'), _('Russian Federation')]},
+    'GB': {'names': [_('United Kingdom'), _('UK')]},
+    'AE': {'names': [_('United Arab Emirates'), _('UAE')]},
+    'CD': {'names': [_('DR Congo'), _('Democratic Republic of the Congo')]},
+}
 
 for remove in to_remove:
     COUNTRIES_OVERRIDE[remove] = None

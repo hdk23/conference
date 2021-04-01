@@ -70,6 +70,8 @@ class TallyCategoryScore(models.Model):
                 self.zscore = self.calc_zscore(self.raw_score, average, stdev)
                 if self.category.category.scaled:
                     self.scaled_score = round(committee_average + committee_stdev * self.zscore, 2)
+                else:
+                    self.scaled_score = None
         else:
             if self.category.points_possible:
                 tallies = TallyScore.objects.filter(category=self.category.category, delegation=self.delegation)
@@ -92,6 +94,11 @@ class TallyCategoryScore(models.Model):
         self.save()
         self.calc_tallies()
         self.save()
+
+    def reset(self):
+        self.raw_score = None
+        self.zscore = None
+        self.scaled_score = None
 
     def __str__(self):
         return f"{self.delegation} {self.category}: {self.raw_score} pts"
@@ -124,5 +131,19 @@ class ScoreManager(models.Model):
         self.tally_category_scores.all().delete()
         self.delete()
 
+    def reset(self):
+        for tcs in self.tally_category_scores.all():
+            tcs.reset()
+
     def __str__(self):
         return f"{self.delegation} Score Manager"
+
+
+class Awards(models.Model):
+    """awards class to handle awards in a committee"""
+    best_delegate = models.ForeignKey(Delegation, on_delete=models.CASCADE, null=True, related_name="BD")
+    outstanding_delegate = models.ForeignKey(Delegation, on_delete=models.CASCADE, null=True, related_name="OD")
+    honorable_mention = models.ForeignKey(Delegation, on_delete=models.CASCADE, null=True, related_name="HM")
+
+    def __str__(self):
+        return "Awards"

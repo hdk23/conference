@@ -5,6 +5,13 @@ let voteAlert = document.getElementById("vote-alert");
 let delCount = document.getElementById("del-count");
 let voteButton = document.getElementById("vote-button");
 
+// substantive vote validation
+let votesFor2 = document.getElementById("votes-for2");
+let voteAlert2 = document.getElementById("vote-alert2");
+let votesAgainst2 = document.getElementById("votes-against2");
+let votesAbstain2 = document.getElementById("votes-abstain2");
+let voteButton2 = document.getElementById("vote-button2");
+
 function validate_votes(event){
   if ((parseInt(votesFor.value, 10) + parseInt(votesAgainst.value, 10)) > delCount.value){
     voteAlert.innerHTML = "The number of votes exceeds the number of delegates present."
@@ -17,8 +24,34 @@ function validate_votes(event){
   }
 }
 
-votesFor.addEventListener('input', validate_votes)
-votesAgainst.addEventListener('input', validate_votes)
+
+function validate_votes2(event){
+  if ((parseInt(votesFor2.value, 10) + parseInt(votesAgainst2.value, 10) + parseInt(votesAbstain2.value, 10)) > delCount.value){
+    voteAlert2.innerHTML = "The number of votes exceeds the number of delegates present."
+    voteAlert2.hidden = false;
+    voteButton2.disabled = true;
+  }
+  else{
+    voteAlert2.hidden = true;
+    voteButton2.disabled = false;
+  }
+}
+
+function announce_result(event){
+  if ((parseInt(votesFor2.value, 10) > parseInt(votesAgainst2.value, 10))){
+    alert("With a majority, this passes! Clapping is in order 👏");
+  }
+  else{
+    alert("Without a majority, this fails. 😢");
+  }
+}
+
+votesFor.addEventListener('input', validate_votes);
+votesAgainst.addEventListener('input', validate_votes);
+votesFor2.addEventListener('input', validate_votes2);
+votesAgainst2.addEventListener('input', validate_votes2);
+votesAbstain2.addEventListener('input', validate_votes2);
+voteButton2.addEventListener('click', announce_result);
 
 // add motion form code
 let selectedMotion = document.getElementById("selected-motion");

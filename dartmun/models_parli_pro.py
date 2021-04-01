@@ -27,6 +27,14 @@ class Topic(models.Model):
         self.working_papers.add(wp)
         self.save()
 
+    def unintroduced_wps(self):
+        """returns a list of working papers that have not been introduced"""
+        wps = []
+        for wp in self.working_papers.all():
+            if not wp.introduced:
+                wps.append(wp)
+        return wps
+
     def add_reso(self, sponsor_ids: list, signatory_ids: list) -> Resolution:
         """
         receives a list of sponsor_ids and signatory_ids  (Delegation ids)
@@ -44,6 +52,14 @@ class Topic(models.Model):
         self.resolutions.add(reso)
         self.save()
         return reso
+
+    def unintroduced_resos(self):
+        """returns a list of resolutions that have not been introduced"""
+        resos = []
+        for reso in self.resolutions.all():
+            if not reso.introduced:
+                resos.append(reso)
+        return resos
 
     def __str__(self):
         return f"Topic {self.number}: {self.topic}"

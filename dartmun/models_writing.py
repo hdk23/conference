@@ -57,20 +57,29 @@ class Amendment(models.Model):
     score = models.PositiveSmallIntegerField()
     old = models.TextField(null=True, blank=True)
     new = models.TextField(null=True, blank=True)
-    sponsor = models.ForeignKey(Delegation, on_delete=models.CASCADE, related_name="amend_sponsor")
-    signatories = models.ManyToManyField(Delegation, related_name="amend_signatories")
+    sponsig = models.OneToOneField(SponSig, null=True, blank=True, on_delete=models.CASCADE)
+    introduced = models.BooleanField(default=False)
     votes_for = models.PositiveSmallIntegerField(null=True)
     votes_against = models.PositiveSmallIntegerField(null=True)
     votes_abstain = models.PositiveSmallIntegerField(null=True)
     passed = models.BooleanField(null=True)
 
-    def passes(self):
+    def passes(self, votes_for, votes_against, votes_abstain):
         """calculates whether the motion passes"""
+        self.votes_for = votes_for
+        self.votes_against = votes_against
+        self.votes_abstain = votes_abstain
         self.passed = self.votes_for > self.votes_against
         self.save()
 
     def __str__(self):
-        return f"{self.amendment_type} Clause {self.clause}.{self.subclause}.{self.subsubclause} by {self.sponsor.country.name}"
+        if self.amendment_type == "A":
+            amend_type = "Add"
+        elif self.amendment_type == "M":
+            amend_type = "Modify"
+        else:
+            amend_type = "Strike"
+        return f"{amend_type} Clause {self.clause} by {self.sponsig.sponsors.first().country.name}"
 
 
 class Resolution(models.Model):
@@ -83,61 +92,36 @@ class Resolution(models.Model):
     passed = models.BooleanField(null=True)
     amendments = models.ManyToManyField(Amendment)
 
-    def passes(self):
+    def passes(self, votes_for: int, votes_against: int, votes_abstain=0):
         """calculates whether the motion passes"""
+        self.votes_for = votes_for
+        self.votes_against = votes_against
+        self.votes_abstain = votes_abstain
         self.passed = self.votes_for > self.votes_against
         self.save()
 
+    def add_amend(self, amend_type, clause, friendly, score, sponsor_id, signatory_ids):
+        """adds an amendment to a resolution"""
+        amendment = Amendment(amendment_type=amend_type, clause=clause, friendly=friendly, score=score)
+        if not friendly:
+            amendment.score += score
+        sponsig = SponSig()
+        sponsig.save()
+        sponsig.add_sponsors([sponsor_id])
+        sponsig.add_signatories(signatory_ids)
+        sponsig.save()
+        amendment.sponsig = sponsig
+        amendment.save()
+        self.amendments.add(amendment)
+        self.save()
+
+    def unintroduced_amends(self):
+        """returns a list of amendments that have not been introduced"""
+        amends = []
+        for amend in self.amendments.all():
+            if not amend.introduced:
+                amends.append(amend)
+        return amends
+
     def __str__(self):
         return f"Resolution by {self.sponsig.get_sponsors()}"
-
-
-class WritingManager(models.Model):
-    """Writing Manager class to handle working papers and resolutions"""
-    current_wp = models.ForeignKey(WorkingPaper, on_delete=models.CASCADE, null=True, blank=True, related_name="current_wp")
-    current_reso = models.ForeignKey(Resolution, on_delete=models.CASCADE, null=True, blank=True, related_name="current_reso")
-    current_amend = models.ForeignKey(Amendment, on_delete=models.CASCADE, null=True, blank=True, related_name="current_amend")
-
-    def set_wp(self, wp_id):
-        """sets the current working paper"""
-        self.current_wp = WorkingPaper.objects.get(pk=wp_id)
-        self.current_wp.introduced = True
-        self.current_reso = None
-        self.save()
-
-    def reset_wp(self):
-        """resets the current working paper"""
-        self.current_wp = None
-        self.save()
-
-    def set_reso(self, reso_id):
-        """sets the current resolution"""
-        self.current_reso = Resolution.objects.get(pk=reso_id)
-        self.current_reso.introduced = True
-        self.current_wp = None
-        self.save()
-
-    def reset_reso(self):
-        """resets the current resolution"""
-        self.current_reso = None
-        self.save()
-
-    def set_amend(self, amend_id):
-        """sets the current amendment"""
-        self.current_amend = Amendment.objects.get(pk=amend_id)
-        self.save()
-
-    def reset_amend(self):
-        """resets the current amend"""
-        self.current_amend = None
-        self.save()
-
-    def __str__(self):
-        if self.current_wp:
-            return f"Current WP: {self.current_wp}"
-        elif self.current_reso:
-            return f"Current Reso: {self.current_reso}"
-        elif self.current_amend:
-            return f"Current Amend:{self.current_amend}"
-        else:
-            return f"Writing Manager"
