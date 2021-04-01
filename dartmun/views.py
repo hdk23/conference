@@ -25,9 +25,9 @@ def index(request):
     except:
         Conference(acronym="DartMUN 2021", name="Dartmouth Model United Nations 2021").save()
     # soft_reset()
-    reset_committee()
-    for file in files:
-        read_file(file)
+    # reset_committee()
+    # for file in simple_files:
+    #     read_file(file)
     return render(request, 'dartmun/index.html', context)
 
 
