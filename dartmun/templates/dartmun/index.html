@@ -1,7 +1,7 @@
 {% extends "./layout.html" %}
 
 {%  block title %}
-    DartMUN XV
+    {{ conference.acronym }}
 {%  endblock %}
 
 {%  block css %}
@@ -9,7 +9,27 @@
 {%  endblock %}
 
 {%  block body %}
-    <h1>Welcome to DartMUN!</h1>
+    <h1>Welcome to {{ conference.name }}!</h1>
+    <i>Welcome to DartMUN! We are an annual Model United Nations conference held on the beautiful Ivy League campus of Dartmouth College hosted in April.
+    Each year we lead hundreds of high school delegates in rousing debate on international politics, humanitarian causes and more.</i><br><br>
+
+    <h3>Conference Sessions</h3>
+    <table>
+        <tr>
+            <th>#</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+        </tr>
+        {% for session in conference.sessions.all %}
+            {% if session.number %}
+                <tr>
+                    <th>{{ session.number }}</th>
+                    <td>{{ session.start_time }}</td>
+                    <td>{{ session.end_time }}</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
 {%  endblock %}
 
 {%  block scripts %}

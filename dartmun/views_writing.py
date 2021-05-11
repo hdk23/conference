@@ -66,7 +66,6 @@ def update_participation(request):
                 new_score = float(request.POST.get(f"criterion{criterion.id}"))
                 tally.rubric.replace_criterion(criterion, new_score)
         tally.set_rubric_score()
-        print("update part", tally.score)
         committee = Committee.objects.get(acronym="UNEP")
         committee.grades.update_tally(tally, old_score)
     return HttpResponseRedirect(reverse('resos'))
