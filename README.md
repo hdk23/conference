@@ -127,7 +127,7 @@ The motion to open debate should be preselected. Then click one of two buttons:
   - The motion to vote on (based on order of precedence) will be preselected.
   - If the sum of the votes for and votes against exceeds the number of delegations present, the site will give you an alert and disable the submit buttons.
   
-  3. Primary Speaker's List (PSL)
+3. Primary Speaker's List (PSL)
 You will now be directed to a form that lets you add speakers to the Primary Speaker's List.
 Add them one at a time and enter scores for each speech on the "Add Tally" tab. On the add tally tab, the first speaker on the list will be preselected.
 If there are no speakers on the list, you can select the speaker directly from the "Add Tally" tab.
