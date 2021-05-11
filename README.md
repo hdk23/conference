@@ -112,11 +112,13 @@ The Committee Status portion is shared with other delegates via Zoom, and the ta
 If delegates login using their account, they will only see the Committee Status portion.
 
 ### Steps to Running the Committee
-1. Roll Call
+#### 1. Roll Call
+
 Take attendance by calling each delegation's country and mark them as present, present and voting, or absent. Once you click submit, the site will save your input.
 Once you submit the data, you will see an updated Committee Status.
 
-2. Open Debate
+#### 2. Open Debate
+
 A delegation should raise a "motion to open debate." In the "Add Motion" form, select the delegation that raises that motion. 
 The motion to open debate should be preselected. Then click one of two buttons:
 - Passes Under Chair's Discretion passes the motion without a vote. Select this to skip the voting procedure.
@@ -127,18 +129,21 @@ The motion to open debate should be preselected. Then click one of two buttons:
   - The motion to vote on (based on order of precedence) will be preselected.
   - If the sum of the votes for and votes against exceeds the number of delegations present, the site will give you an alert and disable the submit buttons.
   
-3. Primary Speaker's List (PSL)
+#### 3. Primary Speaker's List (PSL)
+
 You will now be directed to a form that lets you add speakers to the Primary Speaker's List.
 Add them one at a time and enter scores for each speech on the "Add Tally" tab. On the add tally tab, the first speaker on the list will be preselected.
 If there are no speakers on the list, you can select the speaker directly from the "Add Tally" tab.
 Enter a score for that speaker. You can leave the time and comment fields blank. Once you're ready to set the agenda, head over to the "Add Motion" tab.
 The motion name will be preselected. Use the dropdown to select the topic that the delegation wishes to debate on first.
 
-4. Open Floor
+#### 4. Open Floor
+
 Once you've set the agenda, you will be directed to the "Add Motion" form. You will now see a new button that says "Speaker's List." 
 Click on this button to start a "Secondary Speaker's List (SSL, a.k.a. General Speaker's List or GSL). The procedure is very similar to the Primary Speaker's List.
 
-5. Motion to Move into a Moderated Caucus
+#### 5. Motion to Move into a Moderated Caucus
+
 In the "Add Motion" form, select "Move into a Moderated Caucus." 
 Once you make this selection, the form will update to include fields for duration, speaking time, and purpose.
 All fields must be filled in to submit the motion entry. 
@@ -148,9 +153,10 @@ If the delegation chooses to speak first, the delegation will be preselected in 
 If the delegation chooses to speak last, the delegation will be preselected in the add tally form for the last speech.
 Throughout the caucus, the Committee Status portion will display the number of speeches remaining in the caucus.
 
-6. Motion to Move into an Unmoderated Caucus
+#### 6. Motion to Move into an Unmoderated Caucus
+
 In the "Add Motion" form, select "Move into an Unmoderated Caucus." 
 Once you make this selection, the form will update to include fields for duration. This field must be filled in to submit.
 Once the motion passes, the end time will be displayed on the Committee Status portion.
 
-> That's all you need to know to run your committee!
+#### That's all you need to know to run your committee!
