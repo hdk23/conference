@@ -4,13 +4,30 @@ from django.http import Http404, HttpResponseRedirect
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
+from django.utils import timezone
 from .functions_read_files import read_file
 from .views_my_committee import *
 from .views_admin import *
 from .views_context import *
 from .views_pospapers import *
 from .views_writing import *
-conference = Conference.objects.get(acronym="DartMUN 2021")
+
+
+# API-Related
+# Google Calendar API
+import os
+from googleapiclient.discovery import build
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from django.core.serializers.json import DjangoJSONEncoder
+import json
+SCOPES = ['https://www.googleapis.com/auth/calendar']
+
+# Conference-Related
+CONFERENCE_ACRONYM = "DartMUN 2021"
+conference = Conference.objects.get(acronym=CONFERENCE_ACRONYM)
+
 
 # Create your views here.
 def index(request):
@@ -21,15 +38,80 @@ def index(request):
              "secretariat", "dais", "delegates"]
     simple_files = ["committees", "dais", "delegates"]
     try:
-        Conference.objects.get(acronym="DartMUN 2021")
+        Conference.objects.get(acronym=CONFERENCE_ACRONYM)
     except:
-        Conference(acronym="DartMUN 2021", name="Dartmouth Model United Nations 2021").save()
+        Conference(acronym=CONFERENCE_ACRONYM, name="Dartmouth Model United Nations 2021").save()
     # soft_reset()
     # reset_committee()
     # for file in files:
     #     read_file(file)
     context['conference'] = conference
     return render(request, 'dartmun/index.html', context)
+
+
+def call_gc_api():
+    """helper method to call the Google Calendar API, returns a constructed resource using build"""
+    creds = None
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                'credentials.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
+
+    return build('calendar', 'v3', credentials=creds)
+
+
+def add_calendar_entries(request):
+    """
+    adds calendar entries to the user's Google Calendar account using an API
+    adds an event for each conference session
+    """
+    service = call_gc_api()
+    for session in Conference.objects.get(acronym=CONFERENCE_ACRONYM).sessions.all():
+        if session.number != 0:
+            event = {
+                'summary': f'{CONFERENCE_ACRONYM} Session {session.number}',
+                'location': 'Zoom',
+                'description': 'Attend your committee session through your committee\'s Zoom Link',
+                'start': {
+                    'dateTime': session.start_time,
+                    'timeZone': 'America/New_York'
+                },
+                'end': {
+                    'dateTime': session.end_time,
+                    'timeZone': 'America/New_York'
+                },
+                'recurrence': [
+                ],
+                'attendees': [
+                ],
+                'reminders': {
+                    'useDefault': False,
+                    'overrides': [
+                        {'method': 'email', 'minutes': 24 * 60},
+                        {'method': 'popup', 'minutes': 10},
+                    ],
+                },
+            }
+            event = json.dumps(
+                event,
+                sort_keys=True,
+                indent=1,
+                cls=DjangoJSONEncoder
+            )
+            json_event = json.loads(event)
+            created_event = service.events().insert(calendarId="primary", body=json_event,
+                                                    sendNotifications=True).execute()
+            print(f"Event created: {created_event.get('htmlLink')}")
+    return HttpResponseRedirect(reverse('index'))
 
 
 def secretariat(request):
@@ -43,7 +125,7 @@ def committees(request, mode='my_committee'):
     try:
         conference = get_conference(request)
     except:
-        conference = Conference.objects.get(acronym="DartMUN 2021")
+        conference = Conference.objects.get(acronym=CONFERENCE_ACRONYM)
     context = {'mode': mode, 'organs': conference.organs.all()}
     return render(request, 'dartmun/committees.html', context)
 

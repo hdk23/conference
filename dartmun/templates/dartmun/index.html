@@ -29,6 +29,13 @@
                 </tr>
             {% endif %}
         {% endfor %}
+        <tr>
+            <td colspan="3">
+                <a href="{% url 'add_calendar_entries' %}">
+                    <button class="btn btn-primary" style="width:100%" onclick="alert('Events added to your calendar!')">Add Calendar Entries</button>
+                </a>
+            </td>
+        </tr>
     </table>
 {%  endblock %}
 

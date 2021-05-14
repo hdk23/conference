@@ -41,6 +41,7 @@ urlpatterns = [
     path('resos/add_reso', views.add_reso, name='add_reso'),
     path('resos/<int:not_enough>', views.add_reso, name='add_reso'),
     path('resos/update_participation', views.update_participation, name='update_participation'),
+    path('add_calendar_entries/', views.add_calendar_entries, name='add_calendar_entries'),
 
     # superuser URLs
     path('committees/<str:mode>', views.committees, name='committees'),
