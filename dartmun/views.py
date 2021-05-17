@@ -11,18 +11,7 @@ from .views_admin import *
 from .views_context import *
 from .views_pospapers import *
 from .views_writing import *
-
-
-# API-Related
-# Google Calendar API
-import os
-from googleapiclient.discovery import build
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from django.core.serializers.json import DjangoJSONEncoder
-import json
-SCOPES = ['https://www.googleapis.com/auth/calendar']
+from .views_api import *
 
 # Conference-Related
 CONFERENCE_ACRONYM = "DartMUN 2021"
@@ -46,72 +35,14 @@ def index(request):
     # for file in files:
     #     read_file(file)
     context['conference'] = conference
+
+    stripe.PaymentIntent.create(
+        amount=1000,
+        currency='usd',
+        payment_method_types=['card'],
+        receipt_email='kimhenry1009@gmail.com',
+    )
     return render(request, 'dartmun/index.html', context)
-
-
-def call_gc_api():
-    """helper method to call the Google Calendar API, returns a constructed resource using build"""
-    creds = None
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
-
-    return build('calendar', 'v3', credentials=creds)
-
-
-def add_calendar_entries(request):
-    """
-    adds calendar entries to the user's Google Calendar account using an API
-    adds an event for each conference session
-    """
-    service = call_gc_api()
-    for session in Conference.objects.get(acronym=CONFERENCE_ACRONYM).sessions.all():
-        if session.number != 0:
-            event = {
-                'summary': f'{CONFERENCE_ACRONYM} Session {session.number}',
-                'location': 'Zoom',
-                'description': 'Attend your committee session through your committee\'s Zoom Link',
-                'start': {
-                    'dateTime': session.start_time,
-                    'timeZone': 'America/New_York'
-                },
-                'end': {
-                    'dateTime': session.end_time,
-                    'timeZone': 'America/New_York'
-                },
-                'recurrence': [
-                ],
-                'attendees': [
-                ],
-                'reminders': {
-                    'useDefault': False,
-                    'overrides': [
-                        {'method': 'email', 'minutes': 24 * 60},
-                        {'method': 'popup', 'minutes': 10},
-                    ],
-                },
-            }
-            event = json.dumps(
-                event,
-                sort_keys=True,
-                indent=1,
-                cls=DjangoJSONEncoder
-            )
-            json_event = json.loads(event)
-            created_event = service.events().insert(calendarId="primary", body=json_event,
-                                                    sendNotifications=True).execute()
-            print(f"Event created: {created_event.get('htmlLink')}")
-    return HttpResponseRedirect(reverse('index'))
 
 
 def secretariat(request):
@@ -229,3 +160,8 @@ def admin(request, committee_acronym=None):
         taken_countries.append(delegation.country)
     context['taken_countries'] = taken_countries
     return render(request, 'dartmun/admin.html', context)
+
+
+def bio(request):
+    """loads the bio page to view the developer's brief bio"""
+    return render(request, 'dartmun/bio.html')

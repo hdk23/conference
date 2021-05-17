@@ -22,6 +22,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '1b$jt1d259j@%l)l!i9t&7%c%m-xxjrip4cs5ec)_uvykbt+n&'
+STRIPE_PUBLISHABLE_KEY = "pk_test_51InZXBFBCMNMdnJVpCz6jiBUgZlzEfqygMbPG9MEBSyRzGDbu6OD9g7QWtC06XJnzr9EUCu2OknDpPq11C3OO8nC000aDJD3zP"
+STRIPE_SECRET_KEY = "sk_test_51InZXBFBCMNMdnJVuuNVFjDyQlLw6uCWCtrpBaDzFS6ezCtaoJtGr2qdLGSZPO900czOuoM5phPwxAqcybZPGbLN00ouIQKOxc"
+STATICFILES_DIRS = [Path(BASE_DIR).joinpath('static')]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

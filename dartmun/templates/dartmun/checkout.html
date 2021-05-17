@@ -1,0 +1,34 @@
+{% extends "./layout.html" %}
+
+{% block title %}
+    Accepting Card Payment
+{% endblock %}
+
+{% block css %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'dartmun/css/checkout.css' %}">
+{% endblock %}
+
+{% block body %}
+    <h3>Submit Your Contribution</h3>
+    <form action="{% url 'create_payment' %}" method="POST" id="payment-form">
+        <b>Checkout</b>
+        <div class="row">
+            <div class="col"><p><input type="radio" value="1" name="contribution" id="contribution" required>$1</p></div>
+            <div class="col"><p><input type="radio" value="2" name="contribution">$2</p></div>
+            <div class="col"><p><input type="radio" value="5" name="contribution">$5</p></div>
+            <div class="col"><p><input type="radio" value="10" name="contribution">$10</p></div>
+        </div>
+        <div id="card-element"><!--Stripe.js injects the Card Element--></div>
+        <button id="checkout-button" type="submit" onclick="alert('Thank you for your contribution!');"> Contribute Now </button>
+        <p id="card-error" role="alert"></p>
+        <p class="result-message hidden">
+            Payment succeeded.</a> Refresh the page to pay again.
+        </p>
+    </form>
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
+    <script src="{% static 'dartmun/js/client.js' %}"></script>
+{% endblock %}

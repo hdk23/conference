@@ -1,0 +1,41 @@
+{% extends "./layout.html" %}
+
+{%  block title %}
+    Bio
+{%  endblock %}
+
+{%  block css %}
+
+{%  endblock %}
+
+{%  block body %}
+    <h2>About the Developer</h2>
+    <p style="text-align:justify">
+    Henry Kim is a student web programmer from Seoul, South Korea attending Dartmouth College ('23).
+    After enjoying his first programming class during his freshman year of high school,
+    he has pursued a major in computer science and seeks to broaden his interests into interdisciplinary fields with a computing component.
+    After taking AP Computer Science A in his junior year and Harvard Summer School's "Web Programming with Python and Javascript" course,
+    he has come to appreciate the power and art of programming and algorithmic design thinking.
+    During his senior year of high school, he has designed a "matchmaking site" for a Student Council fundraiser
+    to encourage more students to attend prom, matching students based on their responses to a questionnaire by
+    reporting a ranking of students based on their match scores. Through his four years at Dartmouth,
+    he seeks to delve deeper into upper-level computer science to solve more challenging and meaningful problems.
+
+    If you have any questions about the website or would like to contact the web developer for any reason,
+    please feel free to email <a href="mailto: hkim.23@dartmouth.edu?subject=Feedback for Model UN Web App">hkim.23@dartmouth.edu</a> for any inquiries.
+    </p>
+
+    <h4>Support Henry</h4>
+    <p style="text-align:justify">
+    If you enjoyed using this service, Henry would greatly appreciate a small contribution to be used for scaling this site up
+    and running a larger server for expedited operations. Even a dollar or two would mean the most to him!
+    </p>
+    <a href="{% url 'checkout' %}">
+        <button class="btn btn-primary">Click Here to Make Your Contribution</button>
+    </a>
+
+{%  endblock %}
+
+{%  block scripts %}
+
+{%  endblock %}

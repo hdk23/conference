@@ -29,14 +29,21 @@
                 </tr>
             {% endif %}
         {% endfor %}
-        <tr>
-            <td colspan="3">
-                <a href="{% url 'add_calendar_entries' %}">
-                    <button class="btn btn-primary" style="width:100%" onclick="alert('Events added to your calendar!')">Add Calendar Entries</button>
-                </a>
-            </td>
-        </tr>
-    </table>
+        {% if request.user.username %}
+            <tr>
+                <td colspan="3">
+                    <a href="{% url 'add_calendar_entries' %}">
+                        <button class="btn btn-primary" style="width:100%" onclick="alert('Events added to your calendar!')">Add Calendar Entries</button>
+                    </a>
+                </td>
+            </tr>
+        {% endif %}
+    </table><br>
+
+    <h3>About the Website</h3>
+    <a href="{% url 'bio' %}">
+        <button class="btn btn-primary">Click here to read about the website/developer!</button>
+    </a>
 {%  endblock %}
 
 {%  block scripts %}
